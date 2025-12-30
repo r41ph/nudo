@@ -1,0 +1,16 @@
+{
+  "name": "writing-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:web": "pnpm --filter @writing-app/web dev",
+    "dev:api": "pnpm --filter @writing-app/api dev",
+    "dev": "pnpm --parallel --filter './apps/*' dev",
+    "storybook": "pnpm --filter @writing-app/ui storybook"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.26.1"
+}
