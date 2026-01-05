@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    /* Base TypeScript options shared across all packages */
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "module": "esnext",
+    "moduleResolution": "bundler"
+  }
+}

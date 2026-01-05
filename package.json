@@ -7,10 +7,25 @@
     "dev:web": "pnpm --filter @writing-app/web dev",
     "dev:api": "pnpm --filter @writing-app/api dev",
     "dev": "pnpm --parallel --filter './apps/*' dev",
-    "storybook": "pnpm --filter @writing-app/ui storybook"
+    "storybook": "pnpm --filter @writing-app/ui storybook",
+    "lint": "pnpm --filter './apps/*' lint && pnpm --filter './packages/*' lint"
+    
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.26.1"
+  "packageManager": "pnpm@10.26.1",
+  "devDependencies": {
+    "@eslint/css": "^0.14.1",
+    "@eslint/js": "^9.39.2",
+    "@eslint/json": "^0.14.0",
+    "@eslint/markdown": "^7.5.1",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.5.0",
+    "jiti": "^2.6.1",
+    "prettier": "^3.7.4",
+    "typescript-eslint": "^8.50.1"
+  }
 }
