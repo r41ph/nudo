@@ -1,4 +1,9 @@
 import tailwindcss from '@tailwindcss/vite';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /** @type { import('@storybook/react-vite').StorybookConfig } */
 const config = {
@@ -17,6 +22,14 @@ const config = {
   async viteFinal(config) {
     config.plugins = config.plugins || [];
     config.plugins.push(tailwindcss());
+
+    // Add path alias resolution
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': resolve(__dirname, '../src'),
+    };
+
     return config;
   },
 };

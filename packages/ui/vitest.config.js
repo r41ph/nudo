@@ -27,6 +27,11 @@ export default defineConfig({
           // Tailwind CSS support
           tailwindcss(),
         ],
+        resolve: {
+          alias: {
+            '@': path.resolve(__dirname, './src'),
+          },
+        },
         test: {
           name: 'storybook',
           browser: {
