@@ -1,0 +1,137 @@
+import { normalizeNodeId } from 'platejs';
+import { Plate, usePlateEditor } from 'platejs/react';
+
+import { BasicNodesKit } from '@/components/editor/plugins/basic-nodes-kit';
+import { CommentToolbarButton } from '@/components/ui/comment-toolbar-button';
+import { Editor, EditorContainer } from '@/components/ui/editor';
+import { FloatingToolbar } from '@/components/ui/floating-toolbar';
+import { MarkToolbarButton } from '@/components/ui/mark-toolbar-button';
+import { SuggestionToolbarButton } from '@/components/ui/suggestion-toolbar-button';
+import { ToolbarGroup, ToolbarButton } from '@/components/ui/toolbar';
+import { SuggestionKit } from '@/components/editor/plugins/suggestion-kit';
+import { FixedToolbar } from '../ui/fixed-toolbar';
+import {
+  Quote,
+  Heading3Icon,
+  Heading1Icon,
+  Heading2Icon,
+  UnderlineIcon,
+  BoldIcon,
+  ItalicIcon,
+  StrikethroughIcon,
+} from 'lucide-react';
+import { TurnIntoToolbarButton } from '@/components/ui/turn-into-toolbar-button';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Tools = ({ editor }: any) => (
+  <>
+    <ToolbarGroup>
+      <TurnIntoToolbarButton />
+      {/* <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
+        <BoldIcon />
+      </MarkToolbarButton>
+      <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
+        <ItalicIcon />
+      </MarkToolbarButton>
+      <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
+        <UnderlineIcon />
+      </MarkToolbarButton>
+      <MarkToolbarButton
+        nodeType="strikethrough"
+        tooltip="Strikethrough (⌘+Shift+X)"
+      >
+        <StrikethroughIcon />
+      </MarkToolbarButton>
+      <ToolbarButton onClick={() => editor.tf.h1.toggle()} tooltip="Heading H1">
+        <Heading1Icon />
+      </ToolbarButton>
+      <ToolbarButton onClick={() => editor.tf.h2.toggle()} tooltip="Heading H2">
+        <Heading2Icon />
+      </ToolbarButton>
+      <ToolbarButton onClick={() => editor.tf.h3.toggle()} tooltip="Heading H3">
+        <Heading3Icon />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.tf.blockquote.toggle()}
+        tooltip="Blockquote"
+      >
+        <Quote />
+      </ToolbarButton> */}
+    </ToolbarGroup>
+    <ToolbarGroup>
+      <CommentToolbarButton />
+      <SuggestionToolbarButton />
+    </ToolbarGroup>
+  </>
+);
+
+export function PlateEditor() {
+  const editor = usePlateEditor({
+    plugins: [...BasicNodesKit, ...SuggestionKit],
+    value,
+  });
+
+  return (
+    <div className="border rounded-sm border-gray-300">
+      <Plate editor={editor}>
+        <FloatingToolbar>
+          <Tools editor={editor} />
+        </FloatingToolbar>
+        <FixedToolbar className="border-b border-gray-300 bg-gray-100 px-2">
+          <Tools editor={editor} />
+        </FixedToolbar>
+
+        <EditorContainer variant="default">
+          <Editor variant="fullWidth" placeholder="Type..." />
+        </EditorContainer>
+      </Plate>
+    </div>
+  );
+}
+
+const value = normalizeNodeId([
+  {
+    children: [{ text: 'Basic Editor' }],
+    type: 'h1',
+  },
+  {
+    children: [{ text: 'Heading 2' }],
+    type: 'h2',
+  },
+  {
+    children: [{ text: 'Heading 3' }],
+    type: 'h3',
+  },
+  {
+    children: [{ text: 'This is a blockquote element' }],
+    type: 'blockquote',
+  },
+  {
+    children: [
+      { text: 'Basic marks: ' },
+      { bold: true, text: 'bold' },
+      { text: ', ' },
+      { italic: true, text: 'italic' },
+      { text: ', ' },
+      { text: 'underline', underline: true },
+      { text: ', ' },
+      { strikethrough: true, text: 'strikethrough' },
+      {
+        text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,',
+      },
+      {
+        text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,',
+      },
+      {
+        text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,',
+      },
+      {
+        text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,',
+      },
+      {
+        text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,',
+      },
+    ],
+    type: 'p',
+  },
+]);
