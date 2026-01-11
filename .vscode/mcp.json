@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "plate": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
