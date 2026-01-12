@@ -28,7 +28,7 @@ import { TurnIntoToolbarButton } from '@/components/ui/turn-into-toolbar-button'
 import { FontSizeToolbarButton } from '@/components/ui/font-size-toolbar-button';
 import { FontColorToolbarButton } from '@/components/ui/font-color-toolbar-button';
 
-export function MainTextEditor() {
+export function PlateEditor() {
   const editor = usePlateEditor({
     plugins: [...BasicNodesKit, ...SuggestionKit, ...AlignKit, ...FontKit],
     value,
@@ -88,6 +88,9 @@ export function MainTextEditor() {
           <ToolbarGroup>
             <CommentToolbarButton />
             <SuggestionToolbarButton />
+          </ToolbarGroup>
+          <ToolbarGroup>
+            <button onClick={() => console.log('Settings clicked')}>⚙️</button>
           </ToolbarGroup>
         </FixedToolbar>
 

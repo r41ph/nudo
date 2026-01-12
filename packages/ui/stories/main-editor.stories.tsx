@@ -1,11 +1,11 @@
 import { fn } from 'storybook/test';
 
-import { RichTextEditor } from '@/components/RichTextEditor/RichTextEditor';
+import { MainEditor } from '@/components/main-editor/main-editor';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 export default {
   title: 'RichTextEditor',
-  component: RichTextEditor,
+  component: MainEditor,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
