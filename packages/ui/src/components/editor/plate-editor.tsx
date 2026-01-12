@@ -1,17 +1,17 @@
 import { normalizeNodeId, type Value } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
 
-import { AlignKit } from '@/components/editor/plugins/align-kit';
-import { FontKit } from '@/components/editor/plugins/font-kit';
-import { AlignToolbarButton } from '@/components/ui/align-toolbar-button';
-import { BasicNodesKit } from '@/components/editor/plugins/basic-nodes-kit';
-import { SuggestionKit } from '@/components/editor/plugins/suggestion-kit';
-import { CommentToolbarButton } from '@/components/ui/comment-toolbar-button';
-import { Editor, EditorContainer } from '@/components/ui/editor';
-import { FloatingToolbar } from '@/components/ui/floating-toolbar';
-import { MarkToolbarButton } from '@/components/ui/mark-toolbar-button';
-import { SuggestionToolbarButton } from '@/components/ui/suggestion-toolbar-button';
-import { ToolbarButton, ToolbarGroup } from '@/components/ui/toolbar';
+import { AlignKit } from '@ui/components/editor/plugins/align-kit';
+import { FontKit } from '@ui/components/editor/plugins/font-kit';
+import { AlignToolbarButton } from '@ui/components/ui/align-toolbar-button';
+import { BasicNodesKit } from '@ui/components/editor/plugins/basic-nodes-kit';
+import { SuggestionKit } from '@ui/components/editor/plugins/suggestion-kit';
+import { CommentToolbarButton } from '@ui/components/ui/comment-toolbar-button';
+import { Editor, EditorContainer } from '@ui/components/ui/editor';
+import { FloatingToolbar } from '@ui/components/ui/floating-toolbar';
+import { MarkToolbarButton } from '@ui/components/ui/mark-toolbar-button';
+import { SuggestionToolbarButton } from '@ui/components/ui/suggestion-toolbar-button';
+import { ToolbarButton, ToolbarGroup } from '@ui/components/ui/toolbar';
 import {
   BoldIcon,
   ItalicIcon,
@@ -24,9 +24,9 @@ import {
   BaselineIcon,
 } from 'lucide-react';
 import { FixedToolbar } from '../ui/fixed-toolbar';
-import { TurnIntoToolbarButton } from '@/components/ui/turn-into-toolbar-button';
-import { FontSizeToolbarButton } from '@/components/ui/font-size-toolbar-button';
-import { FontColorToolbarButton } from '@/components/ui/font-color-toolbar-button';
+import { TurnIntoToolbarButton } from '@ui/components/ui/turn-into-toolbar-button';
+import { FontSizeToolbarButton } from '@ui/components/ui/font-size-toolbar-button';
+import { FontColorToolbarButton } from '@ui/components/ui/font-color-toolbar-button';
 
 export function PlateEditor() {
   const editor = usePlateEditor({

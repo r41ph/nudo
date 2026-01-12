@@ -29,21 +29,21 @@ import {
   usePluginOption,
 } from 'platejs/react';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@ui/components/ui/avatar';
+import { Button } from '@ui/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import { BasicMarksKit } from '@/components/editor/plugins/basic-marks-kit';
+} from '@ui/components/ui/dropdown-menu';
+import { cn } from '@ui/lib/utils';
+import { BasicMarksKit } from '@ui/components/editor/plugins/basic-marks-kit';
 import {
   type TDiscussion,
   discussionPlugin,
-} from '@/components/editor/plugins/discussion-kit';
+} from '@ui/components/editor/plugins/discussion-kit';
 
 import { Editor, EditorContainer } from './editor';
 

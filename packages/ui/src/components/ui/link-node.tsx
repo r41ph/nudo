@@ -9,7 +9,7 @@ import { getLinkAttributes } from '@platejs/link';
 import { SuggestionPlugin } from '@platejs/suggestion/react';
 import { PlateElement } from 'platejs/react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@ui/lib/utils';
 
 export function LinkElement(props: PlateElementProps<TLinkElement>) {
   const suggestionData = props.editor

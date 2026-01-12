@@ -20,7 +20,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@ui/components/ui/dropdown-menu';
 
 import { ToolbarButton } from './toolbar';
 

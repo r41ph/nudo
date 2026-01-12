@@ -27,7 +27,7 @@ const config = {
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': resolve(__dirname, '../src'),
+      '@ui': resolve(__dirname, '../src'),
     };
 
     return config;

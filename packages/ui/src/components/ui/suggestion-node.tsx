@@ -9,11 +9,11 @@ import { cva } from 'class-variance-authority';
 import { CornerDownLeftIcon } from 'lucide-react';
 import { PlateLeaf, useEditorPlugin, usePluginOption } from 'platejs/react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@ui/lib/utils';
 import {
   type SuggestionConfig,
   suggestionPlugin,
-} from '@/components/editor/plugins/suggestion-kit';
+} from '@ui/components/editor/plugins/suggestion-kit';
 
 const suggestionVariants = cva(
   cn(

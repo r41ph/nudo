@@ -11,10 +11,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
-import { Tooltip, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
+} from '@ui/components/ui/dropdown-menu';
+import { Separator } from '@ui/components/ui/separator';
+import { Tooltip, TooltipTrigger } from '@ui/components/ui/tooltip';
+import { cn } from '@ui/lib/utils';
 
 export function Toolbar({
   className,
