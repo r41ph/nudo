@@ -81,7 +81,7 @@ export function MainTextEditor() {
             </ToolbarButton>
             <TurnIntoToolbarButton /> {/* Headings h1-h6 */}
             <AlignToolbarButton />
-            <FontColorToolbarButton nodeType="fontColor" tooltip="Font Color">
+            <FontColorToolbarButton nodeType="color" tooltip="Font Color">
               <BaselineIcon />
             </FontColorToolbarButton>
           </ToolbarGroup>
