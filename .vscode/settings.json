@@ -4,8 +4,18 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.workingDirectories": ["."],
+  "eslint.workingDirectories": [
+    { "pattern": "./apps/*" },
+    { "pattern": "./packages/*" }
+  ],
   "eslint.options": {
     "overrideConfigFile": "eslint.config.mts"
-  }
+  },
+  // Validate only specific file types to avoid unnecessary processing
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ]
 }

@@ -8,8 +8,8 @@
     "dev:api": "pnpm --filter @writing-app/api dev",
     "dev": "pnpm --parallel --filter './apps/*' dev",
     "storybook": "pnpm --filter @writing-app/ui storybook",
-    "lint": "pnpm --filter './apps/*' lint && pnpm --filter './packages/*' lint"
-    
+    "lint": "eslint .",
+    "lint:workspaces": "pnpm --filter './apps/*' lint && pnpm --filter './packages/*' lint"
   },
   "keywords": [],
   "author": "",
