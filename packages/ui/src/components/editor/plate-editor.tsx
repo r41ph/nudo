@@ -1,84 +1,94 @@
-import { normalizeNodeId } from 'platejs';
+import { normalizeNodeId, type Value } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
 
+import { AlignKit } from '@/components/editor/plugins/align-kit';
+import { FontKit } from '@/components/editor/plugins/font-kit';
+import { AlignToolbarButton } from '@/components/ui/align-toolbar-button';
 import { BasicNodesKit } from '@/components/editor/plugins/basic-nodes-kit';
+import { SuggestionKit } from '@/components/editor/plugins/suggestion-kit';
 import { CommentToolbarButton } from '@/components/ui/comment-toolbar-button';
 import { Editor, EditorContainer } from '@/components/ui/editor';
 import { FloatingToolbar } from '@/components/ui/floating-toolbar';
 import { MarkToolbarButton } from '@/components/ui/mark-toolbar-button';
 import { SuggestionToolbarButton } from '@/components/ui/suggestion-toolbar-button';
-import { ToolbarGroup, ToolbarButton } from '@/components/ui/toolbar';
-import { SuggestionKit } from '@/components/editor/plugins/suggestion-kit';
-import { FixedToolbar } from '../ui/fixed-toolbar';
+import { ToolbarButton, ToolbarGroup } from '@/components/ui/toolbar';
 import {
-  Quote,
-  Heading3Icon,
-  Heading1Icon,
-  Heading2Icon,
-  UnderlineIcon,
   BoldIcon,
   ItalicIcon,
+  Quote,
   StrikethroughIcon,
+  PilcrowIcon,
+  UnderlineIcon,
+  CodeIcon,
+  HighlighterIcon,
+  BaselineIcon,
 } from 'lucide-react';
+import { FixedToolbar } from '../ui/fixed-toolbar';
 import { TurnIntoToolbarButton } from '@/components/ui/turn-into-toolbar-button';
+import { FontSizeToolbarButton } from '@/components/ui/font-size-toolbar-button';
+import { FontColorToolbarButton } from '@/components/ui/font-color-toolbar-button';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Tools = ({ editor }: any) => (
-  <>
-    <ToolbarGroup>
-      <TurnIntoToolbarButton />
-      {/* <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
-        <BoldIcon />
-      </MarkToolbarButton>
-      <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
-        <ItalicIcon />
-      </MarkToolbarButton>
-      <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
-        <UnderlineIcon />
-      </MarkToolbarButton>
-      <MarkToolbarButton
-        nodeType="strikethrough"
-        tooltip="Strikethrough (⌘+Shift+X)"
-      >
-        <StrikethroughIcon />
-      </MarkToolbarButton>
-      <ToolbarButton onClick={() => editor.tf.h1.toggle()} tooltip="Heading H1">
-        <Heading1Icon />
-      </ToolbarButton>
-      <ToolbarButton onClick={() => editor.tf.h2.toggle()} tooltip="Heading H2">
-        <Heading2Icon />
-      </ToolbarButton>
-      <ToolbarButton onClick={() => editor.tf.h3.toggle()} tooltip="Heading H3">
-        <Heading3Icon />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.tf.blockquote.toggle()}
-        tooltip="Blockquote"
-      >
-        <Quote />
-      </ToolbarButton> */}
-    </ToolbarGroup>
-    <ToolbarGroup>
-      <CommentToolbarButton />
-      <SuggestionToolbarButton />
-    </ToolbarGroup>
-  </>
-);
-
-export function PlateEditor() {
+export function MainTextEditor() {
   const editor = usePlateEditor({
-    plugins: [...BasicNodesKit, ...SuggestionKit],
+    plugins: [...BasicNodesKit, ...SuggestionKit, ...AlignKit, ...FontKit],
     value,
   });
 
   return (
     <div className="border rounded-sm border-gray-300">
       <Plate editor={editor}>
-        <FloatingToolbar>
+        {/* <FloatingToolbar>
           <Tools editor={editor} />
-        </FloatingToolbar>
+        </FloatingToolbar> */}
         <FixedToolbar className="border-b border-gray-300 bg-gray-100 px-2">
-          <Tools editor={editor} />
+          <ToolbarGroup>
+            <FontSizeToolbarButton />
+            <MarkToolbarButton nodeType="pilcrow" tooltip="Text (Ctrl+Alt+0)">
+              <PilcrowIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
+              <BoldIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
+              <ItalicIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
+              <UnderlineIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton
+              nodeType="strikethrough"
+              tooltip="Strikethrough (⌘+Shift+X)"
+            >
+              <StrikethroughIcon />
+            </MarkToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.tf.blockquote.toggle()}
+              tooltip="Blockquote (⌘+Shift+>)"
+            >
+              <Quote />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.tf.code.toggle()}
+              tooltip="Code Block (Ctrl+E)"
+            >
+              <CodeIcon />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.tf.highlight.toggle()}
+              tooltip="Highlight (Ctrl+Shift+H)"
+            >
+              <HighlighterIcon />
+            </ToolbarButton>
+            <TurnIntoToolbarButton /> {/* Headings h1-h6 */}
+            <AlignToolbarButton />
+            <FontColorToolbarButton nodeType="fontColor" tooltip="Font Color">
+              <BaselineIcon />
+            </FontColorToolbarButton>
+          </ToolbarGroup>
+          <ToolbarGroup>
+            <CommentToolbarButton />
+            <SuggestionToolbarButton />
+          </ToolbarGroup>
         </FixedToolbar>
 
         <EditorContainer variant="default">
