@@ -1,1 +1,5 @@
-@import 'tailwindcss';
+@import '@ui/tailwind.css';
+
+/* Tell Tailwind to also scan the UI package for class names */
+/* Note: @source uses Node's fs directly, not Vite's resolver, so aliases like '@ui/' don't work */
+@source '../../../packages/ui/src';
