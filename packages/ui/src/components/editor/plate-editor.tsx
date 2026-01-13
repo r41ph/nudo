@@ -1,4 +1,4 @@
-import { normalizeNodeId, type Value } from 'platejs';
+import { normalizeNodeId } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
 
 import { AlignKit } from '@ui/components/editor/plugins/align-kit';
@@ -22,22 +22,35 @@ import {
   CodeIcon,
   HighlighterIcon,
   BaselineIcon,
+  Settings2Icon,
 } from 'lucide-react';
 import { FixedToolbar } from '../ui/fixed-toolbar';
 import { TurnIntoToolbarButton } from '@ui/components/ui/turn-into-toolbar-button';
 import { FontSizeToolbarButton } from '@ui/components/ui/font-size-toolbar-button';
 import { FontColorToolbarButton } from '@ui/components/ui/font-color-toolbar-button';
+import { EditorToolbarCustomButton } from '../editor-toolbar-custom-button/editor-toolbar-custom-button';
 
 export function PlateEditor() {
   const editor = usePlateEditor({
     plugins: [...BasicNodesKit, ...SuggestionKit, ...AlignKit, ...FontKit],
-    value,
+    value: async () => {
+      // fetching data from an API
+      // const response = await fetch('/api/document');
+      // const data = await response.json();
+      // return data.content;
+      return value;
+    },
   });
 
   return (
     <div className="border rounded-sm border-gray-300">
-      <Plate editor={editor}>
-        {/* <FloatingToolbar>
+      <Plate
+        editor={editor}
+        onChange={(value) => {
+          console.log('value:', value);
+        }}
+      >
+        {/* <FloatingToolbar> \
           <Tools editor={editor} />
         </FloatingToolbar> */}
         <FixedToolbar className="border-b border-gray-300 bg-gray-100 px-2">
@@ -84,13 +97,14 @@ export function PlateEditor() {
             <FontColorToolbarButton nodeType="color" tooltip="Font Color">
               <BaselineIcon />
             </FontColorToolbarButton>
-          </ToolbarGroup>
-          <ToolbarGroup>
             <CommentToolbarButton />
             <SuggestionToolbarButton />
           </ToolbarGroup>
           <ToolbarGroup>
-            <button onClick={() => console.log('Settings clicked')}>⚙️</button>
+            <EditorToolbarCustomButton
+              icon={Settings2Icon}
+              tooltip="Edit toolbar settings"
+            />
           </ToolbarGroup>
         </FixedToolbar>
 
