@@ -43,17 +43,17 @@ export function PlateEditor() {
   });
 
   return (
-    <div className="border rounded-sm border-gray-300">
+    <div className="border border-gray-300 shadow-lg">
       <Plate
         editor={editor}
         onChange={(value) => {
           console.log('value:', value);
         }}
       >
-        {/* <FloatingToolbar> \
-          <Tools editor={editor} />
-        </FloatingToolbar> */}
-        <FixedToolbar className="border-b border-gray-300 bg-gray-100 px-2">
+        <FloatingToolbar
+          placement="bottom"
+          className="border-b border-gray-300 px-2"
+        >
           <ToolbarGroup>
             <FontSizeToolbarButton />
             <MarkToolbarButton nodeType="pilcrow" tooltip="Text (Ctrl+Alt+0)">
@@ -103,13 +103,67 @@ export function PlateEditor() {
           <ToolbarGroup>
             <EditorToolbarCustomButton
               icon={Settings2Icon}
+              tooltip="Edit Toolbar"
+            />
+          </ToolbarGroup>
+        </FloatingToolbar>
+        {/* <FixedToolbar className="border-b border-gray-300 px-2">
+          <ToolbarGroup>
+            <FontSizeToolbarButton />
+            <MarkToolbarButton nodeType="pilcrow" tooltip="Text (Ctrl+Alt+0)">
+              <PilcrowIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
+              <BoldIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
+              <ItalicIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
+              <UnderlineIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton
+              nodeType="strikethrough"
+              tooltip="Strikethrough (⌘+Shift+X)"
+            >
+              <StrikethroughIcon />
+            </MarkToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.tf.blockquote.toggle()}
+              tooltip="Blockquote (⌘+Shift+>)"
+            >
+              <Quote />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.tf.code.toggle()}
+              tooltip="Code Block (Ctrl+E)"
+            >
+              <CodeIcon />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.tf.highlight.toggle()}
+              tooltip="Highlight (Ctrl+Shift+H)"
+            >
+              <HighlighterIcon />
+            </ToolbarButton>
+            <TurnIntoToolbarButton /> {/* Headings h1-h6 */}
+        {/*<AlignToolbarButton />
+            <FontColorToolbarButton nodeType="color" tooltip="Font Color">
+              <BaselineIcon />
+            </FontColorToolbarButton>
+            <CommentToolbarButton />
+            <SuggestionToolbarButton />
+          </ToolbarGroup>
+          <ToolbarGroup>
+            <EditorToolbarCustomButton
+              icon={Settings2Icon}
               tooltip="Edit toolbar settings"
             />
           </ToolbarGroup>
-        </FixedToolbar>
+        </FixedToolbar> */}
 
         <EditorContainer variant="default">
-          <Editor variant="fullWidth" placeholder="Type..." />
+          <Editor variant="default" placeholder="Type..." />
         </EditorContainer>
       </Plate>
     </div>

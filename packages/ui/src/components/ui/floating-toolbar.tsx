@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import {
   type FloatingToolbarState,
+  type Placement,
   flip,
   offset,
   useFloatingToolbar,
@@ -25,9 +26,11 @@ export function FloatingToolbar({
   children,
   className,
   state,
+  placement = 'top',
   ...props
 }: React.ComponentProps<typeof Toolbar> & {
   state?: FloatingToolbarState;
+  placement?: Placement;
 }) {
   const editorId = useEditorId();
   const focusedEditorId = useEventEditorValue('focus');
@@ -52,7 +55,7 @@ export function FloatingToolbar({
           padding: 12,
         }),
       ],
-      placement: 'top',
+      placement,
       ...state?.floatingOptions,
     },
   });
