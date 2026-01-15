@@ -1,15 +1,26 @@
 import { ToolbarButton } from '@ui/components/ui/toolbar';
 import { useEditorRef } from 'platejs/react';
 
-type EditorToolbarCustomButtonProps =
-  | { icon: React.ElementType; text?: string; tooltip?: string }
-  | { icon?: React.ElementType; text: string; tooltip?: string };
+type ToolbarCustomButtonProps =
+  | {
+      icon: React.ElementType;
+      text?: string;
+      tooltip?: string;
+      onClick?: () => void;
+    }
+  | {
+      icon?: React.ElementType;
+      text: string;
+      tooltip?: string;
+      onClick?: () => void;
+    };
 
-export function EditorToolbarCustomButton({
+export function ToolbarCustomButton({
   icon: Icon,
   text,
   tooltip = 'Settings',
-}: EditorToolbarCustomButtonProps) {
+  onClick,
+}: ToolbarCustomButtonProps) {
   const editor = useEditorRef();
 
   return (
@@ -18,6 +29,9 @@ export function EditorToolbarCustomButton({
       onClick={() => {
         // Your custom logic here
         console.log('Custom button clicked', editor);
+        if (onClick) {
+          onClick();
+        }
       }}
     >
       {Icon && <Icon />}
