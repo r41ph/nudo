@@ -17,7 +17,8 @@ import {
 } from '@ui/components/ui/popover';
 import { cn } from '@ui/lib/utils';
 
-import { ToolbarButton } from './toolbar';
+import { ToolbarButton } from '../ui/toolbar';
+import { Icon } from '../icon/icon';
 
 const DEFAULT_FONT_SIZE = '16';
 
@@ -94,7 +95,7 @@ export function FontSizeToolbarButton() {
   return (
     <div className="flex h-7 items-center gap-1 rounded-md bg-muted/60 p-0">
       <ToolbarButton onClick={() => handleFontSizeChange(-1)}>
-        <Minus />
+        <Icon name="minus" />
       </ToolbarButton>
 
       <Popover open={isFocused} modal={false}>
@@ -147,7 +148,7 @@ export function FontSizeToolbarButton() {
       </Popover>
 
       <ToolbarButton onClick={() => handleFontSizeChange(1)}>
-        <Plus />
+        <Icon name="plus" />
       </ToolbarButton>
     </div>
   );
