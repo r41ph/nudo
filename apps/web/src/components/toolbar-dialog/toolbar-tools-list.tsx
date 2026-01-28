@@ -26,13 +26,16 @@ export function ToolbarToolsList({
         >
           <Icon name={tool.name as IconName} className="my-auto" />
           <Switch
+            className="hover:cursor-pointer"
             id={tool.name}
             name={tool.name}
             value={tool.name}
             defaultChecked={tool.enabled}
             onCheckedChange={(checked) => onToggleTool(tool.name, checked)}
           />
-          <Label htmlFor={tool.name}>{tool.label}</Label>
+          <Label htmlFor={tool.name} className="hover:cursor-pointer">
+            {tool.label}
+          </Label>
         </div>
       ))}
     </div>
