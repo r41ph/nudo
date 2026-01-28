@@ -12,6 +12,7 @@
   "dependencies": {
     "@writing-app/ui": "workspace:*",
     "jotai": "^2.16.2",
+    "platejs": "^52.0.17",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
