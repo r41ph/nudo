@@ -10,7 +10,7 @@ interface ToolbarPreviewProps {
 
 export function ToolbarPreview({ enabledTools }: ToolbarPreviewProps) {
   return (
-    <div className="toolbar-preview flex justify-start gap-4 my-4 p-2 border border-border rounded-md shrink-0">
+    <div className="toolbar-preview flex justify-start gap-4 my-4 p-2 border border-border rounded-md shrink-0 shadow-md">
       {Object.keys(TOOLBAR_TOOLS)
         .filter((toolName) => enabledTools.includes(toolName))
         .map((toolName) => {
