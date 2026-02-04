@@ -1,5 +1,6 @@
 import { normalizeNodeId } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
+import type { ReactNode } from 'react';
 
 import { AlignKit } from '@ui/components/editor/plugins/align-kit';
 import { FontKit } from '@ui/components/editor/plugins/font-kit';
@@ -24,7 +25,7 @@ import {
   BaselineIcon,
   Settings2Icon,
 } from 'lucide-react';
-import { FixedToolbar } from '../ui/fixed-toolbar';
+// import { FixedToolbar } from '../ui/fixed-toolbar';
 import { TurnIntoToolbarButton } from '@ui/components/ui/turn-into-toolbar-button';
 import { FontSizeToolbarButton } from '@ui/components/editor/font-size-toolbar-button';
 import { FontColorToolbarButton } from '@ui/components/editor/font-color-toolbar-button';
@@ -33,9 +34,13 @@ import { ToolbarCustomButton } from '../toolbar-custom-button/toolbar-custom-but
 export function PlateEditor({
   handleEditToolbarDialog,
   enabledTools,
+  isDialogOpen,
+  children,
 }: {
   handleEditToolbarDialog: () => void;
   enabledTools: string[];
+  isDialogOpen?: boolean;
+  children?: ReactNode;
 }) {
   const editor = usePlateEditor({
     plugins: [...BasicNodesKit, ...SuggestionKit, ...AlignKit, ...FontKit],
@@ -57,11 +62,18 @@ export function PlateEditor({
         onChange={(value) => {
           // console.log('value:', value);
         }}
+        onSelectionChange={(s) => {
+          console.log('🚀 ~ :65 ~ PlateEditor ~ s:', s);
+        }}
       >
         <FloatingToolbar
           // placement="bottom"
           className="border-b border-gray-300 px-2"
+          state={{
+            isDialogOpen: !!isDialogOpen,
+          }}
         >
+          {/* Toolbar tools */}
           <ToolbarGroup>
             {isEnabled('fontSize') && <FontSizeToolbarButton />}
             {isEnabled('paragraph') && (
@@ -118,14 +130,15 @@ export function PlateEditor({
             )}
             {isEnabled('headings') && <TurnIntoToolbarButton />}
             {isEnabled('textAlignment') && <AlignToolbarButton />}
-            {/* {isEnabled('fontColor') && (
-            )} */}
-            <FontColorToolbarButton nodeType="color" tooltip="Font Color">
-              <BaselineIcon />
-            </FontColorToolbarButton>
+            {isEnabled('fontColor') && (
+              <FontColorToolbarButton nodeType="color" tooltip="Font Color">
+                <BaselineIcon />
+              </FontColorToolbarButton>
+            )}
             {isEnabled('comments') && <CommentToolbarButton />}
             {isEnabled('suggestions') && <SuggestionToolbarButton />}
           </ToolbarGroup>
+          {/* Toolbar edit */}
           <ToolbarGroup>
             <ToolbarCustomButton
               icon={Settings2Icon}
@@ -134,64 +147,13 @@ export function PlateEditor({
             />
           </ToolbarGroup>
         </FloatingToolbar>
-        {/* <FixedToolbar className="border-b border-gray-300 px-2">
-          <ToolbarGroup>
-            <FontSizeToolbarButton />
-            <MarkToolbarButton nodeType="pilcrow" tooltip="Text (Ctrl+Alt+0)">
-              <PilcrowIcon />
-            </MarkToolbarButton>
-            <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
-              <BoldIcon />
-            </MarkToolbarButton>
-            <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
-              <ItalicIcon />
-            </MarkToolbarButton>
-            <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
-              <UnderlineIcon />
-            </MarkToolbarButton>
-            <MarkToolbarButton
-              nodeType="strikethrough"
-              tooltip="Strikethrough (⌘+Shift+X)"
-            >
-              <StrikethroughIcon />
-            </MarkToolbarButton>
-            <ToolbarButton
-              onClick={() => editor.tf.blockquote.toggle()}
-              tooltip="Blockquote (⌘+Shift+>)"
-            >
-              <Quote />
-            </ToolbarButton>
-            <ToolbarButton
-              onClick={() => editor.tf.code.toggle()}
-              tooltip="Code Block (Ctrl+E)"
-            >
-              <CodeIcon />
-            </ToolbarButton>
-            <ToolbarButton
-              onClick={() => editor.tf.highlight.toggle()}
-              tooltip="Highlight (Ctrl+Shift+H)"
-            >
-              <HighlighterIcon />
-            </ToolbarButton>
-            <TurnIntoToolbarButton /> {/* Headings h1-h6 */}
-        {/*<AlignToolbarButton />
-            <FontColorToolbarButton nodeType="color" tooltip="Font Color">
-              <BaselineIcon />
-            </FontColorToolbarButton>
-            <CommentToolbarButton />
-            <SuggestionToolbarButton />
-          </ToolbarGroup>
-          <ToolbarGroup>
-            <EditorToolbarCustomButton
-              icon={Settings2Icon}
-              tooltip="Edit toolbar settings"
-            />
-          </ToolbarGroup>
-        </FixedToolbar> */}
+
+        {/* TO-DO: <FixedToolbar className="border-b border-gray-300 px-2"></FixedToolbar> */}
 
         <EditorContainer variant="default">
           <Editor variant="default" placeholder="Type..." />
         </EditorContainer>
+        {children}
       </Plate>
     </div>
   );
