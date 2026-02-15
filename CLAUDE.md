@@ -23,11 +23,13 @@ Requires Node 20 (see `.nvmrc`).
 ## Architecture
 
 This is a pnpm monorepo with:
+
 - `apps/web` - Vite + React 19 frontend using Plate.js rich text editor
 - `apps/api` - Backend API (stub — no source code yet)
 - `packages/ui` - Shared component library with Storybook
 
 ### Key Technologies
+
 - **Editor**: Plate.js (`platejs`) - Rich text editor built on Slate
 - **Styling**: Tailwind CSS v4 (CSS-based config via `@tailwindcss/vite`, no tailwind.config.js)
 - **State**: Jotai atoms for global state
@@ -35,6 +37,7 @@ This is a pnpm monorepo with:
 - **Testing**: Vitest + Playwright (configured in packages/ui, integrated with Storybook)
 
 ### Web App Structure (`apps/web/src`)
+
 - Path alias: `@web` → `./src`
 - `components/` - App-specific components (`app-sidebar/`, `layout/`, `toolbar-dialog/`, `tools-sidebar/`)
 - `state/` - Jotai atoms: `dialogAtom` (active dialog state), `enabledToolsAtom` (toolbar tool toggles, default: `['bold', 'italic']`)
@@ -43,6 +46,7 @@ This is a pnpm monorepo with:
 - `components.json` - shadcn/ui configuration
 
 ### UI Package Structure (`packages/ui/src`)
+
 - Path alias: `@ui` → `../../packages/ui/src`
 - `components/ui/` - Reusable UI primitives (button, dialog, toolbar, etc.)
 - `components/editor/` - Plate.js editor and toolbar buttons
@@ -51,12 +55,15 @@ This is a pnpm monorepo with:
 - `lib/utils.ts` - Shared utilities
 
 ### Editor Architecture
+
 The `PlateEditor` component (`packages/ui/src/components/editor/plate-editor.tsx`) is the core editor:
+
 - Combines multiple plugin kits: `BasicNodesKit`, `SuggestionKit`, `AlignKit`, `FontKit`
 - FloatingToolbar renders conditionally based on `enabledTools` array
 - Tools are toggled via `isEnabled(tool)` pattern
 
 **Plugin kit hierarchy:**
+
 - `BasicNodesKit` = `BasicBlocksKit` (paragraph, headings, blockquote, hr) + `BasicMarksKit` (bold, italic, underline, code, strikethrough, subscript, superscript, highlight, kbd)
 - `SuggestionKit` = commentPlugin + discussionPlugin + suggestionPlugin
 - `AlignKit` = text alignment
@@ -65,6 +72,26 @@ The `PlateEditor` component (`packages/ui/src/components/editor/plate-editor.tsx
 Each kit has a base variant (static components) and an interactive variant. Only the interactive variants are used in the editor.
 
 ### Component Conventions
+
 - UI components use `class-variance-authority` (CVA) for variants
 - Styling uses Tailwind with `cn()` utility from `@udecode/cn`
 - Editor node components exist in both static and interactive variants (e.g., `blockquote-node.tsx` and `blockquote-node-static.tsx`)
+
+## Coding Conventions
+
+### Consistency Across Monorepo
+
+**Maintain consistent patterns across all apps and packages** to ensure a uniform codebase:
+
+- **Constants**: Store configuration values in dedicated `constants/` directories with domain-specific files (e.g., `auth.constants.ts`, `toolbar.constants.ts`)
+- **Directory structure**: Follow the same organizational patterns (e.g., `components/`, `hooks/`, `lib/`, `types/`)
+- **Naming conventions**: Use consistent file naming (kebab-case for files, PascalCase for components)
+- **Import patterns**: Use path aliases consistently (`@web`, `@ui`, etc.)
+
+### Exception: shadcn/ui Components
+
+**Do not modify shadcn/ui components** (`packages/ui/src/components/ui/`) unless there's a functional requirement. These are generated/copied from shadcn and should remain unchanged to:
+
+- Preserve compatibility with shadcn updates
+- Avoid maintenance overhead
+- Keep components consistent with shadcn documentation
