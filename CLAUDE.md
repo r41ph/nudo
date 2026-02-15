@@ -25,8 +25,13 @@ Requires Node 20 (see `.nvmrc`).
 This is a pnpm monorepo with:
 
 - `apps/web` - Vite + React 19 frontend using Plate.js rich text editor
-- `apps/api` - Backend API (stub — no source code yet)
+- `apps/api` - Express + PostGraphile backend API
 - `packages/ui` - Shared component library with Storybook
+
+**Path Aliases:**
+- `@api/*` → `apps/api/src/*` (API imports)
+- `@web/*` → `apps/web/src/*` (Web app imports)
+- `@ui/*` → `packages/ui/src/*` (Available in web app)
 
 ### Key Technologies
 
@@ -36,9 +41,13 @@ This is a pnpm monorepo with:
 - **UI Primitives**: Radix UI, Ariakit
 - **Testing**: Vitest + Playwright (configured in packages/ui, integrated with Storybook)
 
+### API Structure (`apps/api/src`)
+
+- `auth/` - Authentication utilities and routes
+- `constants/` - Configuration constants (e.g., `auth.constants.ts`)
+
 ### Web App Structure (`apps/web/src`)
 
-- Path alias: `@web` → `./src`
 - `components/` - App-specific components (`app-sidebar/`, `layout/`, `toolbar-dialog/`, `tools-sidebar/`)
 - `state/` - Jotai atoms: `dialogAtom` (active dialog state), `enabledToolsAtom` (toolbar tool toggles, default: `['bold', 'italic']`)
 - `constants/` - Constants for dialog and toolbar configuration
@@ -47,7 +56,6 @@ This is a pnpm monorepo with:
 
 ### UI Package Structure (`packages/ui/src`)
 
-- Path alias: `@ui` → `../../packages/ui/src`
 - `components/ui/` - Reusable UI primitives (button, dialog, toolbar, etc.)
 - `components/editor/` - Plate.js editor and toolbar buttons
 - `components/editor/plugins/` - Plate.js plugin kits (see Editor Architecture below)
@@ -86,7 +94,7 @@ Each kit has a base variant (static components) and an interactive variant. Only
 - **Constants**: Store configuration values in dedicated `constants/` directories with domain-specific files (e.g., `auth.constants.ts`, `toolbar.constants.ts`)
 - **Directory structure**: Follow the same organizational patterns (e.g., `components/`, `hooks/`, `lib/`, `types/`)
 - **Naming conventions**: Use consistent file naming (kebab-case for files, PascalCase for components)
-- **Import patterns**: Use path aliases consistently (`@web`, `@ui`, etc.)
+- **Import patterns**: Use path aliases consistently (`@api`, `@web`, `@ui`) instead of relative paths
 
 ### Exception: shadcn/ui Components
 
