@@ -9,12 +9,21 @@
     "dev": "pnpm --parallel --filter './apps/*' dev",
     "storybook": "pnpm --filter @writing-app/ui storybook",
     "lint": "eslint .",
-    "lint:workspaces": "pnpm --filter './apps/*' lint && pnpm --filter './packages/*' lint"
+    "lint:workspaces": "pnpm --filter './apps/*' lint && pnpm --filter './packages/*' lint",
+    "db:migrate": "pnpm --filter @writing-app/api migrate",
+    "db:migrate:down": "pnpm --filter @writing-app/api migrate:down",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.26.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt"
+    ]
+  },
   "devDependencies": {
     "@eslint/css": "^0.14.1",
     "@eslint/js": "^9.39.2",
