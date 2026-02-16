@@ -1,4 +1,4 @@
-import { normalizeNodeId } from 'platejs';
+import { normalizeNodeId, type Value } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
 import type { ReactNode } from 'react';
 
@@ -35,20 +35,23 @@ export function PlateEditor({
   handleEditToolbarDialog,
   enabledTools,
   isDialogOpen,
+  initialContent,
+  onContentChange,
   children,
 }: {
   handleEditToolbarDialog: () => void;
   enabledTools: string[];
   isDialogOpen?: boolean;
+  initialContent?: unknown[];
+  onContentChange?: (content: unknown[]) => void;
   children?: ReactNode;
 }) {
   const editor = usePlateEditor({
     plugins: [...BasicNodesKit, ...SuggestionKit, ...AlignKit, ...FontKit],
     value: async () => {
-      // fetching data from an API
-      // const response = await fetch('/api/document');
-      // const data = await response.json();
-      // return data.content;
+      if (initialContent && initialContent.length > 0) {
+        return initialContent as Value;
+      }
       return value;
     },
   });
@@ -59,8 +62,8 @@ export function PlateEditor({
     <div className="border border-gray-300 shadow-lg">
       <Plate
         editor={editor}
-        onChange={(value) => {
-          // console.log('value:', value);
+        onChange={({ value }) => {
+          onContentChange?.(value);
         }}
         onSelectionChange={(s) => {
           console.log('🚀 ~ :65 ~ PlateEditor ~ s:', s);
