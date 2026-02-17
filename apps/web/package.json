@@ -10,11 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.21",
     "@writing-app/ui": "workspace:*",
+    "graphql": "^16.12.0",
+    "graphql-request": "^7.4.0",
     "jotai": "^2.16.2",
     "platejs": "^52.0.17",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.13.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",
