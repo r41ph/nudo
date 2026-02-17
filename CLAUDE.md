@@ -38,7 +38,9 @@ This is a pnpm monorepo with:
 - **Editor**: Plate.js (`platejs`) - Rich text editor built on Slate
 - **Styling**: Tailwind CSS v4 (CSS-based config via `@tailwindcss/vite`, no tailwind.config.js)
 - **State**: Jotai atoms for global state
-- **UI Primitives**: Radix UI, Ariakit
+- **Data Fetching**: TanStack Query + graphql-request (for both GraphQL and REST)
+- **GraphQL**: graphql-request (lightweight client, no normalized cache)
+- **UI Primitives**: shadcn
 - **Testing**: Vitest + Playwright (configured in packages/ui, integrated with Storybook)
 
 ### API Structure (`apps/api/src`)
@@ -95,6 +97,13 @@ Each kit has a base variant (static components) and an interactive variant. Only
 - **Directory structure**: Follow the same organizational patterns (e.g., `components/`, `hooks/`, `lib/`, `types/`)
 - **Naming conventions**: Use consistent file naming (kebab-case for files, PascalCase for components)
 - **Import patterns**: Use path aliases consistently (`@api`, `@web`, `@ui`) instead of relative paths
+
+### Component Usage
+
+- Always use components from `packages/ui` first (`@ui/components/ui/*`)
+- If a component doesn't exist in the UI package, add it via shadcn (`npx shadcn@latest add <component>` using `packages/ui/components.json`)
+- Never use raw HTML elements (`<button>`, `<input>`, `<label>`) when a UI component equivalent exists
+- Update CLAUDE.md when adding or replacing technologies/libraries
 
 ### Exception: shadcn/ui Components
 
