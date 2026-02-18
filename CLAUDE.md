@@ -87,6 +87,14 @@ Each kit has a base variant (static components) and an interactive variant. Only
 - Styling uses Tailwind with `cn()` utility from `@udecode/cn`
 - Editor node components exist in both static and interactive variants (e.g., `blockquote-node.tsx` and `blockquote-node-static.tsx`)
 
+## Git Conventions
+
+### Commit Messages
+
+- Follow [Conventional Commits](https://www.conventionalcommits.org) format (e.g. `feat: add auto-save debounce to document editor`)
+- Write the description as a concise sentence
+- Do not include `Co-Authored-By: Claude` or any similar attribution lines
+
 ## Coding Conventions
 
 ### Consistency Across Monorepo
