@@ -87,6 +87,7 @@ export function DocumentPage() {
     <Layout>
       <SaveBar onSave={saveNow} />
       <MainEditor
+        key={doc.id}
         handleEditToolbarDialog={() => {
           setDialog({ activeDialog: DIALOG.EDITOR_TOOLBAR });
         }}
