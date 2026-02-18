@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { UPDATE_DOCUMENT_CONTENT } from '@web/graphql/mutations';
 import { graphqlClient } from '@web/lib/graphql-client';
+import { queryClient } from '@web/lib/query-client';
 import { saveStatusAtom, lastSavedAtom } from '@web/state/save-status.atom';
 
 export function useAutoSave(documentId: string | null) {
@@ -22,6 +23,7 @@ export function useAutoSave(documentId: string | null) {
       setSaveStatus('saving');
       try {
         await updateContent({ docId: documentId, newContent: content });
+        queryClient.invalidateQueries({ queryKey: ['document', documentId] });
         setSaveStatus('saved');
         setLastSaved(new Date());
       } catch (err) {
