@@ -54,6 +54,18 @@ export const UPDATE_DOCUMENT_SETTINGS = gql`
   }
 `;
 
+export const RENAME_DOCUMENT = gql`
+  mutation RenameDocument($id: UUID!, $title: String!) {
+    updateDocumentById(input: { id: $id, documentPatch: { title: $title } }) {
+      document {
+        id
+        title
+        updatedAt
+      }
+    }
+  }
+`;
+
 export const DELETE_DOCUMENT = gql`
   mutation DeleteDocument($id: UUID!) {
     deleteDocumentById(input: { id: $id }) {
