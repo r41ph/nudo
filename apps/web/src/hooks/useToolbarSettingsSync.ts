@@ -1,0 +1,43 @@
+import { useEffect, useRef } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { UPDATE_DOCUMENT_SETTINGS } from '@web/graphql/mutations';
+import { graphqlClient } from '@web/lib/graphql-client';
+
+export function useToolbarSettingsSync(
+  settingsId: string | null,
+  enabledTools: string[],
+  toolbarType?: string
+) {
+  const { mutate: updateSettings } = useMutation({
+    mutationFn: (variables: {
+      id: string;
+      enabledTools: string[];
+      toolbarType?: string;
+    }) => graphqlClient.request(UPDATE_DOCUMENT_SETTINGS, variables),
+  });
+
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialRef = useRef(true);
+
+  useEffect(() => {
+    // Skip the initial mount
+    if (initialRef.current) {
+      initialRef.current = false;
+      return;
+    }
+    if (!settingsId) return;
+
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      updateSettings({
+        id: settingsId,
+        enabledTools,
+        ...(toolbarType !== undefined ? { toolbarType } : {}),
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [settingsId, enabledTools, toolbarType, updateSettings]);
+}
