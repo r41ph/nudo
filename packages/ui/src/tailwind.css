@@ -126,4 +126,8 @@
   body {
     @apply bg-background text-foreground;
   }
+  [data-sidebar='menu'],
+  [data-sidebar='menu-sub'] {
+    list-style: none;
+  }
 }
