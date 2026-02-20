@@ -1,14 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import {
-  PlusIcon,
-  FileTextIcon,
-  PenIcon,
-  FolderIcon,
-  ChevronRightIcon,
-  Trash2Icon,
-} from 'lucide-react';
+import { AddNewButton } from './add-new-button';
+import { DocumentItem } from './document-item';
+import { FolderItem } from './folder-item';
 import {
   Sidebar,
   SidebarContent,
@@ -18,26 +13,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuAction,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
 } from '@ui/components/ui/sidebar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@ui/components/ui/dropdown-menu';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@ui/components/ui/collapsible';
-import { Button } from '@ui/components/ui/button';
-import { Input } from '@ui/components/ui/input';
 import { GET_DOCUMENTS, GET_FOLDERS } from '@web/graphql/queries';
 import {
   CREATE_DOCUMENT,
@@ -56,8 +32,6 @@ export function AppSidebar() {
   const [editingDocTitle, setEditingDocTitle] = useState('');
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [editingFolderName, setEditingFolderName] = useState('');
-  const docInputRef = useRef<HTMLInputElement>(null);
-  const folderInputRef = useRef<HTMLInputElement>(null);
 
   const { data: docsData } = useQuery({
     queryKey: ['documents'],
@@ -167,20 +141,6 @@ export function AppSidebar() {
     setEditingFolderId(null);
   };
 
-  useEffect(() => {
-    if (editingDocId && docInputRef.current) {
-      docInputRef.current.focus();
-      docInputRef.current.select();
-    }
-  }, [editingDocId]);
-
-  useEffect(() => {
-    if (editingFolderId && folderInputRef.current) {
-      folderInputRef.current.focus();
-      folderInputRef.current.select();
-    }
-  }, [editingFolderId]);
-
   const documents = docsData?.allDocuments?.nodes || [];
   const folders = foldersData?.allFolders?.nodes || [];
   const rootDocuments = documents.filter((doc) => !doc.folderId);
@@ -188,24 +148,11 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button disabled={isCreatingDoc} className="w-full" size="sm">
-              <PlusIcon className="h-4 w-4 mr-2" />
-              Add New
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
-            <DropdownMenuItem onClick={() => handleCreateDocument()}>
-              <FileTextIcon className="h-4 w-4 mr-2" />
-              New Document
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCreateFolder}>
-              <FolderIcon className="h-4 w-4 mr-2" />
-              New Folder
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <AddNewButton
+          disabled={isCreatingDoc}
+          onNewDocument={() => handleCreateDocument()}
+          onNewFolder={handleCreateFolder}
+        />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -213,128 +160,38 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {folders.map((folder) => (
-                <Collapsible key={folder.id} defaultOpen asChild>
-                  <SidebarMenuItem>
-                    {editingFolderId === folder.id ? (
-                      <Input
-                        ref={folderInputRef}
-                        value={editingFolderName}
-                        onChange={(e) => setEditingFolderName(e.target.value)}
-                        onBlur={submitFolderRename}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') submitFolderRename();
-                          if (e.key === 'Escape') setEditingFolderId(null);
-                        }}
-                        className="h-7 text-sm"
-                      />
-                    ) : (
-                      <>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuButton>
-                            <FolderIcon className="h-4 w-4" />
-                            <span className="truncate">{folder.name}</span>
-                            <ChevronRightIcon className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                          </SidebarMenuButton>
-                        </CollapsibleTrigger>
-                        <SidebarMenuAction
-                          onClick={() => startEditingFolder(folder)}
-                          showOnHover
-                          className="[&>svg]:size-3.5 right-8"
-                        >
-                          <PenIcon />
-                        </SidebarMenuAction>
-                        <SidebarMenuAction
-                          onClick={() => handleCreateDocument(folder.id)}
-                          showOnHover
-                          className="[&>svg]:size-3.5 right-14"
-                        >
-                          <PlusIcon />
-                        </SidebarMenuAction>
-                        <SidebarMenuAction
-                          onClick={() => deleteFolder({ id: folder.id })}
-                          showOnHover
-                          className="[&>svg]:size-3.5"
-                        >
-                          <Trash2Icon />
-                        </SidebarMenuAction>
-                      </>
-                    )}
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {folder.documentsByFolderId.nodes.map((doc) => (
-                          <SidebarMenuSubItem key={doc.id}>
-                            {editingDocId === doc.id ? (
-                              <Input
-                                ref={docInputRef}
-                                value={editingDocTitle}
-                                onChange={(e) =>
-                                  setEditingDocTitle(e.target.value)
-                                }
-                                onBlur={submitDocRename}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') submitDocRename();
-                                  if (e.key === 'Escape') setEditingDocId(null);
-                                }}
-                                className="h-7 text-sm"
-                              />
-                            ) : (
-                              <>
-                                <SidebarMenuSubButton
-                                  onClick={() =>
-                                    navigate(`/document/${doc.id}`)
-                                  }
-                                >
-                                  <FileTextIcon className="h-4 w-4" />
-                                  <span className="truncate">{doc.title}</span>
-                                </SidebarMenuSubButton>
-                                <SidebarMenuAction
-                                  onClick={() => startEditingDoc(doc)}
-                                  showOnHover
-                                  className="[&>svg]:size-3.5"
-                                >
-                                  <PenIcon />
-                                </SidebarMenuAction>
-                              </>
-                            )}
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
-                </Collapsible>
+                <FolderItem
+                  key={folder.id}
+                  folder={folder}
+                  isEditing={editingFolderId === folder.id}
+                  editingName={editingFolderName}
+                  editingDocId={editingDocId}
+                  editingDocTitle={editingDocTitle}
+                  onNameChange={setEditingFolderName}
+                  onRenameSubmit={submitFolderRename}
+                  onRenameCancel={() => setEditingFolderId(null)}
+                  onStartEditing={() => startEditingFolder(folder)}
+                  onCreateDocument={() => handleCreateDocument(folder.id)}
+                  onDeleteFolder={() => deleteFolder({ id: folder.id })}
+                  onDocTitleChange={setEditingDocTitle}
+                  onDocRenameSubmit={submitDocRename}
+                  onDocRenameCancel={() => setEditingDocId(null)}
+                  onStartEditingDoc={startEditingDoc}
+                  onNavigateToDoc={(id) => navigate(`/document/${id}`)}
+                />
               ))}
               {rootDocuments.map((doc) => (
-                <SidebarMenuItem key={doc.id}>
-                  {editingDocId === doc.id ? (
-                    <Input
-                      ref={docInputRef}
-                      value={editingDocTitle}
-                      onChange={(e) => setEditingDocTitle(e.target.value)}
-                      onBlur={submitDocRename}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') submitDocRename();
-                        if (e.key === 'Escape') setEditingDocId(null);
-                      }}
-                      className="h-7 text-sm"
-                    />
-                  ) : (
-                    <>
-                      <SidebarMenuButton
-                        onClick={() => navigate(`/document/${doc.id}`)}
-                      >
-                        <FileTextIcon className="h-4 w-4" />
-                        <span className="truncate">{doc.title}</span>
-                      </SidebarMenuButton>
-                      <SidebarMenuAction
-                        onClick={() => startEditingDoc(doc)}
-                        showOnHover
-                        className="[&>svg]:size-3.5"
-                      >
-                        <PenIcon />
-                      </SidebarMenuAction>
-                    </>
-                  )}
-                </SidebarMenuItem>
+                <DocumentItem
+                  key={doc.id}
+                  doc={doc}
+                  isEditing={editingDocId === doc.id}
+                  editingTitle={editingDocTitle}
+                  onTitleChange={setEditingDocTitle}
+                  onRenameSubmit={submitDocRename}
+                  onRenameCancel={() => setEditingDocId(null)}
+                  onStartEditing={() => startEditingDoc(doc)}
+                  onNavigate={() => navigate(`/document/${doc.id}`)}
+                />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
