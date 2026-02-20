@@ -18,6 +18,7 @@ import { GET_DOCUMENTS, GET_FOLDERS } from '@web/graphql/queries';
 import {
   CREATE_DOCUMENT,
   RENAME_DOCUMENT,
+  DELETE_DOCUMENT,
   CREATE_FOLDER,
   RENAME_FOLDER,
   DELETE_FOLDER,
@@ -83,6 +84,12 @@ export function AppSidebar() {
   const { mutate: renameDocument } = useMutation({
     mutationFn: (variables: { id: string; title: string }) =>
       graphqlClient.request(RENAME_DOCUMENT, variables),
+    onSuccess: invalidateAll,
+  });
+
+  const { mutate: deleteDocument } = useMutation({
+    mutationFn: (variables: { id: string }) =>
+      graphqlClient.request(DELETE_DOCUMENT, variables),
     onSuccess: invalidateAll,
   });
 
@@ -177,6 +184,7 @@ export function AppSidebar() {
                   onDocRenameSubmit={submitDocRename}
                   onDocRenameCancel={() => setEditingDocId(null)}
                   onStartEditingDoc={startEditingDoc}
+                  onDeleteDoc={(id) => deleteDocument({ id })}
                   onNavigateToDoc={(id) => navigate(`/document/${id}`)}
                 />
               ))}
@@ -190,6 +198,7 @@ export function AppSidebar() {
                   onRenameSubmit={submitDocRename}
                   onRenameCancel={() => setEditingDocId(null)}
                   onStartEditing={() => startEditingDoc(doc)}
+                  onDelete={() => deleteDocument({ id: doc.id })}
                   onNavigate={() => navigate(`/document/${doc.id}`)}
                 />
               ))}

@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { FileTextIcon, PenIcon } from 'lucide-react';
+import { FileTextIcon, PenIcon, Trash2Icon } from 'lucide-react';
 import {
   SidebarMenuItem,
   SidebarMenuButton,
@@ -15,6 +15,7 @@ interface DocumentItemProps {
   onRenameSubmit: () => void;
   onRenameCancel: () => void;
   onStartEditing: () => void;
+  onDelete: () => void;
   onNavigate: () => void;
 }
 
@@ -26,6 +27,7 @@ export function DocumentItem({
   onRenameSubmit,
   onRenameCancel,
   onStartEditing,
+  onDelete,
   onNavigate,
 }: DocumentItemProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -58,9 +60,16 @@ export function DocumentItem({
             <span className="truncate">{doc.title}</span>
           </SidebarMenuButton>
           <SidebarMenuAction
-            onClick={onStartEditing}
+            onClick={onDelete}
             showOnHover
             className="[&>svg]:size-3.5"
+          >
+            <Trash2Icon />
+          </SidebarMenuAction>
+          <SidebarMenuAction
+            onClick={onStartEditing}
+            showOnHover
+            className="[&>svg]:size-3.5 right-8"
           >
             <PenIcon />
           </SidebarMenuAction>

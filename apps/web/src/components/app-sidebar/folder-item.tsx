@@ -39,6 +39,7 @@ interface FolderItemProps {
   onDocRenameSubmit: () => void;
   onDocRenameCancel: () => void;
   onStartEditingDoc: (doc: { id: string; title: string }) => void;
+  onDeleteDoc: (id: string) => void;
   onNavigateToDoc: (id: string) => void;
 }
 
@@ -58,6 +59,7 @@ export function FolderItem({
   onDocRenameSubmit,
   onDocRenameCancel,
   onStartEditingDoc,
+  onDeleteDoc,
   onNavigateToDoc,
 }: FolderItemProps) {
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -147,9 +149,16 @@ export function FolderItem({
                       <span className="truncate">{doc.title}</span>
                     </SidebarMenuSubButton>
                     <SidebarMenuAction
-                      onClick={() => onStartEditingDoc(doc)}
+                      onClick={() => onDeleteDoc(doc.id)}
                       showOnHover
                       className="[&>svg]:size-3.5"
+                    >
+                      <Trash2Icon />
+                    </SidebarMenuAction>
+                    <SidebarMenuAction
+                      onClick={() => onStartEditingDoc(doc)}
+                      showOnHover
+                      className="[&>svg]:size-3.5 right-8"
                     >
                       <PenIcon />
                     </SidebarMenuAction>
