@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import {
-  FolderIcon,
   PlusIcon,
   PenIcon,
   ChevronRightIcon,
@@ -12,11 +11,11 @@ import {
 import {
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuAction,
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
 } from '@ui/components/ui/sidebar';
+import { Button } from '@ui/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
@@ -139,7 +138,7 @@ export function FolderItem({ folder }: FolderItemProps) {
 
   return (
     <Collapsible defaultOpen asChild>
-      <SidebarMenuItem>
+      <SidebarMenuItem className="group/collapsible">
         {isEditingFolder ? (
           <Input
             ref={folderInputRef}
@@ -153,41 +152,45 @@ export function FolderItem({ folder }: FolderItemProps) {
             className="h-7 text-sm"
           />
         ) : (
-          <>
+          <div className="group/folder-row flex items-center">
             <CollapsibleTrigger asChild>
-              <SidebarMenuButton>
-                <FolderIcon className="h-4 w-4" />
+              <SidebarMenuButton className="flex-1">
+                <ChevronRightIcon className="h-4 w-4 shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90" />
                 <span className="truncate">{folder.name}</span>
-                <ChevronRightIcon className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
               </SidebarMenuButton>
             </CollapsibleTrigger>
-            <SidebarMenuAction
-              onClick={startEditingFolder}
-              showOnHover
-              className="[&>svg]:size-3.5 right-8"
-            >
-              <PenIcon />
-            </SidebarMenuAction>
-            <SidebarMenuAction
-              onClick={handleCreateDocument}
-              showOnHover
-              className="[&>svg]:size-3.5 right-14"
-            >
-              <PlusIcon />
-            </SidebarMenuAction>
-            <SidebarMenuAction
-              onClick={() => deleteFolder({ id: folder.id })}
-              showOnHover
-              className="[&>svg]:size-3.5"
-            >
-              <Trash2Icon />
-            </SidebarMenuAction>
-          </>
+            <div className="hidden shrink-0 items-center group-hover/folder-row:flex">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={handleCreateDocument}
+                className="h-5 w-5 [&_svg]:size-3.5"
+              >
+                <PlusIcon />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={startEditingFolder}
+                className="h-5 w-5 [&_svg]:size-3.5"
+              >
+                <PenIcon />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => deleteFolder({ id: folder.id })}
+                className="h-5 w-5 [&_svg]:size-3.5"
+              >
+                <Trash2Icon />
+              </Button>
+            </div>
+          </div>
         )}
         <CollapsibleContent>
-          <SidebarMenuSub>
+          <SidebarMenuSub className="mr-0 pr-0">
             {folder.documentsByFolderId.nodes.map((doc) => (
-              <SidebarMenuSubItem key={doc.id}>
+              <SidebarMenuSubItem key={doc.id} className="group/doc-row">
                 {editingDocId === doc.id ? (
                   <Input
                     ref={docInputRef}
@@ -201,28 +204,33 @@ export function FolderItem({ folder }: FolderItemProps) {
                     className="h-7 text-sm"
                   />
                 ) : (
-                  <>
+                  <div className="flex w-full items-center">
                     <SidebarMenuSubButton
+                      className="flex-1"
                       onClick={() => navigate(`/document/${doc.id}`)}
                     >
                       <FileTextIcon className="h-4 w-4" />
                       <span className="truncate">{doc.title}</span>
                     </SidebarMenuSubButton>
-                    <SidebarMenuAction
-                      onClick={() => startEditingDoc(doc)}
-                      showOnHover
-                      className="[&>svg]:size-3.5 right-8"
-                    >
-                      <PenIcon />
-                    </SidebarMenuAction>
-                    <SidebarMenuAction
-                      onClick={() => deleteDocument({ id: doc.id })}
-                      showOnHover
-                      className="[&>svg]:size-3.5"
-                    >
-                      <Trash2Icon />
-                    </SidebarMenuAction>
-                  </>
+                    <div className="hidden shrink-0 items-center group-hover/doc-row:flex">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => startEditingDoc(doc)}
+                        className="h-5 w-5 [&_svg]:size-3.5"
+                      >
+                        <PenIcon />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => deleteDocument({ id: doc.id })}
+                        className="h-5 w-5 [&_svg]:size-3.5"
+                      >
+                        <Trash2Icon />
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </SidebarMenuSubItem>
             ))}

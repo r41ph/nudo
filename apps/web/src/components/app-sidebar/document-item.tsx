@@ -81,7 +81,7 @@ export function DocumentItem({ doc }: DocumentItemProps) {
           <SidebarMenuAction
             onClick={startEditing}
             showOnHover
-            className="[&>svg]:size-3.5 right-8"
+            className="[&>svg]:size-3.5 right-6"
           >
             <PenIcon />
           </SidebarMenuAction>
