@@ -31,6 +31,28 @@ export const GET_DOCUMENTS = gql`
         slug
         wordCount
         updatedAt
+        folderId
+      }
+    }
+  }
+`;
+
+export const GET_FOLDERS = gql`
+  query GetFolders {
+    allFolders(orderBy: POSITION_ASC) {
+      nodes {
+        id
+        name
+        position
+        createdAt
+        updatedAt
+        documentsByFolderId(orderBy: UPDATED_AT_DESC) {
+          nodes {
+            id
+            title
+            updatedAt
+          }
+        }
       }
     }
   }

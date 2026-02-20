@@ -1,14 +1,17 @@
 import { gql } from 'graphql-request';
 
 export const CREATE_DOCUMENT = gql`
-  mutation CreateDocument($title: String, $content: JSON) {
-    createNewDocument(input: { docTitle: $title, docContent: $content }) {
+  mutation CreateDocument($title: String, $content: JSON, $folderId: UUID) {
+    createNewDocument(
+      input: { docTitle: $title, docContent: $content, docFolderId: $folderId }
+    ) {
       document {
         id
         title
         slug
         content
         wordCount
+        folderId
         createdAt
         updatedAt
       }
@@ -70,6 +73,51 @@ export const DELETE_DOCUMENT = gql`
   mutation DeleteDocument($id: UUID!) {
     deleteDocumentById(input: { id: $id }) {
       deletedDocumentId
+    }
+  }
+`;
+
+export const CREATE_FOLDER = gql`
+  mutation CreateFolder($name: String!) {
+    createNewFolder(input: { folderName: $name }) {
+      folder {
+        id
+        name
+        position
+      }
+    }
+  }
+`;
+
+export const RENAME_FOLDER = gql`
+  mutation RenameFolder($id: UUID!, $name: String!) {
+    updateFolderById(input: { id: $id, folderPatch: { name: $name } }) {
+      folder {
+        id
+        name
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const DELETE_FOLDER = gql`
+  mutation DeleteFolder($id: UUID!) {
+    deleteFolderById(input: { id: $id }) {
+      deletedFolderId
+    }
+  }
+`;
+
+export const MOVE_DOCUMENT_TO_FOLDER = gql`
+  mutation MoveDocumentToFolder($id: UUID!, $folderId: UUID) {
+    updateDocumentById(
+      input: { id: $id, documentPatch: { folderId: $folderId } }
+    ) {
+      document {
+        id
+        folderId
+      }
     }
   }
 `;
