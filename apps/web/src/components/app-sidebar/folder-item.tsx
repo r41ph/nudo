@@ -1,4 +1,6 @@
-import { useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import {
   FolderIcon,
   PlusIcon,
@@ -21,56 +23,36 @@ import {
   CollapsibleTrigger,
 } from '@ui/components/ui/collapsible';
 import { Input } from '@ui/components/ui/input';
+import {
+  CREATE_DOCUMENT,
+  RENAME_DOCUMENT,
+  DELETE_DOCUMENT,
+  RENAME_FOLDER,
+  DELETE_FOLDER,
+} from '@web/graphql/mutations';
+import { graphqlClient } from '@web/lib/graphql-client';
+import { queryClient } from '@web/lib/query-client';
 import type { FolderNode } from '@web/types/folder.types';
 
 interface FolderItemProps {
   folder: FolderNode;
-  isEditing: boolean;
-  editingName: string;
-  editingDocId: string | null;
-  editingDocTitle: string;
-  onNameChange: (name: string) => void;
-  onRenameSubmit: () => void;
-  onRenameCancel: () => void;
-  onStartEditing: () => void;
-  onCreateDocument: () => void;
-  onDeleteFolder: () => void;
-  onDocTitleChange: (title: string) => void;
-  onDocRenameSubmit: () => void;
-  onDocRenameCancel: () => void;
-  onStartEditingDoc: (doc: { id: string; title: string }) => void;
-  onDeleteDoc: (id: string) => void;
-  onNavigateToDoc: (id: string) => void;
 }
 
-export function FolderItem({
-  folder,
-  isEditing,
-  editingName,
-  editingDocId,
-  editingDocTitle,
-  onNameChange,
-  onRenameSubmit,
-  onRenameCancel,
-  onStartEditing,
-  onCreateDocument,
-  onDeleteFolder,
-  onDocTitleChange,
-  onDocRenameSubmit,
-  onDocRenameCancel,
-  onStartEditingDoc,
-  onDeleteDoc,
-  onNavigateToDoc,
-}: FolderItemProps) {
+export function FolderItem({ folder }: FolderItemProps) {
+  const navigate = useNavigate();
+  const [isEditingFolder, setIsEditingFolder] = useState(false);
+  const [editingFolderName, setEditingFolderName] = useState('');
+  const [editingDocId, setEditingDocId] = useState<string | null>(null);
+  const [editingDocTitle, setEditingDocTitle] = useState('');
   const folderInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEditing && folderInputRef.current) {
+    if (isEditingFolder && folderInputRef.current) {
       folderInputRef.current.focus();
       folderInputRef.current.select();
     }
-  }, [isEditing]);
+  }, [isEditingFolder]);
 
   useEffect(() => {
     if (editingDocId && docInputRef.current) {
@@ -79,18 +61,94 @@ export function FolderItem({
     }
   }, [editingDocId]);
 
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ['documents'] });
+    queryClient.invalidateQueries({ queryKey: ['folders'] });
+  };
+
+  const { mutate: renameFolder } = useMutation({
+    mutationFn: (variables: { id: string; name: string }) =>
+      graphqlClient.request(RENAME_FOLDER, variables),
+    onSuccess: invalidate,
+  });
+
+  const { mutate: deleteFolder } = useMutation({
+    mutationFn: (variables: { id: string }) =>
+      graphqlClient.request(DELETE_FOLDER, variables),
+    onSuccess: invalidate,
+  });
+
+  const { mutate: renameDocument } = useMutation({
+    mutationFn: (variables: { id: string; title: string }) =>
+      graphqlClient.request(RENAME_DOCUMENT, variables),
+    onSuccess: invalidate,
+  });
+
+  const { mutate: deleteDocument } = useMutation({
+    mutationFn: (variables: { id: string }) =>
+      graphqlClient.request(DELETE_DOCUMENT, variables),
+    onSuccess: invalidate,
+  });
+
+  const { mutate: createDocument } = useMutation({
+    mutationFn: (variables: {
+      title: string;
+      content: unknown;
+      folderId: string;
+    }) =>
+      graphqlClient.request<{
+        createNewDocument: { document: { id: string } };
+      }>(CREATE_DOCUMENT, variables),
+    onSuccess: (data) => {
+      invalidate();
+      navigate(`/document/${data.createNewDocument.document.id}`);
+    },
+  });
+
+  const startEditingFolder = () => {
+    setIsEditingFolder(true);
+    setEditingFolderName(folder.name);
+  };
+
+  const submitFolderRename = () => {
+    if (editingFolderName.trim()) {
+      renameFolder({ id: folder.id, name: editingFolderName.trim() });
+    }
+    setIsEditingFolder(false);
+  };
+
+  const startEditingDoc = (doc: { id: string; title: string }) => {
+    setEditingDocId(doc.id);
+    setEditingDocTitle(doc.title);
+  };
+
+  const submitDocRename = () => {
+    if (editingDocId && editingDocTitle.trim()) {
+      renameDocument({ id: editingDocId, title: editingDocTitle.trim() });
+    }
+    setEditingDocId(null);
+  };
+
+  const handleCreateDocument = () => {
+    createDocument({
+      title: 'Untitled Document',
+      content: [{ type: 'p', children: [{ text: '' }] }],
+      folderId: folder.id,
+    });
+  };
+
   return (
     <Collapsible defaultOpen asChild>
       <SidebarMenuItem>
-        {isEditing ? (
+        {isEditingFolder ? (
           <Input
             ref={folderInputRef}
-            value={editingName}
-            onChange={(e) => onNameChange(e.target.value)}
-            onBlur={onRenameSubmit}
+            value={editingFolderName}
+            onChange={(e) => setEditingFolderName(e.target.value)}
+            onBlur={submitFolderRename}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') onRenameSubmit();
-              if (e.key === 'Escape') onRenameCancel();
+              if (e.key === 'Enter') submitFolderRename();
+              if (e.key === 'Escape') setIsEditingFolder(false);
             }}
             className="h-7 text-sm"
           />
@@ -104,21 +162,21 @@ export function FolderItem({
               </SidebarMenuButton>
             </CollapsibleTrigger>
             <SidebarMenuAction
-              onClick={onStartEditing}
+              onClick={startEditingFolder}
               showOnHover
               className="[&>svg]:size-3.5 right-8"
             >
               <PenIcon />
             </SidebarMenuAction>
             <SidebarMenuAction
-              onClick={onCreateDocument}
+              onClick={handleCreateDocument}
               showOnHover
               className="[&>svg]:size-3.5 right-14"
             >
               <PlusIcon />
             </SidebarMenuAction>
             <SidebarMenuAction
-              onClick={onDeleteFolder}
+              onClick={() => deleteFolder({ id: folder.id })}
               showOnHover
               className="[&>svg]:size-3.5"
             >
@@ -134,33 +192,35 @@ export function FolderItem({
                   <Input
                     ref={docInputRef}
                     value={editingDocTitle}
-                    onChange={(e) => onDocTitleChange(e.target.value)}
-                    onBlur={onDocRenameSubmit}
+                    onChange={(e) => setEditingDocTitle(e.target.value)}
+                    onBlur={submitDocRename}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') onDocRenameSubmit();
-                      if (e.key === 'Escape') onDocRenameCancel();
+                      if (e.key === 'Enter') submitDocRename();
+                      if (e.key === 'Escape') setEditingDocId(null);
                     }}
                     className="h-7 text-sm"
                   />
                 ) : (
                   <>
-                    <SidebarMenuSubButton onClick={() => onNavigateToDoc(doc.id)}>
+                    <SidebarMenuSubButton
+                      onClick={() => navigate(`/document/${doc.id}`)}
+                    >
                       <FileTextIcon className="h-4 w-4" />
                       <span className="truncate">{doc.title}</span>
                     </SidebarMenuSubButton>
                     <SidebarMenuAction
-                      onClick={() => onDeleteDoc(doc.id)}
-                      showOnHover
-                      className="[&>svg]:size-3.5"
-                    >
-                      <Trash2Icon />
-                    </SidebarMenuAction>
-                    <SidebarMenuAction
-                      onClick={() => onStartEditingDoc(doc)}
+                      onClick={() => startEditingDoc(doc)}
                       showOnHover
                       className="[&>svg]:size-3.5 right-8"
                     >
                       <PenIcon />
+                    </SidebarMenuAction>
+                    <SidebarMenuAction
+                      onClick={() => deleteDocument({ id: doc.id })}
+                      showOnHover
+                      className="[&>svg]:size-3.5"
+                    >
+                      <Trash2Icon />
                     </SidebarMenuAction>
                   </>
                 )}
