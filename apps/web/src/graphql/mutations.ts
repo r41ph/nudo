@@ -122,6 +122,32 @@ export const MOVE_DOCUMENT_TO_FOLDER = gql`
   }
 `;
 
+export const REORDER_FOLDERS = gql`
+  mutation ReorderFolders($folderPositions: JSON!) {
+    reorderFolders(input: { folderPositions: $folderPositions }) {
+      clientMutationId
+    }
+  }
+`;
+
+export const MOVE_AND_REORDER_DOCUMENT = gql`
+  mutation MoveAndReorderDocument(
+    $docId: UUID!
+    $targetFolderId: UUID
+    $docPositions: JSON!
+  ) {
+    moveAndReorderDocument(
+      input: {
+        docId: $docId
+        targetFolderId: $targetFolderId
+        docPositions: $docPositions
+      }
+    ) {
+      clientMutationId
+    }
+  }
+`;
+
 export const RESTORE_DOCUMENT_VERSION = gql`
   mutation RestoreDocumentVersion($docId: UUID!, $targetVersion: Int!) {
     restoreDocumentVersion(

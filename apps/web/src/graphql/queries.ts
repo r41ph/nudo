@@ -24,7 +24,7 @@ export const GET_DOCUMENT = gql`
 
 export const GET_DOCUMENTS = gql`
   query GetDocuments {
-    allDocuments(orderBy: UPDATED_AT_DESC) {
+    allDocuments(orderBy: POSITION_ASC) {
       nodes {
         id
         title
@@ -32,6 +32,7 @@ export const GET_DOCUMENTS = gql`
         wordCount
         updatedAt
         folderId
+        position
       }
     }
   }
@@ -46,11 +47,12 @@ export const GET_FOLDERS = gql`
         position
         createdAt
         updatedAt
-        documentsByFolderId(orderBy: UPDATED_AT_DESC) {
+        documentsByFolderId(orderBy: POSITION_ASC) {
           nodes {
             id
             title
             updatedAt
+            position
           }
         }
       }

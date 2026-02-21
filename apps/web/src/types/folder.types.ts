@@ -3,6 +3,6 @@ export interface FolderNode {
   name: string;
   position: number;
   documentsByFolderId: {
-    nodes: Array<{ id: string; title: string; updatedAt: string }>;
+    nodes: Array<{ id: string; title: string; updatedAt: string; position: number }>;
   };
 }
