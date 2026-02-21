@@ -143,6 +143,10 @@ export function AppSidebar() {
     });
   }, []);
 
+  const [dropTargetFolderId, setDropTargetFolderId] = useState<string | null>(
+    null
+  );
+
   const collapseFolderForDrag = useCallback((folderId: string) => {
     setOpenFolders((prev) => {
       const next = new Set(prev);
@@ -210,8 +214,10 @@ export function AppSidebar() {
             <SidebarMenu>
               <DndSidebarContext
                 flatItems={flatItems}
+                openFolders={openFolders}
                 onCollapseFolderForDrag={collapseFolderForDrag}
                 onRestoreFolderForDrag={restoreFolderForDrag}
+                onDropTargetChange={setDropTargetFolderId}
               >
                 {flatItems.map((item) => {
                   const key =
@@ -225,11 +231,16 @@ export function AppSidebar() {
                           folder={item.data}
                           isOpen={openFolders.has(item.data.id)}
                           onToggle={() => toggleFolder(item.data.id)}
+                          isDropTarget={dropTargetFolderId === item.data.id}
                         />
                       ) : (
                         <DocumentItem
                           doc={item.data}
                           indented={!!item.data.folderId}
+                          isDropTarget={
+                            !!item.data.folderId &&
+                            dropTargetFolderId === item.data.folderId
+                          }
                         />
                       )}
                     </SortableItem>

@@ -1,16 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import {
-  PlusIcon,
-  PenIcon,
-  ChevronRightIcon,
-  Trash2Icon,
-} from 'lucide-react';
-import {
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from '@ui/components/ui/sidebar';
+import { PlusIcon, PenIcon, ChevronRightIcon, Trash2Icon } from 'lucide-react';
+import { SidebarMenuItem, SidebarMenuButton } from '@ui/components/ui/sidebar';
 import { Button } from '@ui/components/ui/button';
 import { Input } from '@ui/components/ui/input';
 import { cn } from '@ui/lib/utils';
@@ -27,9 +19,15 @@ interface FolderItemProps {
   folder: FolderNode;
   isOpen: boolean;
   onToggle: () => void;
+  isDropTarget?: boolean;
 }
 
-export function FolderItem({ folder, isOpen, onToggle }: FolderItemProps) {
+export function FolderItem({
+  folder,
+  isOpen,
+  onToggle,
+  isDropTarget,
+}: FolderItemProps) {
   const navigate = useNavigate();
   const [isEditingFolder, setIsEditingFolder] = useState(false);
   const [editingFolderName, setEditingFolderName] = useState('');
@@ -95,7 +93,7 @@ export function FolderItem({ folder, isOpen, onToggle }: FolderItemProps) {
   };
 
   return (
-    <SidebarMenuItem>
+    <SidebarMenuItem className={cn(isDropTarget && 'bg-sidebar-accent')}>
       {isEditingFolder ? (
         <Input
           ref={folderInputRef}

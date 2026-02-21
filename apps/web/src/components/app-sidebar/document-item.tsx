@@ -16,9 +16,10 @@ import { queryClient } from '@web/lib/query-client';
 interface DocumentItemProps {
   doc: { id: string; title: string };
   indented?: boolean;
+  isDropTarget?: boolean;
 }
 
-export function DocumentItem({ doc, indented }: DocumentItemProps) {
+export function DocumentItem({ doc, indented, isDropTarget }: DocumentItemProps) {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editingTitle, setEditingTitle] = useState('');
@@ -61,7 +62,7 @@ export function DocumentItem({ doc, indented }: DocumentItemProps) {
   };
 
   return (
-    <SidebarMenuItem className={cn(indented && 'pl-6')}>
+    <SidebarMenuItem className={cn(indented && 'pl-6', isDropTarget && 'bg-sidebar-accent')}>
       {isEditing ? (
         <Input
           ref={inputRef}

@@ -7,6 +7,7 @@ import {
   useSensors,
   closestCenter,
   type DragStartEvent,
+  type DragOverEvent,
   type DragEndEvent,
 } from '@dnd-kit/core';
 import {
@@ -33,8 +34,10 @@ export type FlatItem =
 interface DndSidebarContextProps {
   children: ReactNode;
   flatItems: FlatItem[];
+  openFolders: Set<string>;
   onCollapseFolderForDrag: (folderId: string) => void;
   onRestoreFolderForDrag: (folderId: string) => void;
+  onDropTargetChange: (folderId: string | null) => void;
 }
 
 interface ActiveItem {
@@ -64,8 +67,10 @@ function parseId(
 export function DndSidebarContext({
   children,
   flatItems,
+  openFolders,
   onCollapseFolderForDrag,
   onRestoreFolderForDrag,
+  onDropTargetChange,
 }: DndSidebarContextProps) {
   const [activeItem, setActiveItem] = useState<ActiveItem | null>(null);
   const [draggedFolderId, setDraggedFolderId] = useState<string | null>(null);
@@ -114,6 +119,57 @@ export function DndSidebarContext({
     [flatItems, onCollapseFolderForDrag]
   );
 
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      if (!activeItem || activeItem.type !== 'document') {
+        onDropTargetChange(null);
+        return;
+      }
+
+      const { over } = event;
+      if (!over) {
+        onDropTargetChange(null);
+        return;
+      }
+
+      const overParsed = parseId(String(over.id));
+      if (!overParsed) {
+        onDropTargetChange(null);
+        return;
+      }
+
+      // Find the dragged doc's current folder
+      const activeFolderId = (() => {
+        const doc = flatItems.find(
+          (fi) => fi.type === 'document' && fi.data.id === activeItem.id
+        );
+        return doc?.type === 'document' ? doc.data.folderId : null;
+      })();
+
+      if (overParsed.type === 'folder') {
+        // Hovering over a folder header — highlight it (unless doc is already in it)
+        if (openFolders.has(overParsed.id) && activeFolderId !== overParsed.id) {
+          onDropTargetChange(overParsed.id);
+        } else {
+          onDropTargetChange(null);
+        }
+      } else {
+        // Hovering over a document — highlight its parent folder if it has one
+        const overDoc = flatItems.find(
+          (fi) => fi.type === 'document' && fi.data.id === overParsed.id
+        );
+        const overFolderId =
+          overDoc?.type === 'document' ? overDoc.data.folderId : null;
+        if (overFolderId && activeFolderId !== overFolderId) {
+          onDropTargetChange(overFolderId);
+        } else {
+          onDropTargetChange(null);
+        }
+      }
+    },
+    [activeItem, flatItems, openFolders, onDropTargetChange]
+  );
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
@@ -124,6 +180,7 @@ export function DndSidebarContext({
         setDraggedFolderId(null);
       }
       setActiveItem(null);
+      onDropTargetChange(null);
 
       if (!over || active.id === over.id) return;
 
@@ -153,10 +210,44 @@ export function DndSidebarContext({
         return;
       }
 
-      // Document drag: derive folder membership from neighbors
-      // A doc joins folder X only if it's placed WITHIN folder X's contiguous
-      // block — i.e. both neighbors belong to folder X.
+      // ── Document drag ──
       const draggedDocId = activeParsed.id;
+      const overParsed = parseId(String(over.id));
+
+      // Zone-based detection: when the over target is an open folder,
+      // check pointer Y to decide "into folder" (center) vs "reorder" (edges).
+      if (overParsed?.type === 'folder' && openFolders.has(overParsed.id)) {
+        const pointerY =
+          (event.activatorEvent as PointerEvent).clientY + event.delta.y;
+        const overRect = over.rect;
+        const topThreshold = overRect.top + overRect.height * 0.25;
+        const bottomThreshold = overRect.top + overRect.height * 0.75;
+
+        if (pointerY >= topThreshold && pointerY <= bottomThreshold) {
+          // Center zone → move doc INTO this folder (append at end)
+          const folder = flatItems.find(
+            (fi) => fi.type === 'folder' && fi.data.id === overParsed.id
+          );
+          if (folder && folder.type === 'folder') {
+            const existingDocs = folder.data.documentsByFolderId.nodes.filter(
+              (d) => d.id !== draggedDocId
+            );
+            const docPositions = [
+              ...existingDocs.map((d, i) => ({ id: d.id, position: i })),
+              { id: draggedDocId, position: existingDocs.length },
+            ];
+            moveAndReorderDocument({
+              docId: draggedDocId,
+              targetFolderId: overParsed.id,
+              docPositions,
+            });
+            return;
+          }
+        }
+        // Edge zones fall through to normal reorder logic below
+      }
+
+      // Normal reorder: arrayMove + strict two-neighbor rule
       const dragIdx = newOrder.findIndex(
         (fi) => fi.type === 'document' && fi.data.id === draggedDocId
       );
@@ -166,18 +257,13 @@ export function DndSidebarContext({
       const nextItem =
         dragIdx < newOrder.length - 1 ? newOrder[dragIdx + 1] : null;
 
-      // A doc is "inside" folder X when:
-      // - prev is folder X header and next is a doc in folder X
-      // - prev is a doc in folder X and next is a doc in folder X
-      // - prev is a doc in folder X and next is folder X header (shouldn't happen, but safe)
-      // Otherwise the doc is at root level.
+      // A doc joins folder X only if BOTH neighbors belong to folder X.
       let newFolderId: string | null = null;
       if (
         prevItem?.type === 'folder' &&
         nextItem?.type === 'document' &&
         nextItem.data.folderId === prevItem.data.id
       ) {
-        // Dropped right after folder header, before one of its docs
         newFolderId = prevItem.data.id;
       } else if (
         prevItem?.type === 'document' &&
@@ -185,7 +271,6 @@ export function DndSidebarContext({
         nextItem?.type === 'document' &&
         nextItem.data.folderId === prevItem.data.folderId
       ) {
-        // Between two docs of the same folder
         newFolderId = prevItem.data.folderId;
       }
 
@@ -196,7 +281,6 @@ export function DndSidebarContext({
         originalDoc?.type === 'document' ? originalDoc.data.folderId : null;
 
       if (newFolderId !== originalFolderId) {
-        // Doc changed folder membership
         const docsInTargetFolder = newOrder.filter(
           (fi): fi is FlatItem & { type: 'document' } => {
             if (fi.type !== 'document') return false;
@@ -204,56 +288,49 @@ export function DndSidebarContext({
             return fi.data.folderId === newFolderId;
           }
         );
-
-        const docPositions = docsInTargetFolder.map((fi, i) => ({
-          id: fi.data.id,
-          position: i,
-        }));
-
         moveAndReorderDocument({
           docId: draggedDocId,
           targetFolderId: newFolderId,
-          docPositions,
-        });
-      } else {
-        // Same folder — just reorder
-        if (newFolderId) {
-          const docsInFolder = newOrder.filter(
-            (fi): fi is FlatItem & { type: 'document' } =>
-              fi.type === 'document' && fi.data.folderId === newFolderId
-          );
-          const docPositions = docsInFolder.map((fi, i) => ({
+          docPositions: docsInTargetFolder.map((fi, i) => ({
             id: fi.data.id,
             position: i,
-          }));
-
-          moveAndReorderDocument({
-            docId: draggedDocId,
-            targetFolderId: newFolderId,
-            docPositions,
-          });
-        } else {
-          // Root doc reorder
-          const rootItems = newOrder.filter(
-            (fi) => fi.type === 'folder' || !fi.data.folderId
-          );
-          reorderRootItems(
-            rootItems.map((fi, i) => ({
-              type: fi.type,
-              id: fi.data.id,
-              position: i,
-            }))
-          );
-        }
+          })),
+        });
+      } else if (newFolderId) {
+        const docsInFolder = newOrder.filter(
+          (fi): fi is FlatItem & { type: 'document' } =>
+            fi.type === 'document' && fi.data.folderId === newFolderId
+        );
+        moveAndReorderDocument({
+          docId: draggedDocId,
+          targetFolderId: newFolderId,
+          docPositions: docsInFolder.map((fi, i) => ({
+            id: fi.data.id,
+            position: i,
+          })),
+        });
+      } else {
+        const rootItems = newOrder.filter(
+          (fi) => fi.type === 'folder' || !fi.data.folderId
+        );
+        reorderRootItems(
+          rootItems.map((fi, i) => ({
+            type: fi.type,
+            id: fi.data.id,
+            position: i,
+          }))
+        );
       }
     },
     [
       flatItems,
       sortableIds,
+      openFolders,
       draggedFolderId,
       reorderRootItems,
       moveAndReorderDocument,
       onRestoreFolderForDrag,
+      onDropTargetChange,
     ]
   );
 
@@ -262,6 +339,7 @@ export function DndSidebarContext({
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
       <SortableContext
