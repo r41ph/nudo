@@ -134,7 +134,9 @@ export function DndSidebarContext({
             const innerCollisions = closestCenter({
               ...args,
               droppableContainers: args.droppableContainers.filter(
-                (container) => containerItems.includes(String(container.id))
+                (container) =>
+                  containerItems.includes(String(container.id)) &&
+                  container.id !== activeId
               ),
             });
             if (innerCollisions.length > 0) {
