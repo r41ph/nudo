@@ -93,7 +93,7 @@ export function DroppableFolder({
             </SortableContext>
           </div>
         )}
-        {!isOpen && <div ref={setDroppableRef} className="h-6" />}
+        {!isOpen && <div ref={setDroppableRef} />}
       </div>
     </div>
   );
