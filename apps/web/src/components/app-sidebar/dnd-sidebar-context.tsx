@@ -1,14 +1,20 @@
-import { useState, useCallback, type ReactNode } from 'react';
+import { useState, useCallback, useRef, type ReactNode } from 'react';
 import {
   DndContext,
   DragOverlay,
   PointerSensor,
   useSensor,
   useSensors,
+  pointerWithin,
+  rectIntersection,
   closestCenter,
+  MeasuringStrategy,
   type DragStartEvent,
   type DragOverEvent,
   type DragEndEvent,
+  type DragCancelEvent,
+  type CollisionDetection,
+  type UniqueIdentifier,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -19,37 +25,21 @@ import { FileTextIcon, FolderIcon } from 'lucide-react';
 import { useSidebarDnd } from '@web/hooks/useSidebarDnd';
 import type { FolderNode } from '@web/types/folder.types';
 
-export type FlatItem =
-  | { type: 'folder'; data: FolderNode }
-  | {
-      type: 'document';
-      data: {
-        id: string;
-        title: string;
-        folderId: string | null;
-        position: number;
-      };
-    };
+export type ItemsRecord = Record<string, string[]>;
+
+export interface DataMapEntry {
+  type: 'folder' | 'document';
+  data: FolderNode | { id: string; title: string };
+}
 
 interface DndSidebarContextProps {
   children: ReactNode;
-  flatItems: FlatItem[];
+  items: ItemsRecord;
+  dataMap: Record<string, DataMapEntry>;
   openFolders: Set<string>;
+  onOpenFolder: (folderId: string) => void;
   onCollapseFolderForDrag: (folderId: string) => void;
   onRestoreFolderForDrag: (folderId: string) => void;
-  onDropTargetChange: (folderId: string | null) => void;
-}
-
-interface ActiveItem {
-  type: 'folder' | 'document';
-  id: string;
-  title: string;
-}
-
-function itemKey(item: FlatItem): string {
-  return item.type === 'folder'
-    ? `folder-${item.data.id}`
-    : `doc-${item.data.id}`;
 }
 
 function parseId(
@@ -64,17 +54,40 @@ function parseId(
   return null;
 }
 
+function findContainer(items: ItemsRecord, id: string): string | undefined {
+  // Prefer finding the container that actually contains this item.
+  // This ensures container ids (like `folder-123`) that also exist as keys
+  // don't incorrectly claim to be their own container when they are listed
+  // inside the `root` container.
+  const found = Object.keys(items).find((key) => items[key].includes(id));
+  if (found) return found;
+
+  // If id is a container key itself (e.g. a droppable zone), return it as a fallback
+  if (id in items) return id;
+
+  return undefined;
+}
+
 export function DndSidebarContext({
   children,
-  flatItems,
+  items: externalItems,
+  dataMap,
   openFolders,
+  onOpenFolder,
   onCollapseFolderForDrag,
   onRestoreFolderForDrag,
-  onDropTargetChange,
 }: DndSidebarContextProps) {
-  const [activeItem, setActiveItem] = useState<ActiveItem | null>(null);
+  const [items, setItems] = useState<ItemsRecord>(externalItems);
+  const [clonedItems, setClonedItems] = useState<ItemsRecord | null>(null);
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [draggedFolderId, setDraggedFolderId] = useState<string | null>(null);
+  const lastOverIdRef = useRef<UniqueIdentifier | null>(null);
   const { reorderRootItems, moveAndReorderDocument } = useSidebarDnd();
+
+  // Sync external items when not dragging
+  if (!activeId && externalItems !== items) {
+    setItems(externalItems);
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -82,92 +95,164 @@ export function DndSidebarContext({
     })
   );
 
-  const sortableIds = flatItems.map(itemKey);
+  // Custom collision detection: pointerWithin -> rectIntersection -> drill into container via closestCenter
+  const collisionDetection: CollisionDetection = useCallback(
+    (args) => {
+      // If dragging a folder, only allow reordering within root
+      if (activeId && String(activeId).startsWith('folder-')) {
+        return closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter(
+            (container) =>
+              items.root?.includes(String(container.id)) ||
+              container.id === 'root'
+          ),
+        });
+      }
+
+      // Try pointerWithin first for more accurate detection
+      const pointerCollisions = pointerWithin(args);
+      if (pointerCollisions.length > 0) {
+        // Check if we hit a container (folder droppable zone)
+        const overContainerId = pointerCollisions.find(
+          (c) => String(c.id).endsWith('-droppable') || c.id in items
+        );
+
+        if (overContainerId) {
+          // Resolve the actual container key
+          let containerKey: string;
+          const colId = String(overContainerId.id);
+          if (colId.endsWith('-droppable')) {
+            containerKey = colId.replace('-droppable', '');
+          } else {
+            containerKey = colId;
+          }
+
+          // Drill into the container's items via closestCenter
+          const containerItems = items[containerKey];
+          if (containerItems && containerItems.length > 0) {
+            const innerCollisions = closestCenter({
+              ...args,
+              droppableContainers: args.droppableContainers.filter(
+                (container) => containerItems.includes(String(container.id))
+              ),
+            });
+            if (innerCollisions.length > 0) {
+              lastOverIdRef.current = innerCollisions[0].id;
+              return innerCollisions;
+            }
+          }
+
+          // Empty container — return the droppable itself so we can drop into it
+          lastOverIdRef.current = overContainerId.id;
+          return [overContainerId];
+        }
+
+        lastOverIdRef.current = pointerCollisions[0].id;
+        return pointerCollisions;
+      }
+
+      // Fallback to rectIntersection
+      const rectCollisions = rectIntersection(args);
+      if (rectCollisions.length > 0) {
+        lastOverIdRef.current = rectCollisions[0].id;
+        return rectCollisions;
+      }
+
+      // If we had a previous over, keep it for stability
+      if (lastOverIdRef.current) {
+        return [{ id: lastOverIdRef.current }];
+      }
+
+      return [];
+    },
+    [activeId, items]
+  );
 
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
-      const parsed = parseId(String(event.active.id));
-      if (!parsed) return;
+      const id = String(event.active.id);
+      setActiveId(id);
+      setClonedItems({ ...items });
 
-      if (parsed.type === 'folder') {
-        const item = flatItems.find(
-          (fi) => fi.type === 'folder' && fi.data.id === parsed.id
-        );
-        if (item && item.type === 'folder') {
-          setActiveItem({
-            type: 'folder',
-            id: parsed.id,
-            title: item.data.name,
-          });
-          // Auto-collapse the dragged folder so its docs aren't floating
-          setDraggedFolderId(parsed.id);
-          onCollapseFolderForDrag(parsed.id);
-        }
-      } else {
-        const item = flatItems.find(
-          (fi) => fi.type === 'document' && fi.data.id === parsed.id
-        );
-        if (item && item.type === 'document') {
-          setActiveItem({
-            type: 'document',
-            id: parsed.id,
-            title: item.data.title,
-          });
-        }
+      const parsed = parseId(id);
+      if (parsed?.type === 'folder') {
+        setDraggedFolderId(parsed.id);
+        onCollapseFolderForDrag(parsed.id);
       }
     },
-    [flatItems, onCollapseFolderForDrag]
+    [items, onCollapseFolderForDrag]
   );
 
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
-      if (!activeItem || activeItem.type !== 'document') {
-        onDropTargetChange(null);
+      const { active, over } = event;
+      if (!over) return;
+
+      const activeIdStr = String(active.id);
+      const overIdStr = String(over.id);
+
+      // Don't move folders between containers — they only reorder in root
+      if (activeIdStr.startsWith('folder-')) return;
+
+      // Resolve the over container — could be a droppable zone ID
+      let resolvedOverId = overIdStr;
+      if (overIdStr.endsWith('-droppable')) {
+        resolvedOverId = overIdStr.replace('-droppable', '');
+      }
+
+      const activeContainer = findContainer(items, activeIdStr);
+      // Prefer treating the resolvedOverId as the container key when it
+      // directly matches an items key (e.g. 'folder-123'). This ensures
+      // dropping onto a folder's droppable zone targets the folder even
+      // when that folder id is also listed inside `items.root`.
+      let overContainer =
+        resolvedOverId in items
+          ? resolvedOverId
+          : findContainer(items, resolvedOverId);
+
+      if (
+        !activeContainer ||
+        !overContainer ||
+        activeContainer === overContainer
+      ) {
         return;
       }
 
-      const { over } = event;
-      if (!over) {
-        onDropTargetChange(null);
+      // For closed folders, don't move in state during drag (will handle on drop)
+      const overParsed = parseId(overContainer);
+      if (
+        overParsed?.type === 'folder' &&
+        overContainer !== 'root' &&
+        !openFolders.has(overParsed.id)
+      ) {
         return;
       }
 
-      const overParsed = parseId(String(over.id));
-      if (!overParsed) {
-        onDropTargetChange(null);
-        return;
-      }
+      setItems((prev) => {
+        const activeItems = [...prev[activeContainer]];
+        const overItems = [...prev[overContainer]];
 
-      // Find the dragged doc's current folder
-      const activeFolderId = (() => {
-        const doc = flatItems.find(
-          (fi) => fi.type === 'document' && fi.data.id === activeItem.id
-        );
-        return doc?.type === 'document' ? doc.data.folderId : null;
-      })();
+        const activeIndex = activeItems.indexOf(activeIdStr);
+        if (activeIndex === -1) return prev;
 
-      if (overParsed.type === 'folder') {
-        // Hovering over a folder header — highlight it (unless doc is already in it)
-        if (openFolders.has(overParsed.id) && activeFolderId !== overParsed.id) {
-          onDropTargetChange(overParsed.id);
-        } else {
-          onDropTargetChange(null);
-        }
-      } else {
-        // Hovering over a document — highlight its parent folder if it has one
-        const overDoc = flatItems.find(
-          (fi) => fi.type === 'document' && fi.data.id === overParsed.id
-        );
-        const overFolderId =
-          overDoc?.type === 'document' ? overDoc.data.folderId : null;
-        if (overFolderId && activeFolderId !== overFolderId) {
-          onDropTargetChange(overFolderId);
-        } else {
-          onDropTargetChange(null);
-        }
-      }
+        // Remove from source
+        activeItems.splice(activeIndex, 1);
+
+        // Find insert index in target
+        const overIndex = overItems.indexOf(resolvedOverId);
+        const newIndex = overIndex >= 0 ? overIndex + 1 : overItems.length;
+
+        overItems.splice(newIndex, 0, activeIdStr);
+
+        return {
+          ...prev,
+          [activeContainer]: activeItems,
+          [overContainer]: overItems,
+        };
+      });
     },
-    [activeItem, flatItems, openFolders, onDropTargetChange]
+    [items, openFolders]
   );
 
   const handleDragEnd = useCallback(
@@ -179,184 +264,207 @@ export function DndSidebarContext({
         onRestoreFolderForDrag(draggedFolderId);
         setDraggedFolderId(null);
       }
-      setActiveItem(null);
-      onDropTargetChange(null);
 
-      if (!over || active.id === over.id) return;
+      setActiveId(null);
+      setClonedItems(null);
+      lastOverIdRef.current = null;
 
-      const activeIdx = sortableIds.indexOf(String(active.id));
-      const overIdx = sortableIds.indexOf(String(over.id));
-      if (activeIdx === -1 || overIdx === -1) return;
+      if (!over) return;
 
-      const activeParsed = parseId(String(active.id));
-      if (!activeParsed) return;
+      const activeIdStr = String(active.id);
+      const overIdStr = String(over.id);
 
-      // Compute the new flat order after the move
-      const newOrder = arrayMove(flatItems, activeIdx, overIdx);
+      // Resolve droppable zone IDs
+      let resolvedOverId = overIdStr;
+      if (overIdStr.endsWith('-droppable')) {
+        resolvedOverId = overIdStr.replace('-droppable', '');
+      }
 
-      if (activeParsed.type === 'folder') {
-        // Folder drag: just reorder root-level items (folders + root docs)
-        // Derive new positions for all root-level items
-        const rootItems = newOrder.filter(
-          (item) => item.type === 'folder' || !item.data.folderId
-        );
-        reorderRootItems(
-          rootItems.map((item, i) => ({
-            type: item.type,
-            id: item.data.id,
-            position: i,
-          }))
-        );
+      const activeContainer = findContainer(items, activeIdStr);
+      // For folder drags, find the container that owns the target item (always 'root').
+      // For document drags, treat resolvedOverId as a container when it's a container key
+      // (e.g. dropping a doc onto a folder's droppable zone).
+      let overContainer: string | undefined;
+      if (activeIdStr.startsWith('folder-')) {
+        overContainer = findContainer(items, resolvedOverId);
+      } else {
+        overContainer =
+          resolvedOverId in items
+            ? resolvedOverId
+            : findContainer(items, resolvedOverId);
+      }
+
+      if (!activeContainer) return;
+
+      // Handle drop on closed folder — move doc into it and open
+      if (activeIdStr.startsWith('doc-')) {
+        const overParsed = parseId(resolvedOverId);
+        const isClosedFolder =
+          overParsed?.type === 'folder' &&
+          resolvedOverId in items &&
+          !openFolders.has(overParsed.id);
+
+        if (isClosedFolder) {
+          const docId = activeIdStr.replace('doc-', '');
+          const folderId = overParsed!.id;
+
+          // Build positions: existing docs in folder + this doc at end
+          const existingDocs = items[resolvedOverId].filter(
+            (id) => id !== activeIdStr
+          );
+          const docPositions = [
+            ...existingDocs.map((id, i) => ({
+              id: id.replace('doc-', ''),
+              position: i,
+            })),
+            { id: docId, position: existingDocs.length },
+          ];
+
+          moveAndReorderDocument({
+            docId,
+            targetFolderId: folderId,
+            docPositions,
+          });
+          onOpenFolder(folderId);
+          return;
+        }
+      }
+
+      if (!overContainer) return;
+
+      // Same container — arrayMove
+      if (activeContainer === overContainer) {
+        const containerItems = items[activeContainer];
+        const activeIndex = containerItems.indexOf(activeIdStr);
+        const overIndex = containerItems.indexOf(resolvedOverId);
+
+        if (activeIndex !== -1) {
+          if (overIndex !== -1 && activeIndex !== overIndex) {
+            // Normal reorder within container
+            const newOrder = arrayMove(containerItems, activeIndex, overIndex);
+            setItems((prev) => ({ ...prev, [activeContainer]: newOrder }));
+            persistOrder(activeContainer, newOrder, activeIdStr);
+          } else if (overIndex === -1) {
+            // Dropped onto the container itself (e.g. open empty folder drop zone)
+            // Item was already moved into the container by handleDragOver — just persist
+            persistOrder(activeContainer, containerItems, activeIdStr);
+          }
+        }
         return;
       }
 
-      // ── Document drag ──
-      const draggedDocId = activeParsed.id;
-      const overParsed = parseId(String(over.id));
+      // Cross-container — item already moved in onDragOver, just persist
+      // Final arrayMove within the target container
+      const overItems = items[overContainer];
+      const activeIndex = overItems.indexOf(activeIdStr);
+      const overIndex = overItems.indexOf(resolvedOverId);
 
-      // Zone-based detection: when the over target is an open folder,
-      // check pointer Y to decide "into folder" (center) vs "reorder" (edges).
-      if (overParsed?.type === 'folder' && openFolders.has(overParsed.id)) {
-        const pointerY =
-          (event.activatorEvent as PointerEvent).clientY + event.delta.y;
-        const overRect = over.rect;
-        const topThreshold = overRect.top + overRect.height * 0.25;
-        const bottomThreshold = overRect.top + overRect.height * 0.75;
-
-        if (pointerY >= topThreshold && pointerY <= bottomThreshold) {
-          // Center zone → move doc INTO this folder (append at end)
-          const folder = flatItems.find(
-            (fi) => fi.type === 'folder' && fi.data.id === overParsed.id
-          );
-          if (folder && folder.type === 'folder') {
-            const existingDocs = folder.data.documentsByFolderId.nodes.filter(
-              (d) => d.id !== draggedDocId
-            );
-            const docPositions = [
-              ...existingDocs.map((d, i) => ({ id: d.id, position: i })),
-              { id: draggedDocId, position: existingDocs.length },
-            ];
-            moveAndReorderDocument({
-              docId: draggedDocId,
-              targetFolderId: overParsed.id,
-              docPositions,
-            });
-            return;
-          }
-        }
-        // Edge zones fall through to normal reorder logic below
+      let finalOrder = overItems;
+      if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
+        finalOrder = arrayMove(overItems, activeIndex, overIndex);
+        setItems((prev) => ({
+          ...prev,
+          [overContainer]: finalOrder,
+        }));
       }
 
-      // Normal reorder: arrayMove + strict two-neighbor rule
-      const dragIdx = newOrder.findIndex(
-        (fi) => fi.type === 'document' && fi.data.id === draggedDocId
-      );
-      if (dragIdx === -1) return;
-
-      const prevItem = dragIdx > 0 ? newOrder[dragIdx - 1] : null;
-      const nextItem =
-        dragIdx < newOrder.length - 1 ? newOrder[dragIdx + 1] : null;
-
-      // A doc joins folder X only if BOTH neighbors belong to folder X.
-      let newFolderId: string | null = null;
-      if (
-        prevItem?.type === 'folder' &&
-        nextItem?.type === 'document' &&
-        nextItem.data.folderId === prevItem.data.id
-      ) {
-        newFolderId = prevItem.data.id;
-      } else if (
-        prevItem?.type === 'document' &&
-        prevItem.data.folderId &&
-        nextItem?.type === 'document' &&
-        nextItem.data.folderId === prevItem.data.folderId
-      ) {
-        newFolderId = prevItem.data.folderId;
-      }
-
-      const originalDoc = flatItems.find(
-        (fi) => fi.type === 'document' && fi.data.id === draggedDocId
-      );
-      const originalFolderId =
-        originalDoc?.type === 'document' ? originalDoc.data.folderId : null;
-
-      if (newFolderId !== originalFolderId) {
-        const docsInTargetFolder = newOrder.filter(
-          (fi): fi is FlatItem & { type: 'document' } => {
-            if (fi.type !== 'document') return false;
-            if (fi.data.id === draggedDocId) return newFolderId !== null;
-            return fi.data.folderId === newFolderId;
-          }
-        );
-        moveAndReorderDocument({
-          docId: draggedDocId,
-          targetFolderId: newFolderId,
-          docPositions: docsInTargetFolder.map((fi, i) => ({
-            id: fi.data.id,
-            position: i,
-          })),
-        });
-      } else if (newFolderId) {
-        const docsInFolder = newOrder.filter(
-          (fi): fi is FlatItem & { type: 'document' } =>
-            fi.type === 'document' && fi.data.folderId === newFolderId
-        );
-        moveAndReorderDocument({
-          docId: draggedDocId,
-          targetFolderId: newFolderId,
-          docPositions: docsInFolder.map((fi, i) => ({
-            id: fi.data.id,
-            position: i,
-          })),
-        });
-      } else {
-        const rootItems = newOrder.filter(
-          (fi) => fi.type === 'folder' || !fi.data.folderId
-        );
-        reorderRootItems(
-          rootItems.map((fi, i) => ({
-            type: fi.type,
-            id: fi.data.id,
-            position: i,
-          }))
-        );
-      }
+      persistOrder(overContainer, finalOrder, activeIdStr);
     },
     [
-      flatItems,
-      sortableIds,
+      items,
       openFolders,
       draggedFolderId,
-      reorderRootItems,
       moveAndReorderDocument,
       onRestoreFolderForDrag,
-      onDropTargetChange,
+      onOpenFolder,
     ]
   );
+
+  const persistOrder = useCallback(
+    (container: string, order: string[], activeIdStr: string) => {
+      if (container === 'root') {
+        // Reorder all root items
+        reorderRootItems(
+          order.map((id, i) => {
+            const parsed = parseId(id);
+            return {
+              type: parsed?.type ?? 'document',
+              id: parsed?.id ?? id,
+              position: i,
+            };
+          })
+        );
+      } else {
+        // Document was moved into/within a folder
+        const docId = activeIdStr.replace('doc-', '');
+        const folderId = container.replace('folder-', '');
+        const docPositions = order.map((id, i) => ({
+          id: id.replace('doc-', ''),
+          position: i,
+        }));
+
+        moveAndReorderDocument({
+          docId,
+          targetFolderId: folderId,
+          docPositions,
+        });
+      }
+    },
+    [reorderRootItems, moveAndReorderDocument]
+  );
+
+  const handleDragCancel = useCallback(
+    (_event: DragCancelEvent) => {
+      if (draggedFolderId) {
+        onRestoreFolderForDrag(draggedFolderId);
+        setDraggedFolderId(null);
+      }
+
+      if (clonedItems) {
+        setItems(clonedItems);
+      }
+      setActiveId(null);
+      setClonedItems(null);
+      lastOverIdRef.current = null;
+    },
+    [clonedItems, draggedFolderId, onRestoreFolderForDrag]
+  );
+
+  // Build overlay content
+  const activeEntry = activeId ? dataMap[String(activeId)] : null;
+  const activeTitle = activeEntry
+    ? activeEntry.type === 'folder'
+      ? (activeEntry.data as FolderNode).name
+      : (activeEntry.data as { id: string; title: string }).title
+    : '';
 
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+      measuring={{
+        droppable: { strategy: MeasuringStrategy.Always },
+      }}
     >
       <SortableContext
-        items={sortableIds}
+        items={items.root || []}
         strategy={verticalListSortingStrategy}
       >
         {children}
       </SortableContext>
       <DragOverlay>
-        {activeItem && (
+        {activeId && activeEntry && (
           <div className="flex items-center gap-2 rounded-md bg-sidebar-accent px-2 py-1.5 text-sm opacity-90 shadow-md">
-            {activeItem.type === 'folder' ? (
+            {activeEntry.type === 'folder' ? (
               <FolderIcon className="h-4 w-4" />
             ) : (
               <FileTextIcon className="h-4 w-4" />
             )}
-            <span className="truncate">{activeItem.title}</span>
+            <span className="truncate">{activeTitle}</span>
           </div>
         )}
       </DragOverlay>

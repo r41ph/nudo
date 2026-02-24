@@ -19,14 +19,12 @@ interface FolderItemProps {
   folder: FolderNode;
   isOpen: boolean;
   onToggle: () => void;
-  isDropTarget?: boolean;
 }
 
 export function FolderItem({
   folder,
   isOpen,
   onToggle,
-  isDropTarget,
 }: FolderItemProps) {
   const navigate = useNavigate();
   const [isEditingFolder, setIsEditingFolder] = useState(false);
@@ -93,7 +91,7 @@ export function FolderItem({
   };
 
   return (
-    <SidebarMenuItem className={cn(isDropTarget && 'bg-sidebar-accent')}>
+    <SidebarMenuItem>
       {isEditingFolder ? (
         <Input
           ref={folderInputRef}

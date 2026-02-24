@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { FileTextIcon, PenIcon, Trash2Icon } from 'lucide-react';
-import { cn } from '@ui/lib/utils';
 import {
   SidebarMenuItem,
   SidebarMenuButton,
@@ -15,11 +14,9 @@ import { queryClient } from '@web/lib/query-client';
 
 interface DocumentItemProps {
   doc: { id: string; title: string };
-  indented?: boolean;
-  isDropTarget?: boolean;
 }
 
-export function DocumentItem({ doc, indented, isDropTarget }: DocumentItemProps) {
+export function DocumentItem({ doc }: DocumentItemProps) {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editingTitle, setEditingTitle] = useState('');
@@ -62,7 +59,7 @@ export function DocumentItem({ doc, indented, isDropTarget }: DocumentItemProps)
   };
 
   return (
-    <SidebarMenuItem className={cn(indented && 'pl-6', isDropTarget && 'bg-sidebar-accent')}>
+    <SidebarMenuItem>
       {isEditing ? (
         <Input
           ref={inputRef}
