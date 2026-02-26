@@ -82,11 +82,16 @@ export function DndSidebarContext({
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [draggedFolderId, setDraggedFolderId] = useState<string | null>(null);
   const lastOverIdRef = useRef<UniqueIdentifier | null>(null);
+  const prevExternalItemsRef = useRef<ItemsRecord>(externalItems);
   const { reorderRootItems, moveAndReorderDocument } = useSidebarDnd();
 
-  // Sync external items when not dragging
-  if (!activeId && externalItems !== items) {
-    setItems(externalItems);
+  // Sync only when externalItems reference changes (server data updated),
+  // not when local items diverge due to optimistic drag updates
+  if (prevExternalItemsRef.current !== externalItems) {
+    prevExternalItemsRef.current = externalItems;
+    if (!activeId) {
+      setItems(externalItems);
+    }
   }
 
   const sensors = useSensors(
@@ -458,7 +463,7 @@ export function DndSidebarContext({
       >
         {children}
       </SortableContext>
-      <DragOverlay>
+      <DragOverlay dropAnimation={null}>
         {activeId && activeEntry && (
           <div className="flex items-center gap-2 rounded-md bg-sidebar-accent px-2 py-1.5 text-sm opacity-90 shadow-md">
             {activeEntry.type === 'folder' ? (
