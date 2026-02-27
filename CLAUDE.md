@@ -87,6 +87,13 @@ Each kit has a base variant (static components) and an interactive variant. Only
 - Styling uses Tailwind with `cn()` utility from `@udecode/cn`
 - Editor node components exist in both static and interactive variants (e.g., `blockquote-node.tsx` and `blockquote-node-static.tsx`)
 
+## Database Conventions
+
+### Migrations
+
+- **Forward-only**: Migrations do not include `down()` functions. To undo a schema change, create a new migration that reverses it.
+- Migration files live in `apps/api/src/db/migrations/` with numeric prefixes (e.g., `017_move-toolbar-to-users.ts`)
+
 ## Git Conventions
 
 ### Commit Messages
