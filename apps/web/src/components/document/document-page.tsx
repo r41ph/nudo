@@ -8,13 +8,14 @@ import { currentDocumentAtom } from '@web/state/document.atom';
 import { enabledToolsAtom } from '@web/state/toolbar.atom';
 import { dialogAtom } from '@web/state/dialog.atom';
 import { DIALOG } from '@web/constants/dialog.constants';
-import { isAuthenticatedAtom } from '@web/state/auth.atom';
+import { isAuthenticatedAtom, userAtom } from '@web/state/auth.atom';
 import { Layout } from '@web/components/layout/layout';
 import { MainEditor } from '@writing-app/ui/src/components/main-editor/main-editor';
 import { EditorToolbarDialog } from '@web/components/toolbar-dialog/toolbar-dialog';
 import { SaveBar } from '@web/components/save-bar/save-bar';
 import { useAutoSave } from '@web/hooks/useAutoSave';
 import { useToolbarSettingsSync } from '@web/hooks/useToolbarSettingsSync';
+import { useUserPreferences } from '@web/hooks/useUserPreferences';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DocumentData = any;
@@ -23,23 +24,23 @@ export function DocumentPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+  const user = useAtomValue(userAtom);
   const [dialogState, setDialog] = useAtom(dialogAtom);
-  const [enabledTools, setEnabledTools] = useAtom(enabledToolsAtom);
+  const enabledTools = useAtomValue(enabledToolsAtom);
   const setCurrentDocument = useSetAtom(currentDocumentAtom);
   const isDialogOpen = dialogState.activeDialog === DIALOG.EDITOR_TOOLBAR;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['document', id],
-    queryFn: () =>
-      graphqlClient.request<DocumentData>(GET_DOCUMENT, { id }),
+    queryFn: () => graphqlClient.request<DocumentData>(GET_DOCUMENT, { id }),
     enabled: !!id && isAuthenticated,
   });
 
   const doc = data?.documentById;
-  const settings = doc?.documentSettingsByDocumentId?.nodes?.[0];
 
   const { scheduleAutoSave, saveNow } = useAutoSave(id || null);
-  useToolbarSettingsSync(settings?.id || null, enabledTools);
+  useUserPreferences();
+  useToolbarSettingsSync(user?.id || null, enabledTools);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -55,13 +56,9 @@ export function DocumentPage() {
         slug: doc.slug,
         content: doc.content,
         wordCount: doc.wordCount,
-        settingsId: settings?.id || null,
       });
-      if (settings?.enabledTools) {
-        setEnabledTools(settings.enabledTools);
-      }
     }
-  }, [doc, settings, setCurrentDocument, setEnabledTools]);
+  }, [doc, setCurrentDocument]);
 
   if (isLoading) {
     return (

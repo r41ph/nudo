@@ -33,22 +33,22 @@ export const UPDATE_DOCUMENT_CONTENT = gql`
   }
 `;
 
-export const UPDATE_DOCUMENT_SETTINGS = gql`
-  mutation UpdateDocumentSettings(
+export const UPDATE_USER_TOOLBAR = gql`
+  mutation UpdateUserToolbar(
     $id: UUID!
     $enabledTools: JSON
     $toolbarType: String
   ) {
-    updateDocumentSettingById(
+    updateUserById(
       input: {
         id: $id
-        documentSettingPatch: {
+        userPatch: {
           enabledTools: $enabledTools
           toolbarType: $toolbarType
         }
       }
     ) {
-      documentSetting {
+      user {
         id
         enabledTools
         toolbarType

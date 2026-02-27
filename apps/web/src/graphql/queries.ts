@@ -1,5 +1,15 @@
 import { gql } from 'graphql-request';
 
+export const GET_CURRENT_USER = gql`
+  query GetCurrentUser($id: UUID!) {
+    userById(id: $id) {
+      id
+      enabledTools
+      toolbarType
+    }
+  }
+`;
+
 export const GET_DOCUMENT = gql`
   query GetDocument($id: UUID!) {
     documentById(id: $id) {
@@ -11,13 +21,6 @@ export const GET_DOCUMENT = gql`
       wordCount
       createdAt
       updatedAt
-      documentSettingsByDocumentId {
-        nodes {
-          id
-          enabledTools
-          toolbarType
-        }
-      }
     }
   }
 `;

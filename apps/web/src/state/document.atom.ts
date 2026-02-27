@@ -6,7 +6,6 @@ export interface DocumentData {
   slug: string;
   content: unknown[];
   wordCount: number;
-  settingsId: string | null;
 }
 
 export const currentDocumentAtom = atom<DocumentData | null>(null);
