@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { FileTextIcon, PenIcon, Trash2Icon } from 'lucide-react';
 import {
@@ -17,6 +17,7 @@ interface DocumentItemProps {
 }
 
 export function DocumentItem({ doc }: DocumentItemProps) {
+  const { id: activeDocId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editingTitle, setEditingTitle] = useState('');
@@ -74,7 +75,10 @@ export function DocumentItem({ doc }: DocumentItemProps) {
         />
       ) : (
         <>
-          <SidebarMenuButton onClick={() => navigate(`/document/${doc.id}`)}>
+          <SidebarMenuButton
+            isActive={activeDocId === doc.id}
+            onClick={() => navigate(`/document/${doc.id}`)}
+          >
             <FileTextIcon className="h-4 w-4" />
             <span className="truncate">{doc.title}</span>
           </SidebarMenuButton>
