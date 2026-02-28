@@ -16,6 +16,7 @@ import { SaveBar } from '@web/components/save-bar/save-bar';
 import { useAutoSave } from '@web/hooks/useAutoSave';
 import { useToolbarSettingsSync } from '@web/hooks/useToolbarSettingsSync';
 import { useUserPreferences } from '@web/hooks/useUserPreferences';
+import { isValidUuid } from '@web/lib/uuid';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DocumentData = any;
@@ -29,11 +30,12 @@ export function DocumentPage() {
   const enabledTools = useAtomValue(enabledToolsAtom);
   const setCurrentDocument = useSetAtom(currentDocumentAtom);
   const isDialogOpen = dialogState.activeDialog === DIALOG.EDITOR_TOOLBAR;
+  const isValidId = !!id && isValidUuid(id);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['document', id],
     queryFn: () => graphqlClient.request<DocumentData>(GET_DOCUMENT, { id }),
-    enabled: !!id && isAuthenticated,
+    enabled: isValidId && isAuthenticated,
   });
 
   const doc = data?.documentById;
