@@ -10,7 +10,6 @@ export function useToolbarSettingsSync(
 ) {
   const { mutate: updateToolbar } = useMutation({
     mutationFn: (variables: {
-      id: string;
       enabledTools: string[];
       toolbarType?: string;
     }) => graphqlClient.request(UPDATE_USER_TOOLBAR, variables),
@@ -30,7 +29,6 @@ export function useToolbarSettingsSync(
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       updateToolbar({
-        id: userId,
         enabledTools,
         ...(toolbarType !== undefined ? { toolbarType } : {}),
       });

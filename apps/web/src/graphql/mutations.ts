@@ -34,18 +34,11 @@ export const UPDATE_DOCUMENT_CONTENT = gql`
 `;
 
 export const UPDATE_USER_TOOLBAR = gql`
-  mutation UpdateUserToolbar(
-    $id: UUID!
-    $enabledTools: JSON
-    $toolbarType: String
-  ) {
-    updateUserById(
+  mutation UpdateUserToolbar($enabledTools: JSON!, $toolbarType: String) {
+    updateUserToolbar(
       input: {
-        id: $id
-        userPatch: {
-          enabledTools: $enabledTools
-          toolbarType: $toolbarType
-        }
+        newEnabledTools: $enabledTools
+        newToolbarType: $toolbarType
       }
     ) {
       user {
