@@ -65,9 +65,6 @@ export function PlateEditor({
         onChange={({ value }) => {
           onContentChange?.(value);
         }}
-        onSelectionChange={(s) => {
-          console.log('🚀 ~ :65 ~ PlateEditor ~ s:', s);
-        }}
       >
         <FloatingToolbar
           // placement="bottom"
