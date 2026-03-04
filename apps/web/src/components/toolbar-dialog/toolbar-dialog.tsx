@@ -62,12 +62,8 @@ export function EditorToolbarDialog() {
           e.preventDefault();
           if (!savedSelection.current) return;
           const selection = savedSelection.current;
-          const editorEl = document.querySelector(
-            '[data-slate-editor="true"]'
-          ) as HTMLElement;
-          if (editorEl) {
-            editorEl.focus();
-          }
+          const editorEl = editor.api.toDOMNode(editor);
+          editorEl?.focus();
           // Collapse selection first to reset waitForCollapsedSelection flag
           editor.tf.select(selection.anchor);
           // Restore expanded selection after React processes the collapse
