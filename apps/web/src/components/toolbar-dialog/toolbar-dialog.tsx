@@ -10,7 +10,7 @@ import { dialogAtom } from '@web/state/dialog.atom';
 import { useAtom } from 'jotai';
 import { enabledToolsAtom } from '@web/state/toolbar.atom';
 import { TOOLBAR_TOOLS } from '@web/constants/toolbar.constants';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useEditorRef, useEditorSelector } from 'platejs/react';
 import { ToolbarPreview } from './toolbar-preview';
 import { ToolbarToolsList } from './toolbar-tools-list';
@@ -40,6 +40,15 @@ export function EditorToolbarDialog() {
       enabled: enabledTools.includes(name),
     }));
   }, [enabledTools]);
+
+  const toggleTool = useCallback(
+    (toolName: string, enabled: boolean) => {
+      setEnabledTools((prev) =>
+        enabled ? [...prev, toolName] : prev.filter((t) => t !== toolName)
+      );
+    },
+    [setEnabledTools]
+  );
 
   return (
     <Dialog
@@ -81,11 +90,7 @@ export function EditorToolbarDialog() {
         <ToolbarPreview enabledTools={enabledTools} />
         <ToolbarToolsList
           tools={tools}
-          onToggleTool={(toolName, enabled) => {
-            enabled
-              ? setEnabledTools([...enabledTools, toolName])
-              : setEnabledTools(enabledTools.filter((t) => t !== toolName));
-          }}
+          onToggleTool={toggleTool}
         />
       </DialogContent>
     </Dialog>

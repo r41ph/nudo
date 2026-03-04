@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Icon, type IconName } from '@ui/components/icon/icon';
 import { Label } from '@ui/components/ui/label';
 import { Switch } from '@ui/components/ui/switch';
@@ -13,7 +14,7 @@ interface ToolbarToolsListProps {
   onToggleTool: (toolName: string, enabled: boolean) => void;
 }
 
-export function ToolbarToolsList({
+export const ToolbarToolsList = memo(function ToolbarToolsList({
   tools,
   onToggleTool,
 }: ToolbarToolsListProps) {
@@ -40,4 +41,4 @@ export function ToolbarToolsList({
       ))}
     </div>
   );
-}
+});
