@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { PlusIcon, FileTextIcon, FolderIcon } from 'lucide-react';
 import {
   DropdownMenu,
@@ -13,7 +14,7 @@ interface AddNewButtonProps {
   onNewFolder: () => void;
 }
 
-export function AddNewButton({ disabled, onNewDocument, onNewFolder }: AddNewButtonProps) {
+export const AddNewButton = memo(function AddNewButton({ disabled, onNewDocument, onNewFolder }: AddNewButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -34,4 +35,4 @@ export function AddNewButton({ disabled, onNewDocument, onNewFolder }: AddNewBut
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+});
