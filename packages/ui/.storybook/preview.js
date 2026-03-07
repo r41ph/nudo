@@ -1,7 +1,17 @@
+import React from 'react';
 import '../src/tailwind.css';
+import { TooltipProvider } from '../src/components/ui/tooltip';
 
 /** @type { import('@storybook/react-vite').Preview } */
 const preview = {
+  decorators: [
+    (Story) =>
+      React.createElement(
+        TooltipProvider,
+        null,
+        React.createElement(Story)
+      ),
+  ],
   parameters: {
     controls: {
       matchers: {
