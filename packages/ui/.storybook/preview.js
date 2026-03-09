@@ -1,10 +1,12 @@
 import React from 'react';
-import '../src/tailwind.css';
+import './storybook.css';
 import { TooltipProvider } from '../src/components/ui/tooltip';
+import { jotaiDecorator } from './decorators/jotai-decorator';
 
 /** @type { import('@storybook/react-vite').Preview } */
 const preview = {
   decorators: [
+    jotaiDecorator,
     (Story) =>
       React.createElement(
         TooltipProvider,

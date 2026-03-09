@@ -1,0 +1,4 @@
+@import '../src/tailwind.css';
+
+/* Scan web app sources so stories that import @web/ components get their Tailwind classes */
+@source '../../../apps/web/src';
