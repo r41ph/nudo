@@ -13,7 +13,9 @@
     "db:migrate": "pnpm --filter @writing-app/api migrate",
     "db:migrate:down": "pnpm --filter @writing-app/api migrate:down",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "test": "pnpm --filter './apps/*' test && pnpm --filter './packages/*' test",
+    "test:web": "pnpm --filter @writing-app/web test"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +23,8 @@
   "packageManager": "pnpm@10.26.1",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "bcrypt"
+      "bcrypt",
+      "msw"
     ]
   },
   "devDependencies": {
