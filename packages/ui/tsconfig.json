@@ -6,7 +6,8 @@
     "baseUrl": ".",
     "paths": {
       "@ui/*": ["./src/*"],
-      "@stories/*": ["./stories/*"]
+      "@stories/*": ["./stories/*"],
+      "@web/*": ["../../apps/web/src/*"]
     }
   },
   "include": [

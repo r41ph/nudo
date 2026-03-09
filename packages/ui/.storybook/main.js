@@ -28,6 +28,7 @@ const config = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@ui': resolve(__dirname, '../src'),
+      '@web': resolve(__dirname, '../../../apps/web/src'),
     };
 
     return config;
