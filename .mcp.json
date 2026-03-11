@@ -4,14 +4,15 @@
       "description": "Plate editors, plugins and components",
       "type": "stdio",
       "command": "npx",
-      "args": [
-        "shadcn@latest",
-        "mcp"
-      ]
+      "args": ["shadcn@latest", "mcp"]
     },
     "context7": {
       "type": "http",
       "url": "https://mcp.context7.com/mcp"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
     }
   }
 }
