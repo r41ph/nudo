@@ -38,11 +38,6 @@ authRouter.post('/register', async (req: Request, res: Response) => {
        VALUES ($1, $2, $3, $4::jsonb, $5, $6) RETURNING id`,
       [user.id, WELCOME_DOCUMENT.title, WELCOME_DOCUMENT.slug, JSON.stringify(WELCOME_DOCUMENT.content), WELCOME_DOCUMENT.plainText, WELCOME_WORD_COUNT]
     );
-    await pool.query(
-      `INSERT INTO document_settings (document_id) VALUES ($1)`,
-      [welcomeDoc.rows[0].id]
-    );
-
     res.status(201).json({
       token,
       user: {

@@ -26,14 +26,13 @@ import {
   type TreeFolderItem,
   type FolderTreeCallbacks,
   type FolderTreeConfig,
-  type RootOrderItem,
 } from '@web/components/folder-tree';
 import type { FolderNode } from '@web/types/folder.types';
 
 export function ManuscriptsSection() {
   const { id: activeDocId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { reorderRootItems, moveAndReorderDocument } = useSidebarDnd();
+  const { reorderFolders, moveAndReorderDocument } = useSidebarDnd();
 
   const { data: docsData } = useQuery({
     queryKey: ['documents'],
@@ -106,7 +105,6 @@ export function ManuscriptsSection() {
   const documents = docsData?.allDocuments?.nodes || [];
   const rawFolders = foldersData?.allFolders?.nodes || [];
 
-  // Map domain data into generic tree types
   const folders: TreeFolderItem[] = useMemo(
     () =>
       rawFolders.map((f) => ({
@@ -117,7 +115,7 @@ export function ManuscriptsSection() {
           .sort((a, b) => a.position - b.position)
           .map((d) => ({ id: d.id, title: d.title })),
       })),
-    [rawFolders]
+    [rawFolders],
   );
 
   const rootItems: TreeLeafItem[] = useMemo(
@@ -125,8 +123,8 @@ export function ManuscriptsSection() {
       documents
         .filter((doc) => !doc.folderId)
         .sort((a, b) => a.position - b.position)
-        .map((d) => ({ id: d.id, title: d.title })),
-    [documents]
+        .map((d) => ({ id: d.id, title: d.title, position: d.position })),
+    [documents],
   );
 
   const callbacks: FolderTreeCallbacks = useMemo(
@@ -135,21 +133,10 @@ export function ManuscriptsSection() {
       onDeleteFolder: (id) => deleteFolder({ id }),
       onRenameItem: (id, title) => renameDocument({ id, title }),
       onDeleteItem: (id) => deleteDocument({ id }),
-      onClickItem: (item) => navigate(`/document/${item.id}`),
-      onReorderRoot: (order: RootOrderItem[]) =>
-        reorderRootItems(
-          order.map((o) => ({
-            type: o.type === 'folder' ? ('folder' as const) : ('document' as const),
-            id: o.id,
-            position: o.position,
-          }))
-        ),
-      onMoveItem: (itemId, targetFolderId, positions) =>
-        moveAndReorderDocument({
-          docId: itemId,
-          targetFolderId: targetFolderId,
-          docPositions: positions,
-        }),
+      onClickItem: (id) => navigate(`/document/${id}`),
+      onReorderFolders: (positions) => reorderFolders(positions),
+      onMoveDocument: (docId, targetFolderId, docPositions) =>
+        moveAndReorderDocument({ docId, targetFolderId, docPositions }),
     }),
     [
       renameFolder,
@@ -157,43 +144,37 @@ export function ManuscriptsSection() {
       renameDocument,
       deleteDocument,
       navigate,
-      reorderRootItems,
+      reorderFolders,
       moveAndReorderDocument,
-    ]
-  );
-
-  const handleCreateInFolder = useCallback(
-    (folder: TreeFolderItem) => {
-      createDocumentInFolder({
-        title: 'Untitled Document',
-        content: [{ type: 'p', children: [{ text: '' }] }],
-        folderId: folder.id,
-      });
-    },
-    [createDocumentInFolder]
+    ],
   );
 
   const config: FolderTreeConfig = useMemo(
     () => ({
       itemIcon: FileTextIcon,
-      emptyDropText: 'Drop documents here',
-      folderActions: (folder) => (
+      folderActions: (folderId) => (
         <Button
           variant="ghost"
           size="icon-sm"
-          onClick={() => handleCreateInFolder(folder)}
+          onClick={() =>
+            createDocumentInFolder({
+              title: 'Untitled Document',
+              content: [{ type: 'p', children: [{ text: '' }] }],
+              folderId,
+            })
+          }
           className="h-5 w-5 [&_svg]:size-3.5"
         >
           <PlusIcon />
         </Button>
       ),
     }),
-    [handleCreateInFolder]
+    [createDocumentInFolder],
   );
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Documents</SidebarGroupLabel>
+      <SidebarGroupLabel>Manuscript</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           <FolderTree

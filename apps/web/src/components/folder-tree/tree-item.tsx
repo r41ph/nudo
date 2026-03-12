@@ -6,19 +6,21 @@ import {
   SidebarMenuAction,
 } from '@ui/components/ui/sidebar';
 import { Input } from '@ui/components/ui/input';
-import type { TreeLeafItem, FolderTreeConfig } from './folder-tree.types';
+import type { FolderTreeConfig } from './folder-tree.types';
 
 interface TreeItemProps {
-  item: TreeLeafItem;
+  domainId: string;
+  title: string;
   isActive: boolean;
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
-  onClick: (item: TreeLeafItem) => void;
+  onClick: (id: string) => void;
   config?: FolderTreeConfig;
 }
 
 export const TreeItem = memo(function TreeItem({
-  item,
+  domainId,
+  title,
   isActive,
   onRename,
   onDelete,
@@ -38,23 +40,23 @@ export const TreeItem = memo(function TreeItem({
 
   const startEditing = useCallback(() => {
     setIsEditing(true);
-    setEditingTitle(item.title);
-  }, [item.title]);
+    setEditingTitle(title);
+  }, [title]);
 
   const submitRename = useCallback(() => {
     if (editingTitle.trim()) {
-      onRename(item.id, editingTitle.trim());
+      onRename(domainId, editingTitle.trim());
     }
     setIsEditing(false);
-  }, [editingTitle, onRename, item.id]);
+  }, [editingTitle, onRename, domainId]);
 
   const handleClick = useCallback(() => {
-    onClick(item);
-  }, [onClick, item]);
+    onClick(domainId);
+  }, [onClick, domainId]);
 
   const handleDelete = useCallback(() => {
-    onDelete(item.id);
-  }, [onDelete, item.id]);
+    onDelete(domainId);
+  }, [onDelete, domainId]);
 
   const ItemIcon = config?.itemIcon ?? FileTextIcon;
 
@@ -76,7 +78,7 @@ export const TreeItem = memo(function TreeItem({
         <>
           <SidebarMenuButton isActive={isActive} onClick={handleClick}>
             <ItemIcon className="h-4 w-4" />
-            <span className="truncate">{item.title}</span>
+            <span className="truncate">{title}</span>
           </SidebarMenuButton>
           <SidebarMenuAction
             onClick={startEditing}

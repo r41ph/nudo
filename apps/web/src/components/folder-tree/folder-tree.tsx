@@ -1,33 +1,19 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTree } from '@headless-tree/react';
 import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  useDndMonitor,
-  pointerWithin,
-  rectIntersection,
-  closestCenter,
-  type DragStartEvent,
-  type DragOverEvent,
-  type DragEndEvent,
-  type CollisionDetection,
-  type UniqueIdentifier,
-} from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
-import { FileTextIcon, FolderIcon } from 'lucide-react';
-import { SortableItem } from '@web/components/dnd/sortable-item';
-import { SortableList } from '@web/components/dnd/sortable-list';
-import { parseId, findContainer } from './folder-tree.utils';
-import { DND_MEASURING_CONFIG } from './folder-tree.constants';
-import { DroppableFolder } from './droppable-folder';
+  syncDataLoaderFeature,
+  dragAndDropFeature,
+  createOnDropHandler,
+  type ItemInstance,
+  type DragTarget,
+} from '@headless-tree/core';
+import { FolderItem } from './folder-item';
 import { TreeItem } from './tree-item';
 import type {
+  FolderTreeData,
+  TreeMap,
   TreeFolderItem,
   TreeLeafItem,
-  ItemsRecord,
-  DataMapEntry,
   FolderTreeCallbacks,
   FolderTreeConfig,
 } from './folder-tree.types';
@@ -40,6 +26,51 @@ interface FolderTreeProps {
   activeItemId?: string;
 }
 
+function buildTreeMap(
+  folders: TreeFolderItem[],
+  rootItems: TreeLeafItem[],
+): TreeMap {
+  const map: TreeMap = {};
+
+  // Interleave folders + root docs sorted by position
+  const rootEntries = [
+    ...folders.map((f) => ({ id: `folder-${f.id}`, position: f.position })),
+    ...rootItems.map((d, i) => ({
+      id: `doc-${d.id}`,
+      position: d.position ?? i,
+    })),
+  ].sort((a, b) => a.position - b.position);
+
+  map['root'] = {
+    item: { type: 'root' },
+    children: rootEntries.map((e) => e.id),
+  };
+
+  for (const folder of folders) {
+    map[`folder-${folder.id}`] = {
+      item: { type: 'folder', domainId: folder.id, name: folder.name },
+      children: folder.items.map((d) => `doc-${d.id}`),
+    };
+    for (const doc of folder.items) {
+      map[`doc-${doc.id}`] = {
+        item: { type: 'document', domainId: doc.id, title: doc.title },
+        children: [],
+      };
+    }
+  }
+
+  for (const doc of rootItems) {
+    map[`doc-${doc.id}`] = {
+      item: { type: 'document', domainId: doc.id, title: doc.title },
+      children: [],
+    };
+  }
+
+  return map;
+}
+
+const INDENT = 20;
+
 export function FolderTree({
   folders,
   rootItems,
@@ -47,566 +78,189 @@ export function FolderTree({
   config,
   activeItemId,
 }: FolderTreeProps) {
-  // Build items record and data maps from props
-  const { externalItems, dataMap, itemDataMap } = useMemo(() => {
-    type RootEntry = { key: string; position: number };
-    const rootEntries: RootEntry[] = [
-      ...folders.map((f) => ({ key: `folder-${f.id}`, position: f.position })),
-      ...rootItems.map((d, i) => ({ key: `item-${d.id}`, position: i })),
-    ];
-    rootEntries.sort((a, b) => a.position - b.position);
+  const externalData = useMemo(
+    () => buildTreeMap(folders, rootItems),
+    [folders, rootItems],
+  );
 
-    const itemsRecord: ItemsRecord = {
-      root: rootEntries.map((e) => e.key),
-    };
+  const [treeData, setTreeData] = useState(externalData);
 
-    for (const folder of folders) {
-      const sortedItems = [...folder.items].sort(
-        (a, b) => (a as TreeLeafItem & { position?: number }).position ?? 0 -
-                   ((b as TreeLeafItem & { position?: number }).position ?? 0)
-      );
-      itemsRecord[`folder-${folder.id}`] = sortedItems.map(
-        (d) => `item-${d.id}`
-      );
-    }
+  // Authoritative source of truth for the dataLoader. Must NOT be synced on
+  // every render (doing so resets mutations made inside the async onDrop handler
+  // when React re-renders between removeItemsFromParents and insertItemsAtTarget).
+  const treeDataRef = useRef(treeData);
 
-    const dm: Record<string, DataMapEntry> = {};
-    for (const folder of folders) {
-      dm[`folder-${folder.id}`] = { type: 'folder', data: folder };
-    }
+  const callbacksRef = useRef(callbacks);
+  callbacksRef.current = callbacks;
 
-    const idm: Record<string, TreeLeafItem> = {};
-    for (const item of rootItems) {
-      dm[`item-${item.id}`] = { type: 'item', data: item };
-      idm[`item-${item.id}`] = item;
-    }
-    for (const folder of folders) {
-      for (const item of folder.items) {
-        dm[`item-${item.id}`] = { type: 'item', data: item };
-        idm[`item-${item.id}`] = item;
-      }
-    }
-
-    return { externalItems: itemsRecord, dataMap: dm, itemDataMap: idm };
-  }, [folders, rootItems]);
-
-  // DnD state
-  const [items, setItems] = useState<ItemsRecord>(externalItems);
-  const [clonedItems, setClonedItems] = useState<ItemsRecord | null>(null);
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [draggedFolderId, setDraggedFolderId] = useState<string | null>(null);
-  const lastOverIdRef = useRef<UniqueIdentifier | null>(null);
-  const prevExternalItemsRef = useRef<ItemsRecord>(externalItems);
-
-  // Folder open/close state
-  const [openFolders, setOpenFolders] = useState<Set<string>>(() => new Set());
-
-  const toggleFolder = useCallback((folderId: string) => {
-    setOpenFolders((prev) => {
-      const next = new Set(prev);
-      if (next.has(folderId)) {
-        next.delete(folderId);
-      } else {
-        next.add(folderId);
-      }
-      return next;
-    });
-  }, []);
-
-  const openFolder = useCallback((folderId: string) => {
-    setOpenFolders((prev) => {
-      if (prev.has(folderId)) return prev;
-      const next = new Set(prev);
-      next.add(folderId);
-      return next;
-    });
-  }, []);
-
-  const collapseFolderForDrag = useCallback((folderId: string) => {
-    setOpenFolders((prev) => {
-      if (!prev.has(folderId)) return prev;
-      const next = new Set(prev);
-      next.delete(folderId);
-      return next;
-    });
-  }, []);
-
-  const restoreFolderForDrag = useCallback((folderId: string) => {
-    setOpenFolders((prev) => {
-      if (prev.has(folderId)) return prev;
-      const next = new Set(prev);
-      next.add(folderId);
-      return next;
-    });
-  }, []);
-
-  // Sync external items when data changes (but not during active drag)
-  if (prevExternalItemsRef.current !== externalItems) {
-    prevExternalItemsRef.current = externalItems;
-    if (!activeId) {
-      setItems(externalItems);
-    }
+  // Sync when server data changes (outside of an active drag)
+  const prevExternalRef = useRef(externalData);
+  if (prevExternalRef.current !== externalData) {
+    prevExternalRef.current = externalData;
+    treeDataRef.current = externalData;
+    setTreeData(externalData);
   }
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
-    })
-  );
-
-  const collisionDetection: CollisionDetection = useCallback(
-    (args) => {
-      if (activeId && String(activeId).startsWith('folder-')) {
-        return closestCenter({
-          ...args,
-          droppableContainers: args.droppableContainers.filter(
-            (container) =>
-              items.root?.includes(String(container.id)) ||
-              container.id === 'root'
-          ),
-        });
-      }
-
-      const pointerCollisions = pointerWithin(args);
-      if (pointerCollisions.length > 0) {
-        const overContainerId = pointerCollisions.find(
-          (c) => String(c.id).endsWith('-droppable') || c.id in items
-        );
-
-        if (overContainerId) {
-          let containerKey: string;
-          const colId = String(overContainerId.id);
-          if (colId.endsWith('-droppable')) {
-            containerKey = colId.replace('-droppable', '');
-          } else {
-            containerKey = colId;
-          }
-
-          const containerItems = items[containerKey];
-          if (containerItems && containerItems.length > 0) {
-            const innerCollisions = closestCenter({
-              ...args,
-              droppableContainers: args.droppableContainers.filter(
-                (container) =>
-                  containerItems.includes(String(container.id)) &&
-                  container.id !== activeId
-              ),
-            });
-            if (innerCollisions.length > 0) {
-              lastOverIdRef.current = innerCollisions[0].id;
-              return innerCollisions;
-            }
-          }
-
-          lastOverIdRef.current = overContainerId.id;
-          return [overContainerId];
+  const tree = useTree<FolderTreeData>({
+    rootItemId: 'root',
+    dataLoader: {
+      // Read from the ref so that mutations inside onDrop's onChangeChildren
+      // callback are visible to subsequent getChildren() calls within the
+      // same createOnDropHandler invocation (avoids duplicate entries).
+      getItem: (id) =>
+        treeDataRef.current[id]?.item ?? ({ type: 'root' } as FolderTreeData),
+      getChildren: (id) => treeDataRef.current[id]?.children ?? [],
+    },
+    isItemFolder: (item) => item.getItemData().type !== 'document',
+    getItemName: (item) => {
+      const d = item.getItemData();
+      if (d.type === 'folder') return d.name;
+      if (d.type === 'document') return d.title;
+      return '';
+    },
+    indent: INDENT,
+    canReorder: true,
+    // Ensure the item under the cursor is always used as the drag source,
+    // regardless of which item was previously focused/selected.
+    draggedItemOverwritesSelection: true,
+    canDrop: (
+      items: ItemInstance<FolderTreeData>[],
+      target: DragTarget<FolderTreeData>,
+    ) => {
+      const targetId = String(target.item.getId());
+      // Documents are leaves — nothing can be dropped into them
+      if (targetId.startsWith('doc-')) return false;
+      for (const item of items) {
+        if (String(item.getId()).startsWith('folder-')) {
+          // Folders may only live at root — block drops into other folders
+          if (targetId !== 'root') return false;
         }
-
-        lastOverIdRef.current = pointerCollisions[0].id;
-        return pointerCollisions;
       }
-
-      const rectCollisions = rectIntersection(args);
-      if (rectCollisions.length > 0) {
-        lastOverIdRef.current = rectCollisions[0].id;
-        return rectCollisions;
-      }
-
-      if (lastOverIdRef.current) {
-        return [{ id: lastOverIdRef.current }];
-      }
-
-      return [];
+      return true;
     },
-    [activeId, items]
-  );
+    onDrop: async (
+      items: ItemInstance<FolderTreeData>[],
+      target: DragTarget<FolderTreeData>,
+    ) => {
+      const dragged = items[0];
+      const draggedId = String(dragged.getId());
+      const newParentId = String(target.item.getId());
 
-  const handleDragStart = useCallback(
-    (event: DragStartEvent) => {
-      const id = String(event.active.id);
-      setActiveId(id);
-      setClonedItems({ ...items });
+      // Immediately mutate the ref in the callback so that
+      // insertItemsAtTarget (inside createOnDropHandler) sees the post-removal
+      // children when it calls getChildren() — prevents duplicate entries.
+      const applyDrop = createOnDropHandler<FolderTreeData>(
+        (item, newChildren) => {
+          const itemId = String(item.getId());
+          treeDataRef.current = {
+            ...treeDataRef.current,
+            [itemId]: { ...treeDataRef.current[itemId], children: newChildren },
+          };
+        },
+      );
+      await applyDrop(items, target);
 
-      const parsed = parseId(id);
-      if (parsed?.type === 'folder') {
-        setDraggedFolderId(parsed.id);
-        collapseFolderForDrag(parsed.id);
-      }
-    },
-    [items, collapseFolderForDrag]
-  );
+      // Sync React state from the now-correct ref
+      setTreeData(treeDataRef.current);
 
-  const handleDragOver = useCallback(
-    (event: DragOverEvent) => {
-      const { active, over } = event;
-      if (!over) return;
+      // Persist
+      if (draggedId.startsWith('folder-')) {
+        // Root-level folder reorder: use global positions (index in root.children)
+        // for both folders and docs so they share a single position space and
+        // buildTreeMap can correctly interleave them after the optimistic update.
+        const rootChildren = treeDataRef.current['root'].children;
+        const folderPositions = rootChildren
+          .filter((id) => id.startsWith('folder-'))
+          .map((id) => ({ id: id.replace('folder-', ''), position: rootChildren.indexOf(id) }));
+        callbacksRef.current.onReorderFolders(folderPositions);
 
-      const activeIdStr = String(active.id);
-      const overIdStr = String(over.id);
+        const rootDocs = rootChildren.filter((id) => id.startsWith('doc-'));
+        if (rootDocs.length > 0) {
+          const docPositions = rootDocs.map((id) => ({
+            id: id.replace('doc-', ''),
+            position: rootChildren.indexOf(id),
+          }));
+          callbacksRef.current.onMoveDocument(rootDocs[0].replace('doc-', ''), null, docPositions);
+        }
+      } else if (newParentId === 'root') {
+        // Root-level doc reorder: same global-position approach.
+        const rootChildren = treeDataRef.current['root'].children;
+        const docPositions = rootChildren
+          .filter((id) => id.startsWith('doc-'))
+          .map((id) => ({ id: id.replace('doc-', ''), position: rootChildren.indexOf(id) }));
+        callbacksRef.current.onMoveDocument(draggedId.replace('doc-', ''), null, docPositions);
 
-      if (activeIdStr.startsWith('folder-')) return;
-
-      let resolvedOverId = overIdStr;
-      if (overIdStr.endsWith('-droppable')) {
-        resolvedOverId = overIdStr.replace('-droppable', '');
-      }
-
-      const activeContainer = findContainer(items, activeIdStr);
-      const overContainer =
-        resolvedOverId in items
-          ? resolvedOverId
-          : findContainer(items, resolvedOverId);
-
-      if (
-        !activeContainer ||
-        !overContainer ||
-        activeContainer === overContainer
-      ) {
-        return;
-      }
-
-      const overParsed = parseId(overContainer);
-      if (
-        overParsed?.type === 'folder' &&
-        overContainer !== 'root' &&
-        !openFolders.has(overParsed.id)
-      ) {
-        return;
-      }
-
-      setItems((prev) => {
-        const activeItems = [...prev[activeContainer]];
-        const overItems = [...prev[overContainer]];
-
-        const activeIndex = activeItems.indexOf(activeIdStr);
-        if (activeIndex === -1) return prev;
-
-        activeItems.splice(activeIndex, 1);
-
-        const overIndex = overItems.indexOf(resolvedOverId);
-        const newIndex = overIndex >= 0 ? overIndex + 1 : overItems.length;
-
-        overItems.splice(newIndex, 0, activeIdStr);
-
-        return {
-          ...prev,
-          [activeContainer]: activeItems,
-          [overContainer]: overItems,
-        };
-      });
-    },
-    [items, openFolders]
-  );
-
-  const persistOrder = useCallback(
-    (container: string, order: string[], activeIdStr: string) => {
-      if (container === 'root') {
-        callbacks.onReorderRoot(
-          order.map((id, i) => {
-            const parsed = parseId(id);
-            return {
-              type: parsed?.type ?? 'item',
-              id: parsed?.id ?? id,
-              position: i,
-            };
-          })
-        );
+        const folderPositions = rootChildren
+          .filter((id) => id.startsWith('folder-'))
+          .map((id) => ({ id: id.replace('folder-', ''), position: rootChildren.indexOf(id) }));
+        if (folderPositions.length > 0) {
+          callbacksRef.current.onReorderFolders(folderPositions);
+        }
       } else {
-        const itemId = activeIdStr.replace('item-', '');
-        const folderId = container.replace('folder-', '');
-        const positions = order.map((id, i) => ({
-          id: id.replace('item-', ''),
-          position: i,
-        }));
-
-        callbacks.onMoveItem(itemId, folderId, positions);
+        // Drop into or reorder within a folder: local sequential positions suffice.
+        const targetFolderDomainId = newParentId.startsWith('folder-')
+          ? newParentId.replace('folder-', '')
+          : null;
+        const docPositions = (treeDataRef.current[newParentId]?.children ?? [])
+          .filter((id) => id.startsWith('doc-'))
+          .map((id, idx) => ({ id: id.replace('doc-', ''), position: idx }));
+        callbacksRef.current.onMoveDocument(
+          draggedId.replace('doc-', ''),
+          targetFolderDomainId,
+          docPositions,
+        );
       }
     },
-    [callbacks]
-  );
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-
-      if (draggedFolderId) {
-        restoreFolderForDrag(draggedFolderId);
-        setDraggedFolderId(null);
-      }
-
-      setActiveId(null);
-      setClonedItems(null);
-      lastOverIdRef.current = null;
-
-      if (!over) return;
-
-      const activeIdStr = String(active.id);
-      const overIdStr = String(over.id);
-
-      let resolvedOverId = overIdStr;
-      if (overIdStr.endsWith('-droppable')) {
-        resolvedOverId = overIdStr.replace('-droppable', '');
-      }
-
-      const activeContainer = findContainer(items, activeIdStr);
-      let overContainer: string | undefined;
-      if (activeIdStr.startsWith('folder-')) {
-        overContainer = findContainer(items, resolvedOverId);
-      } else {
-        overContainer =
-          resolvedOverId in items
-            ? resolvedOverId
-            : findContainer(items, resolvedOverId);
-      }
-
-      if (!activeContainer) return;
-
-      // Handle drop on closed folder
-      if (activeIdStr.startsWith('item-')) {
-        const overParsed = parseId(resolvedOverId);
-        const isClosedFolder =
-          overParsed?.type === 'folder' &&
-          resolvedOverId in items &&
-          !openFolders.has(overParsed.id);
-
-        if (isClosedFolder) {
-          const itemId = activeIdStr.replace('item-', '');
-          const folderId = overParsed!.id;
-
-          const existingItems = items[resolvedOverId].filter(
-            (id) => id !== activeIdStr
-          );
-          const positions = [
-            ...existingItems.map((id, i) => ({
-              id: id.replace('item-', ''),
-              position: i,
-            })),
-            { id: itemId, position: existingItems.length },
-          ];
-
-          callbacks.onMoveItem(itemId, folderId, positions);
-          openFolder(folderId);
-          return;
-        }
-      }
-
-      if (!overContainer) return;
-
-      if (activeContainer === overContainer) {
-        const containerItems = items[activeContainer];
-        const activeIndex = containerItems.indexOf(activeIdStr);
-        const overIndex = containerItems.indexOf(resolvedOverId);
-
-        if (activeIndex !== -1) {
-          if (overIndex !== -1 && activeIndex !== overIndex) {
-            const newOrder = arrayMove(containerItems, activeIndex, overIndex);
-            setItems((prev) => ({ ...prev, [activeContainer]: newOrder }));
-            persistOrder(activeContainer, newOrder, activeIdStr);
-          } else if (overIndex === -1) {
-            persistOrder(activeContainer, containerItems, activeIdStr);
-          }
-        }
-        return;
-      }
-
-      const overItems = items[overContainer];
-      const activeIndex = overItems.indexOf(activeIdStr);
-      const overIndex = overItems.indexOf(resolvedOverId);
-
-      let finalOrder = overItems;
-      if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
-        finalOrder = arrayMove(overItems, activeIndex, overIndex);
-        setItems((prev) => ({
-          ...prev,
-          [overContainer]: finalOrder,
-        }));
-      }
-
-      persistOrder(overContainer, finalOrder, activeIdStr);
-    },
-    [
-      items,
-      openFolders,
-      draggedFolderId,
-      callbacks,
-      persistOrder,
-      restoreFolderForDrag,
-      openFolder,
-    ]
-  );
-
-  const handleDragCancel = useCallback(
-    () => {
-      if (draggedFolderId) {
-        restoreFolderForDrag(draggedFolderId);
-        setDraggedFolderId(null);
-      }
-
-      if (clonedItems) {
-        setItems(clonedItems);
-      }
-      setActiveId(null);
-      setClonedItems(null);
-      lastOverIdRef.current = null;
-    },
-    [clonedItems, draggedFolderId, restoreFolderForDrag]
-  );
-
-  // Build overlay content
-  const activeEntry = activeId ? dataMap[String(activeId)] : null;
-  const activeTitle = activeEntry
-    ? activeEntry.type === 'folder'
-      ? (activeEntry.data as TreeFolderItem).name
-      : (activeEntry.data as TreeLeafItem).title
-    : '';
-
-  const ItemIcon = config?.itemIcon ?? FileTextIcon;
-
-  return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={collisionDetection}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-      measuring={DND_MEASURING_CONFIG}
-    >
-      <SortableList items={items.root || []}>
-        <FolderTreeContent
-          items={items}
-          dataMap={dataMap}
-          itemDataMap={itemDataMap}
-          openFolders={openFolders}
-          toggleFolder={toggleFolder}
-          folders={folders}
-          activeItemId={activeItemId}
-          callbacks={callbacks}
-          config={config}
-        />
-      </SortableList>
-      <DragOverlay dropAnimation={null}>
-        {activeId && activeEntry && (
-          <div className="flex items-center gap-2 rounded-md bg-sidebar-accent px-2 py-1.5 text-sm opacity-90 shadow-md">
-            {activeEntry.type === 'folder' ? (
-              <FolderIcon className="h-4 w-4" />
-            ) : (
-              <ItemIcon className="h-4 w-4" />
-            )}
-            <span className="truncate">{activeTitle}</span>
-          </div>
-        )}
-      </DragOverlay>
-    </DndContext>
-  );
-}
-
-// Inner content that uses useDndMonitor (must be inside DndContext)
-interface FolderTreeContentProps {
-  items: ItemsRecord;
-  dataMap: Record<string, DataMapEntry>;
-  itemDataMap: Record<string, TreeLeafItem>;
-  openFolders: Set<string>;
-  toggleFolder: (id: string) => void;
-  folders: TreeFolderItem[];
-  activeItemId?: string;
-  callbacks: FolderTreeCallbacks;
-  config?: FolderTreeConfig;
-}
-
-function FolderTreeContent({
-  items,
-  dataMap,
-  itemDataMap,
-  openFolders,
-  toggleFolder,
-  folders,
-  activeItemId,
-  callbacks,
-  config,
-}: FolderTreeContentProps) {
-  const [overContainerId, setOverContainerId] = useState<string | null>(null);
-
-  useDndMonitor({
-    onDragOver(event) {
-      const { active, over } = event;
-      if (!over || !String(active.id).startsWith('item-')) {
-        setOverContainerId(null);
-        return;
-      }
-
-      const overIdStr = String(over.id);
-
-      if (overIdStr.endsWith('-droppable')) {
-        setOverContainerId(overIdStr.replace('-droppable', ''));
-        return;
-      }
-
-      for (const folder of folders) {
-        const fKey = `folder-${folder.id}`;
-        const isOpen = openFolders.has(folder.id);
-        const isEmpty = (items[fKey]?.length ?? 0) === 0;
-        if (
-          items[fKey]?.includes(overIdStr) ||
-          (overIdStr === fKey && (!isOpen || isEmpty))
-        ) {
-          setOverContainerId(fKey);
-          return;
-        }
-      }
-
-      setOverContainerId(null);
-    },
-    onDragEnd() {
-      setOverContainerId(null);
-    },
-    onDragCancel() {
-      setOverContainerId(null);
-    },
+    features: [syncDataLoaderFeature, dragAndDropFeature],
   });
 
-  const rootIds = items.root || [];
+  // rebuildTree() is only called on mount by useTree. When external data changes
+  // (e.g. new document added to a folder), we must call it to recompute getItems().
+  useEffect(() => {
+    tree.rebuildTree();
+  }, [externalData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <>
-      {rootIds.map((id) => {
-        const entry = dataMap[id];
-        if (!entry) return null;
+    <div {...tree.getContainerProps()} className="relative outline-none">
+      <div
+        style={tree.getDragLineStyle()}
+        className="pointer-events-none absolute z-10 h-0.5 rounded-full bg-primary"
+      />
+      {tree.getItems().map((item) => {
+        const data = item.getItemData();
+        const level = item.getItemMeta().level;
 
-        if (entry.type === 'folder') {
-          const folder = entry.data as TreeFolderItem;
-          const folderId = `folder-${folder.id}`;
-          return (
-            <DroppableFolder
-              key={folderId}
-              id={folderId}
-              folder={folder}
-              itemIds={items[folderId] || []}
-              itemDataMap={itemDataMap}
-              isOpen={openFolders.has(folder.id)}
-              onToggle={toggleFolder}
-              isOverContainer={overContainerId === folderId}
-              activeItemId={activeItemId}
-              callbacks={callbacks}
-              config={config}
-            />
-          );
-        }
+        if (data.type === 'root') return null;
 
-        const item = entry.data as TreeLeafItem;
         return (
-          <SortableItem key={id} id={id}>
-            <TreeItem
-              item={item}
-              isActive={activeItemId === item.id}
-              onRename={callbacks.onRenameItem}
-              onDelete={callbacks.onDeleteItem}
-              onClick={callbacks.onClickItem}
-              config={config}
-            />
-          </SortableItem>
+          <div
+            key={String(item.getId())}
+            {...item.getProps()}
+            style={{ paddingLeft: `${level * INDENT}px` }}
+          >
+            {data.type === 'folder' ? (
+              <FolderItem
+                domainId={data.domainId}
+                name={data.name}
+                isOpen={item.isExpanded()}
+                onRename={callbacks.onRenameFolder}
+                onDelete={callbacks.onDeleteFolder}
+                config={config}
+              />
+            ) : (
+              <TreeItem
+                domainId={data.domainId}
+                title={data.title}
+                isActive={activeItemId === data.domainId}
+                onRename={callbacks.onRenameItem}
+                onDelete={callbacks.onDeleteItem}
+                onClick={callbacks.onClickItem}
+                config={config}
+              />
+            )}
+          </div>
         );
       })}
-    </>
+    </div>
   );
 }

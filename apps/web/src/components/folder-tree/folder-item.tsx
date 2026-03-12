@@ -4,21 +4,21 @@ import { SidebarMenuItem, SidebarMenuButton } from '@ui/components/ui/sidebar';
 import { Button } from '@ui/components/ui/button';
 import { Input } from '@ui/components/ui/input';
 import { cn } from '@ui/lib/utils';
-import type { TreeFolderItem, FolderTreeConfig } from './folder-tree.types';
+import type { FolderTreeConfig } from './folder-tree.types';
 
 interface FolderItemProps {
-  folder: TreeFolderItem;
+  domainId: string;
+  name: string;
   isOpen: boolean;
-  onToggle: (folderId: string) => void;
   onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
   config?: FolderTreeConfig;
 }
 
 export const FolderItem = memo(function FolderItem({
-  folder,
+  domainId,
+  name,
   isOpen,
-  onToggle,
   onRename,
   onDelete,
   config,
@@ -36,23 +36,19 @@ export const FolderItem = memo(function FolderItem({
 
   const startEditing = useCallback(() => {
     setIsEditing(true);
-    setEditingName(folder.name);
-  }, [folder.name]);
+    setEditingName(name);
+  }, [name]);
 
   const submitRename = useCallback(() => {
     if (editingName.trim()) {
-      onRename(folder.id, editingName.trim());
+      onRename(domainId, editingName.trim());
     }
     setIsEditing(false);
-  }, [editingName, onRename, folder.id]);
-
-  const handleToggle = useCallback(() => {
-    onToggle(folder.id);
-  }, [onToggle, folder.id]);
+  }, [editingName, onRename, domainId]);
 
   const handleDelete = useCallback(() => {
-    onDelete(folder.id);
-  }, [onDelete, folder.id]);
+    onDelete(domainId);
+  }, [onDelete, domainId]);
 
   return (
     <SidebarMenuItem>
@@ -70,17 +66,20 @@ export const FolderItem = memo(function FolderItem({
         />
       ) : (
         <div className="group/folder-row flex items-center">
-          <SidebarMenuButton className="flex-1" onClick={handleToggle}>
+          <SidebarMenuButton className="flex-1">
             <ChevronRightIcon
               className={cn(
                 'h-4 w-4 shrink-0 transition-transform',
-                isOpen && 'rotate-90'
+                isOpen && 'rotate-90',
               )}
             />
-            <span className="truncate">{folder.name}</span>
+            <span className="truncate">{name}</span>
           </SidebarMenuButton>
-          <div className="hidden shrink-0 items-center group-hover/folder-row:flex">
-            {config?.folderActions?.(folder)}
+          <div
+            className="hidden shrink-0 items-center group-hover/folder-row:flex"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {config?.folderActions?.(domainId)}
             <Button
               variant="ghost"
               size="icon-sm"
