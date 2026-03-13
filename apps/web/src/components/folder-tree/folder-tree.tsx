@@ -26,7 +26,7 @@ interface FolderTreeProps {
   activeItemId?: string;
 }
 
-function buildTreeMap(
+export function buildTreeMap(
   folders: TreeFolderItem[],
   rootItems: TreeLeafItem[],
 ): TreeMap {

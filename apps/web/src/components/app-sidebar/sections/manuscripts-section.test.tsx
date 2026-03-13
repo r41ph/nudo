@@ -54,9 +54,9 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('ManuscriptsSection', () => {
-  it('renders the Documents label', async () => {
+  it('renders the Manuscript label', async () => {
     renderWithProviders(<ManuscriptsSection />);
-    expect(screen.getByText('Documents')).toBeInTheDocument();
+    expect(screen.getByText('Manuscript')).toBeInTheDocument();
   });
 
   it('renders root documents from the query', async () => {
