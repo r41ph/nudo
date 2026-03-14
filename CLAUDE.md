@@ -29,6 +29,7 @@ This is a pnpm monorepo with:
 - `packages/ui` - Shared component library with Storybook
 
 **Path Aliases:**
+
 - `@api/*` → `apps/api/src/*` (API imports)
 - `@web/*` → `apps/web/src/*` (Web app imports)
 - `@ui/*` → `packages/ui/src/*` (Available in web app)
@@ -101,6 +102,17 @@ Each kit has a base variant (static components) and an interactive variant. Only
 - Follow [Conventional Commits](https://www.conventionalcommits.org) format (e.g. `feat: add auto-save debounce to document editor`)
 - Write the description as a concise sentence
 - Do not include `Co-Authored-By: Claude` or any similar attribution lines
+
+## Documentation and Library APIs
+
+**Always use context7 MCP before writing code that uses any library or tool API.** Do not rely solely on training knowledge — APIs change between versions, and the project may use a version with different patterns than what was current at training time.
+
+Before writing code that uses any library (React, Plate.js, TanStack Query, headless-tree, Tailwind, shadcn, Jotai, graphql-request, Vitest, Playwright, etc.):
+
+1. Call `mcp__context7__resolve-library-id` with the library name
+2. Call `mcp__context7__query-docs` with the resolved ID and the specific topic
+
+This is a hard requirement, not a suggestion.
 
 ## Coding Conventions
 
