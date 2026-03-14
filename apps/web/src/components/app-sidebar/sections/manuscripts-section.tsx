@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { FileTextIcon, PlusIcon } from 'lucide-react';
@@ -22,6 +22,7 @@ import { queryClient } from '@web/lib/query-client';
 import { useSidebarDnd } from '@web/hooks/useSidebarDnd';
 import {
   FolderTree,
+  type FolderTreeHandle,
   type TreeLeafItem,
   type TreeFolderItem,
   type FolderTreeCallbacks,
@@ -32,6 +33,7 @@ import type { FolderNode } from '@web/types/folder.types';
 export function ManuscriptsSection() {
   const { id: activeDocId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const folderTreeRef = useRef<FolderTreeHandle>(null);
   const { reorderFolders, moveAndReorderDocument } = useSidebarDnd();
 
   const { data: docsData } = useQuery({
@@ -96,8 +98,9 @@ export function ManuscriptsSection() {
       graphqlClient.request<{
         createNewDocument: { document: { id: string } };
       }>(CREATE_DOCUMENT, variables),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       invalidate();
+      folderTreeRef.current?.expandFolder(variables.folderId);
       navigate(`/document/${data.createNewDocument.document.id}`);
     },
   });
@@ -178,6 +181,7 @@ export function ManuscriptsSection() {
       <SidebarGroupContent>
         <SidebarMenu>
           <FolderTree
+            ref={folderTreeRef}
             folders={folders}
             rootItems={rootItems}
             callbacks={callbacks}

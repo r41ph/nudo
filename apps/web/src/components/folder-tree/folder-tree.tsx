@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTree } from '@headless-tree/react';
 import {
   syncDataLoaderFeature,
@@ -18,12 +18,17 @@ import type {
   FolderTreeConfig,
 } from './folder-tree.types';
 
+export interface FolderTreeHandle {
+  expandFolder: (domainId: string) => void;
+}
+
 interface FolderTreeProps {
   folders: TreeFolderItem[];
   rootItems: TreeLeafItem[];
   callbacks: FolderTreeCallbacks;
   config?: FolderTreeConfig;
   activeItemId?: string;
+  ref?: Ref<FolderTreeHandle>;
 }
 
 export function buildTreeMap(
@@ -77,6 +82,7 @@ export function FolderTree({
   callbacks,
   config,
   activeItemId,
+  ref,
 }: FolderTreeProps) {
   const externalData = useMemo(
     () => buildTreeMap(folders, rootItems),
@@ -219,6 +225,12 @@ export function FolderTree({
   useEffect(() => {
     tree.rebuildTree();
   }, [externalData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useImperativeHandle(ref, () => ({
+    expandFolder: (domainId: string) => {
+      tree.getItemInstance(`folder-${domainId}`)?.expand();
+    },
+  }));
 
   return (
     <div {...tree.getContainerProps()} className="relative outline-none">
