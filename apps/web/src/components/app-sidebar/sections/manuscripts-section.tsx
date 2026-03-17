@@ -71,11 +71,12 @@ export function ManuscriptsSection() {
     onSuccess: invalidate,
   });
 
-  const { mutate: deleteDocument } = useMutation({
-    mutationFn: (variables: { id: string }) =>
-      graphqlClient.request(DELETE_DOCUMENT, variables),
-    onSuccess: invalidate,
-  });
+  const { mutate: deleteDocument, mutateAsync: deleteDocumentAsync } =
+    useMutation({
+      mutationFn: (variables: { id: string }) =>
+        graphqlClient.request(DELETE_DOCUMENT, variables),
+      onSuccess: invalidate,
+    });
 
   const { mutate: renameFolder } = useMutation({
     mutationFn: (variables: { id: string; name: string }) =>
@@ -83,7 +84,7 @@ export function ManuscriptsSection() {
     onSuccess: invalidate,
   });
 
-  const { mutate: deleteFolder } = useMutation({
+  const { mutate: deleteFolder, mutateAsync: deleteFolderAsync } = useMutation({
     mutationFn: (variables: { id: string }) =>
       graphqlClient.request(DELETE_FOLDER, variables),
     onSuccess: invalidate,
@@ -118,7 +119,7 @@ export function ManuscriptsSection() {
           .sort((a, b) => a.position - b.position)
           .map((d) => ({ id: d.id, title: d.title })),
       })),
-    [rawFolders],
+    [rawFolders]
   );
 
   const rootItems: TreeLeafItem[] = useMemo(
@@ -127,13 +128,27 @@ export function ManuscriptsSection() {
         .filter((doc) => !doc.folderId)
         .sort((a, b) => a.position - b.position)
         .map((d) => ({ id: d.id, title: d.title, position: d.position })),
-    [documents],
+    [documents]
   );
 
   const callbacks: FolderTreeCallbacks = useMemo(
     () => ({
       onRenameFolder: (id, name) => renameFolder({ id, name }),
-      onDeleteFolder: (id) => deleteFolder({ id }),
+      onDeleteFolder: async (id) => {
+        const folder = rawFolders.find((f) => f.id === id);
+        const docIds = folder?.documentsByFolderId.nodes.map((d) => d.id) ?? [];
+
+        let pending = [
+          ...docIds.map((docId) => () => deleteDocumentAsync({ id: docId })),
+          () => deleteFolderAsync({ id }),
+        ];
+        // Make sure all documents are deleted even if some deletions fail
+        // (promise failures) to avoid leaving orphaned documents
+        while (pending.length > 0) {
+          const results = await Promise.allSettled(pending.map((fn) => fn()));
+          pending = pending.filter((_, i) => results[i].status === 'rejected');
+        }
+      },
       onRenameItem: (id, title) => renameDocument({ id, title }),
       onDeleteItem: (id) => deleteDocument({ id }),
       onClickItem: (id) => navigate(`/document/${id}`),
@@ -144,12 +159,15 @@ export function ManuscriptsSection() {
     [
       renameFolder,
       deleteFolder,
+      deleteFolderAsync,
       renameDocument,
       deleteDocument,
+      deleteDocumentAsync,
+      rawFolders,
       navigate,
       reorderFolders,
       moveAndReorderDocument,
-    ],
+    ]
   );
 
   const config: FolderTreeConfig = useMemo(
@@ -172,7 +190,7 @@ export function ManuscriptsSection() {
         </Button>
       ),
     }),
-    [createDocumentInFolder],
+    [createDocumentInFolder]
   );
 
   return (
