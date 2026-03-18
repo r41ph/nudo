@@ -3,6 +3,7 @@
 ```bash
 pnpm dev                   # Run web + api in parallel
 pnpm test:web              # Run web tests (Vitest)
+pnpm test:api              # Run API tests (Vitest)
 pnpm storybook             # UI component explorer (port 6006)
 pnpm lint                  # Lint entire monorepo
 pnpm db:migrate            # Run pending migrations (requires docker:up)

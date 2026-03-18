@@ -15,7 +15,8 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "test": "pnpm --filter './apps/*' test && pnpm --filter './packages/*' test",
-    "test:web": "pnpm --filter @writing-app/web test"
+    "test:web": "pnpm --filter @writing-app/web test",
+    "test:api": "pnpm --filter @writing-app/api test"
   },
   "keywords": [],
   "author": "",
