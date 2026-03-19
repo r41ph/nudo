@@ -39,6 +39,35 @@ describe('App routing', () => {
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
   });
 
+  it('renders login page at /register for unauthenticated users', () => {
+    renderWithProviders(<App />, { initialRoute: '/register' });
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+  });
+
+  it('redirects authenticated users from /login to /', async () => {
+    const store = createStore();
+    store.set(tokenAtom, 'fake-token');
+    store.set(userAtom, MOCK_USER);
+
+    renderWithProviders(<App />, { store, initialRoute: '/login' });
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();
+    });
+  });
+
+  it('redirects authenticated users from /register to /', async () => {
+    const store = createStore();
+    store.set(tokenAtom, 'fake-token');
+    store.set(userAtom, MOCK_USER);
+
+    renderWithProviders(<App />, { store, initialRoute: '/register' });
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();
+    });
+  });
+
   it('renders document page at /document/:id', () => {
     const store = createStore();
     store.set(tokenAtom, 'fake-token');
