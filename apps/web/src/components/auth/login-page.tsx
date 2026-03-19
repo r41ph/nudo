@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { useSetAtom } from 'jotai';
-import { tokenAtom, userAtom } from '@web/state/auth.atom';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isAuthenticatedAtom, tokenAtom, userAtom } from '@web/state/auth.atom';
 import { setToken, setStoredUser } from '@web/lib/auth';
 import { API_URL } from '@web/lib/api';
 import { Button } from '@ui/components/ui/button';
@@ -22,6 +22,7 @@ interface AuthResponse {
 }
 
 export function LoginPage() {
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -57,13 +58,19 @@ export function LoginPage() {
     },
   });
 
+  if (isAuthenticated) return <Navigate to="/" replace />;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutate();
   };
 
   const errorMessage =
-    error instanceof Error ? error.message : error ? 'Network error. Is the API running?' : null;
+    error instanceof Error
+      ? error.message
+      : error
+        ? 'Network error. Is the API running?'
+        : null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
