@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react",
     /* Base TypeScript options shared across all packages */
     "strict": true,
     "skipLibCheck": true,
