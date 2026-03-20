@@ -34,6 +34,12 @@ Always use these; never use relative paths across packages.
 - **Do not modify** `packages/ui/src/components/ui/` — these are shadcn-managed
 - Never use raw `<button>`, `<input>`, or `<label>` when a UI component exists
 
+## Testing
+
+- Only run tests related to the files changed — never the full suite unless explicitly asked.
+- Filter by filename (no extension needed): `pnpm vitest run save-bar manuscripts-section`
+- Vitest matches the filter against the full file path, so a partial name is enough.
+
 ## Conventions
 
 - Filenames: kebab-case. Components: PascalCase.
