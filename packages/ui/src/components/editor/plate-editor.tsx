@@ -56,7 +56,7 @@ export function PlateEditor({
   const isEnabled = (tool: string) => enabledTools.includes(tool);
 
   return (
-    <div className="border border-gray-300 shadow-lg">
+    <div className="bg-[#FAF9F6] shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-sm overflow-hidden">
       <Plate
         editor={editor}
         onChange={({ value }) => {

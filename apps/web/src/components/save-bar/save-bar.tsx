@@ -1,4 +1,6 @@
 import { useAtomValue } from 'jotai';
+import { Button } from '@ui/components/ui/button';
+import { Icon } from '@ui/components/icon/icon';
 import { saveStatusAtom, lastSavedAtom } from '@web/state/save-status.atom';
 
 export function SaveBar({ onSave }: { onSave: () => void }) {
@@ -23,7 +25,7 @@ export function SaveBar({ onSave }: { onSave: () => void }) {
       case 'saving':
         return 'text-yellow-600';
       case 'saved':
-        return 'text-green-600';
+        return 'text-muted-foreground';
       case 'error':
         return 'text-red-600';
       default:
@@ -32,21 +34,19 @@ export function SaveBar({ onSave }: { onSave: () => void }) {
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 text-sm">
-      <div className="flex items-center gap-3">
-        <span className={statusColor()}>{statusText()}</span>
-        {lastSaved && (
-          <span className="text-gray-400">
-            Last saved: {lastSaved.toLocaleTimeString()}
-          </span>
-        )}
+    <div className="flex items-center gap-3 text-sm">
+      <div className={`flex items-center gap-1.5 ${statusColor()}`}>
+        <Icon name="cloud" className="h-3.5 w-3.5" />
+        <span>{statusText()}</span>
       </div>
-      <button
-        onClick={onSave}
-        className="rounded border px-3 py-1 text-xs hover:bg-gray-100"
-      >
+      {lastSaved && (
+        <span className="text-muted-foreground/60 text-xs">
+          Last saved: {lastSaved.toLocaleTimeString()}
+        </span>
+      )}
+      <Button variant="outline" size="sm" onClick={onSave} className="h-7 text-xs">
         Save
-      </button>
+      </Button>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { dialogAtom } from '@web/state/dialog.atom';
 import { DIALOG } from '@web/constants/dialog.constants';
 import { isAuthenticatedAtom, userAtom } from '@web/state/auth.atom';
 import { Layout } from '@web/components/layout/layout';
+import { TopBar } from '@web/components/layout/top-bar';
 import { MainEditor } from '@writing-app/ui/src/components/main-editor/main-editor';
 import { EditorToolbarDialog } from '@web/components/toolbar-dialog/toolbar-dialog';
 import { SaveBar } from '@web/components/save-bar/save-bar';
@@ -65,6 +66,7 @@ export function DocumentPage() {
   if (isLoading) {
     return (
       <Layout>
+        <TopBar />
         <div className="flex h-64 items-center justify-center text-gray-500">
           Loading document...
         </div>
@@ -75,6 +77,7 @@ export function DocumentPage() {
   if (error || !doc) {
     return (
       <Layout>
+        <TopBar />
         <div className="flex h-64 items-center justify-center text-red-500">
           {error instanceof Error ? error.message : 'Document not found'}
         </div>
@@ -84,19 +87,25 @@ export function DocumentPage() {
 
   return (
     <Layout>
-      <SaveBar onSave={saveNow} />
-      <MainEditor
-        key={doc.id}
-        handleEditToolbarDialog={() => {
-          setDialog({ activeDialog: DIALOG.EDITOR_TOOLBAR });
-        }}
-        enabledTools={enabledTools}
-        isDialogOpen={isDialogOpen}
-        initialContent={doc.content}
-        onContentChange={scheduleAutoSave}
-      >
-        <EditorToolbarDialog />
-      </MainEditor>
+      <TopBar>
+        <SaveBar onSave={saveNow} />
+      </TopBar>
+      <main className="flex flex-1 justify-center overflow-y-auto px-8 py-10">
+        <div className="w-full max-w-200">
+          <MainEditor
+            key={doc.id}
+            handleEditToolbarDialog={() => {
+              setDialog({ activeDialog: DIALOG.EDITOR_TOOLBAR });
+            }}
+            enabledTools={enabledTools}
+            isDialogOpen={isDialogOpen}
+            initialContent={doc.content}
+            onContentChange={scheduleAutoSave}
+          >
+            <EditorToolbarDialog />
+          </MainEditor>
+        </div>
+      </main>
     </Layout>
   );
 }

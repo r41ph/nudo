@@ -3,3 +3,11 @@
 /* Tell Tailwind to also scan the UI package for class names */
 /* Note: @source uses Node's fs directly, not Vite's resolver, so aliases like '@ui/' don't work */
 @source '../../../packages/ui/src';
+
+/* Editor content typography */
+[data-slate-editor] {
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-size: 1.25rem !important;
+  line-height: 1.8 !important;
+  color: #4A5D5E !important;
+}

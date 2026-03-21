@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { FileTextIcon, PlusIcon } from 'lucide-react';
+import { Icon } from '@ui/components/icon/icon';
 import { Button } from '@ui/components/ui/button';
 import {
   SidebarGroup,
@@ -172,7 +172,7 @@ export function ManuscriptsSection() {
 
   const config: FolderTreeConfig = useMemo(
     () => ({
-      itemIcon: FileTextIcon,
+      itemIcon: () => <Icon name="fileText" />,
       folderActions: (folderId) => (
         <Button
           variant="ghost"
@@ -186,7 +186,7 @@ export function ManuscriptsSection() {
           }
           className="h-5 w-5 [&_svg]:size-3.5"
         >
-          <PlusIcon />
+          <Icon name="plus" />
         </Button>
       ),
     }),
@@ -195,7 +195,10 @@ export function ManuscriptsSection() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Manuscript</SidebarGroupLabel>
+      <SidebarGroupLabel className="flex items-center gap-1.5 uppercase tracking-widest text-sm">
+        <Icon name="bookOpen" className="h-3.5 w-3.5 shrink-0" />
+        Story
+      </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           <FolderTree

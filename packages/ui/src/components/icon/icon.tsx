@@ -4,17 +4,24 @@ import {
   AlignLeftIcon,
   BaselineIcon,
   BoldIcon,
+  BookOpenIcon,
+  CloudIcon,
   CodeIcon,
+  FileTextIcon,
+  FolderIcon,
+  HelpCircleIcon,
   HighlighterIcon,
   ItalicIcon,
+  Maximize2Icon,
   MessageSquareTextIcon,
+  Minus,
   PencilLineIcon,
   PilcrowIcon,
+  Plus,
   Quote,
   StrikethroughIcon,
+  Trash2Icon,
   UnderlineIcon,
-  Minus,
-  Plus,
 } from 'lucide-react';
 
 const icons = {
@@ -34,6 +41,13 @@ const icons = {
   suggestions: PencilLineIcon,
   minus: Minus,
   plus: Plus,
+  bookOpen: BookOpenIcon,
+  cloud: CloudIcon,
+  fileText: FileTextIcon,
+  folder: FolderIcon,
+  help: HelpCircleIcon,
+  maximize: Maximize2Icon,
+  trash: Trash2Icon,
 } as const;
 
 export type IconName = keyof typeof icons;
