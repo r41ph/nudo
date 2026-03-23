@@ -54,6 +54,7 @@ export const GET_FOLDERS = gql`
           nodes {
             id
             title
+            wordCount
             updatedAt
             position
           }

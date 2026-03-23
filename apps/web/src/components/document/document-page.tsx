@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { GET_DOCUMENT } from '@web/graphql/queries';
 import { graphqlClient } from '@web/lib/graphql-client';
 import { currentDocumentAtom } from '@web/state/document.atom';
+import { liveWordCountAtom } from '@web/state/live-word-count.atom';
 import { enabledToolsAtom } from '@web/state/toolbar.atom';
 import { dialogAtom } from '@web/state/dialog.atom';
 import { DIALOG } from '@web/constants/dialog.constants';
@@ -18,9 +19,20 @@ import { useAutoSave } from '@web/hooks/useAutoSave';
 import { useToolbarSettingsSync } from '@web/hooks/useToolbarSettingsSync';
 import { useUserPreferences } from '@web/hooks/useUserPreferences';
 import { isValidUuid } from '@web/lib/uuid';
+import type { Value } from 'platejs';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DocumentData = any;
+type GetDocumentResponse = {
+  documentById: {
+    id: string;
+    title: string;
+    slug: string;
+    content: Value;
+    plainText: string;
+    wordCount: number;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+};
 
 export function DocumentPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,18 +42,50 @@ export function DocumentPage() {
   const [dialogState, setDialog] = useAtom(dialogAtom);
   const enabledTools = useAtomValue(enabledToolsAtom);
   const setCurrentDocument = useSetAtom(currentDocumentAtom);
+  const setLiveWordCount = useSetAtom(liveWordCountAtom);
   const isDialogOpen = dialogState.activeDialog === DIALOG.EDITOR_TOOLBAR;
   const isValidId = !!id && isValidUuid(id);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['document', id],
-    queryFn: () => graphqlClient.request<DocumentData>(GET_DOCUMENT, { id }),
+    queryFn: () => graphqlClient.request<GetDocumentResponse>(GET_DOCUMENT, { id }),
     enabled: isValidId && isAuthenticated,
   });
 
   const doc = data?.documentById;
 
   const { scheduleAutoSave, saveNow } = useAutoSave(id || null);
+
+  const liveCountTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (liveCountTimerRef.current) clearTimeout(liveCountTimerRef.current);
+    };
+  }, []);
+
+  const handleContentChange = useCallback(
+    (content: unknown[]) => {
+      scheduleAutoSave(content);
+    },
+    [scheduleAutoSave]
+  );
+
+  const handleWordCountChange = useCallback(
+    (count: number) => {
+      if (id) {
+        if (liveCountTimerRef.current) clearTimeout(liveCountTimerRef.current);
+        liveCountTimerRef.current = setTimeout(() => {
+          setLiveWordCount({ documentId: id, count });
+        }, 500);
+      }
+    },
+    [id, setLiveWordCount]
+  );
+
+  const handleEditToolbarDialog = useCallback(() => {
+    setDialog({ activeDialog: DIALOG.EDITOR_TOOLBAR });
+  }, [setDialog]);
   useUserPreferences();
   useToolbarSettingsSync(user?.id || null, enabledTools);
 
@@ -94,13 +138,12 @@ export function DocumentPage() {
         <div className="w-full max-w-200">
           <MainEditor
             key={doc.id}
-            handleEditToolbarDialog={() => {
-              setDialog({ activeDialog: DIALOG.EDITOR_TOOLBAR });
-            }}
+            handleEditToolbarDialog={handleEditToolbarDialog}
             enabledTools={enabledTools}
             isDialogOpen={isDialogOpen}
             initialContent={doc.content}
-            onContentChange={scheduleAutoSave}
+            onContentChange={handleContentChange}
+            onWordCountChange={handleWordCountChange}
           >
             <EditorToolbarDialog />
           </MainEditor>

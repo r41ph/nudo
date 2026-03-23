@@ -37,6 +37,7 @@ export function PlateEditor({
   isDialogOpen,
   initialContent,
   onContentChange,
+  onWordCountChange,
   children,
 }: {
   handleEditToolbarDialog: () => void;
@@ -44,13 +45,15 @@ export function PlateEditor({
   isDialogOpen?: boolean;
   initialContent?: unknown[];
   onContentChange?: (content: unknown[]) => void;
+  onWordCountChange?: (count: number) => void;
   children?: ReactNode;
 }) {
   const editor = usePlateEditor({
     plugins: [...BasicNodesKit, ...SuggestionKit, ...AlignKit, ...FontKit],
-    value: initialContent && initialContent.length > 0
-      ? (initialContent as Value)
-      : undefined,
+    value:
+      initialContent && initialContent.length > 0
+        ? (initialContent as Value)
+        : undefined,
   });
 
   const isEnabled = (tool: string) => enabledTools.includes(tool);
@@ -61,6 +64,10 @@ export function PlateEditor({
         editor={editor}
         onChange={({ value }) => {
           onContentChange?.(value);
+          if (onWordCountChange) {
+            const trimmed = editor.api.string([]).trim();
+            onWordCountChange(trimmed ? trimmed.split(/\s+/).length : 0);
+          }
         }}
       >
         <FloatingToolbar
@@ -155,4 +162,3 @@ export function PlateEditor({
     </div>
   );
 }
-

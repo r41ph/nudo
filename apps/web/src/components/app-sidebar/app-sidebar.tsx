@@ -6,7 +6,7 @@ import { SidebarFooterActions } from './sidebar-footer-actions';
 export function AppSidebar() {
   return (
     <Sidebar>
-      <ProjectHeader name="Project Alpha" wordCount={8420} />
+      <ProjectHeader name="Project Alpha" />
       <SidebarContent>
         <ManuscriptsSection />
       </SidebarContent>

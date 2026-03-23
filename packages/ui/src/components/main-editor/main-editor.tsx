@@ -7,6 +7,7 @@ export const MainEditor = ({
   isDialogOpen,
   initialContent,
   onContentChange,
+  onWordCountChange,
   children,
 }: {
   handleEditToolbarDialog: () => void;
@@ -14,6 +15,7 @@ export const MainEditor = ({
   isDialogOpen?: boolean;
   initialContent?: unknown[];
   onContentChange?: (content: unknown[]) => void;
+  onWordCountChange?: (count: number) => void;
   children?: ReactNode;
 }) => {
   return (
@@ -23,6 +25,7 @@ export const MainEditor = ({
       isDialogOpen={isDialogOpen}
       initialContent={initialContent}
       onContentChange={onContentChange}
+      onWordCountChange={onWordCountChange}
     >
       {children}
     </PlateEditor>
