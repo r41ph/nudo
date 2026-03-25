@@ -32,7 +32,7 @@ describe('useAutoSave', () => {
       vi.advanceTimersByTime(3000);
     });
 
-    expect(store.get(saveStatusAtom)).toBe('idle');
+    expect(store.get(saveStatusAtom)).toBe('unsaved');
   });
 
   it('scheduleAutoSave does not fire before 2.5s', async () => {
@@ -47,11 +47,11 @@ describe('useAutoSave', () => {
       ]);
     });
 
-    // After 1 second, should still be idle
+    // After 1 second, status is unsaved but save hasn't fired yet
     await act(async () => {
       vi.advanceTimersByTime(1000);
     });
-    expect(store.get(saveStatusAtom)).toBe('idle');
+    expect(store.get(saveStatusAtom)).toBe('unsaved');
   });
 
   it('scheduleAutoSave triggers save after 2.5s', async () => {

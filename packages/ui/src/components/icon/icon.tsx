@@ -13,6 +13,7 @@ import {
   HighlighterIcon,
   ItalicIcon,
   Maximize2Icon,
+  Minimize2Icon,
   MessageSquareTextIcon,
   Minus,
   PencilLineIcon,
@@ -47,6 +48,7 @@ const icons = {
   folder: FolderIcon,
   help: HelpCircleIcon,
   maximize: Maximize2Icon,
+  minimize: Minimize2Icon,
   trash: Trash2Icon,
 } as const;
 
