@@ -5,7 +5,7 @@ import { SidebarFooterActions } from './sidebar-footer-actions';
 
 export function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar collapsible="none">
       <ProjectHeader name="Project Alpha" />
       <SidebarContent>
         <ManuscriptsSection />

@@ -10,8 +10,12 @@ import {
 
 export function ToolsSidebar() {
   return (
-    <Sidebar side="right" className="w-14">
-      <SidebarHeader className="flex items-center justify-center py-3 border-b border-sidebar-border">
+    <Sidebar
+      side="right"
+      collapsible="none"
+      className="w-fit"
+    >
+      <SidebarHeader className="flex items-center justify-center px-3 py-3 border-b border-sidebar-border">
         <Button
           variant="ghost"
           size="icon"
