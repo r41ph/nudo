@@ -9,9 +9,9 @@ import { MOCK_USER, MOCK_DOCUMENT } from '@web/test/mocks/fixtures';
 import { server } from '@web/test/mocks/server';
 
 // Mock heavy dependencies
-vi.mock('@web/components/layout/layout', () => ({
-  Layout: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="layout">{children}</div>
+vi.mock('@web/components/layout/document-layout', () => ({
+  DocumentLayout: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="document-layout">{children}</div>
   ),
 }));
 
