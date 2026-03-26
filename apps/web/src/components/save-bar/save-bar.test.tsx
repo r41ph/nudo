@@ -9,8 +9,15 @@ import {
 import { saveStatusAtom, lastSavedAtom } from '@web/state/save-status.atom';
 
 describe('SaveBar', () => {
-  it('shows "Unsaved changes" for idle status', () => {
+  it('shows nothing for idle status', () => {
     renderWithProviders(<SaveBar onSave={vi.fn()} />);
+    expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+  });
+
+  it('shows "Unsaved changes" for unsaved status', () => {
+    const store = createStore();
+    store.set(saveStatusAtom, 'unsaved');
+    renderWithProviders(<SaveBar onSave={vi.fn()} />, { store });
     expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
   });
 
@@ -48,11 +55,8 @@ describe('SaveBar', () => {
     expect(screen.queryByText(/Last saved:/)).not.toBeInTheDocument();
   });
 
-  it('calls onSave when Save button is clicked', async () => {
-    const onSave = vi.fn();
-    const user = userEvent.setup();
-    renderWithProviders(<SaveBar onSave={onSave} />);
-    await user.click(screen.getByText('Save'));
-    expect(onSave).toHaveBeenCalledOnce();
+  it('accepts onSave prop without rendering a button', () => {
+    renderWithProviders(<SaveBar onSave={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
   });
 });

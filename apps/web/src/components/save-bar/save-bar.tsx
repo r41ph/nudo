@@ -1,52 +1,58 @@
+import { useEffect, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { Button } from '@ui/components/ui/button';
 import { Icon } from '@ui/components/icon/icon';
 import { saveStatusAtom, lastSavedAtom } from '@web/state/save-status.atom';
 
-export function SaveBar({ onSave }: { onSave: () => void }) {
+const STATUS_CONFIG = {
+  unsaved: { text: 'Unsaved changes', color: 'text-orange-500' },
+  saving: { text: 'Saving...', color: 'text-yellow-600' },
+  saved: { text: 'Saved', color: 'text-muted-foreground' },
+  error: { text: 'Save failed', color: 'text-red-600' },
+} as const;
+
+export function SaveBar({ onSave: _onSave }: { onSave: () => void }) {
   const saveStatus = useAtomValue(saveStatusAtom);
   const lastSaved = useAtomValue(lastSavedAtom);
+  const [isStatusVisible, setIsStatusVisible] = useState(false);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const statusText = () => {
-    switch (saveStatus) {
-      case 'saving':
-        return 'Saving...';
-      case 'saved':
-        return 'Saved';
-      case 'error':
-        return 'Save failed';
-      default:
-        return 'Unsaved changes';
-    }
-  };
+  useEffect(() => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
 
-  const statusColor = () => {
-    switch (saveStatus) {
-      case 'saving':
-        return 'text-yellow-600';
-      case 'saved':
-        return 'text-muted-foreground';
-      case 'error':
-        return 'text-red-600';
-      default:
-        return 'text-orange-500';
+    if (saveStatus === 'idle') {
+      setIsStatusVisible(false);
+      return;
     }
-  };
+
+    setIsStatusVisible(true);
+
+    if (saveStatus === 'saved' || saveStatus === 'error') {
+      hideTimerRef.current = setTimeout(() => setIsStatusVisible(false), 4000);
+    }
+
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
+  }, [saveStatus]);
+
+  const status =
+    saveStatus in STATUS_CONFIG
+      ? STATUS_CONFIG[saveStatus as keyof typeof STATUS_CONFIG]
+      : null;
 
   return (
     <div className="flex items-center gap-3 text-sm">
-      <div className={`flex items-center gap-1.5 ${statusColor()}`}>
-        <Icon name="cloud" className="h-3.5 w-3.5" />
-        <span>{statusText()}</span>
-      </div>
+      {isStatusVisible && status && (
+        <div className={`flex items-center gap-1.5 ${status.color}`}>
+          <Icon name="cloud" className="h-3.5 w-3.5" />
+          <span>{status.text}</span>
+        </div>
+      )}
       {lastSaved && (
-        <span className="text-muted-foreground/60 text-xs">
+        <span className="text-green-800 text-sm">
           Last saved: {lastSaved.toLocaleTimeString()}
         </span>
       )}
-      <Button variant="outline" size="sm" onClick={onSave} className="h-7 text-xs">
-        Save
-      </Button>
     </div>
   );
 }
