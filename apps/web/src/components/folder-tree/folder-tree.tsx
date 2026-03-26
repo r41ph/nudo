@@ -1,4 +1,4 @@
-import { type Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { type Ref, type CSSProperties, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTree } from '@headless-tree/react';
 import {
   syncDataLoaderFeature,
@@ -17,6 +17,15 @@ import type {
   FolderTreeCallbacks,
   FolderTreeConfig,
 } from './folder-tree.types';
+
+function findParentFolderTreeId(
+  folders: TreeFolderItem[],
+  activeItemId: string | undefined
+): string | null {
+  if (!activeItemId) return null;
+  const parent = folders.find((f) => f.items.some((d) => d.id === activeItemId));
+  return parent ? `folder-${parent.id}` : null;
+}
 
 export interface FolderTreeHandle {
   expandFolder: (domainId: string) => void;
@@ -76,6 +85,16 @@ export function buildTreeMap(
 
 const INDENT = 20;
 
+// Cache style objects by level so the same reference is reused across renders,
+// allowing React to skip unnecessary DOM style reconciliation.
+const itemStyleCache: Record<number, CSSProperties> = {};
+const getItemStyle = (level: number): CSSProperties => {
+  if (!itemStyleCache[level]) {
+    itemStyleCache[level] = { paddingLeft: `${level * INDENT}px` };
+  }
+  return itemStyleCache[level];
+};
+
 export function FolderTree({
   folders,
   rootItems,
@@ -89,12 +108,14 @@ export function FolderTree({
     [folders, rootItems],
   );
 
-  const [treeData, setTreeData] = useState(externalData);
+  // Trigger a re-render when server data changes so tree.getItems() reflects the
+  // latest data. The actual data lives in treeDataRef — this state holds no value.
+  const [, forceRender] = useState(0);
 
   // Authoritative source of truth for the dataLoader. Must NOT be synced on
   // every render (doing so resets mutations made inside the async onDrop handler
   // when React re-renders between removeItemsFromParents and insertItemsAtTarget).
-  const treeDataRef = useRef(treeData);
+  const treeDataRef = useRef(externalData);
 
   const callbacksRef = useRef(callbacks);
   callbacksRef.current = callbacks;
@@ -104,7 +125,7 @@ export function FolderTree({
   if (prevExternalRef.current !== externalData) {
     prevExternalRef.current = externalData;
     treeDataRef.current = externalData;
-    setTreeData(externalData);
+    forceRender((n) => n + 1);
   }
 
   const tree = useTree<FolderTreeData>({
@@ -167,7 +188,7 @@ export function FolderTree({
       await applyDrop(items, target);
 
       // Sync React state from the now-correct ref
-      setTreeData(treeDataRef.current);
+      forceRender((n) => n + 1);
 
       // Persist
       if (draggedId.startsWith('folder-')) {
@@ -222,9 +243,15 @@ export function FolderTree({
 
   // rebuildTree() is only called on mount by useTree. When external data changes
   // (e.g. new document added to a folder), we must call it to recompute getItems().
+  // Also auto-expand the parent folder of the active document after the rebuild,
+  // so that a direct URL visit or refresh shows the file in an open folder.
   useEffect(() => {
     tree.rebuildTree();
-  }, [externalData]); // eslint-disable-line react-hooks/exhaustive-deps
+    const parentFolderId = findParentFolderTreeId(folders, activeItemId);
+    if (parentFolderId) {
+      tree.getItemInstance(parentFolderId)?.expand();
+    }
+  }, [externalData, activeItemId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useImperativeHandle(ref, () => ({
     expandFolder: (domainId: string) => {
@@ -248,7 +275,7 @@ export function FolderTree({
           <div
             key={String(item.getId())}
             {...item.getProps()}
-            style={{ paddingLeft: `${level * INDENT}px` }}
+            style={getItemStyle(level)}
           >
             {data.type === 'folder' ? (
               <FolderItem
