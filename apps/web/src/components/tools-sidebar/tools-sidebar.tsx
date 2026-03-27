@@ -1,3 +1,4 @@
+import { useSetAtom } from 'jotai';
 import { Button } from '@ui/components/ui/button';
 import { Icon } from '@ui/components/icon/icon';
 import {
@@ -7,8 +8,11 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from '@ui/components/ui/sidebar';
+import { isFocusModeAtom } from '@web/state/focus-mode.atom';
 
 export function ToolsSidebar() {
+  const setFocusMode = useSetAtom(isFocusModeAtom);
+
   return (
     <Sidebar
       side="right"
@@ -20,7 +24,8 @@ export function ToolsSidebar() {
           variant="ghost"
           size="icon"
           className="h-7 w-7 text-muted-foreground"
-          title="Fullscreen"
+          title="Focus Mode"
+          onClick={() => setFocusMode(true)}
         >
           <Icon name="maximize" className="h-4 w-4" />
         </Button>
