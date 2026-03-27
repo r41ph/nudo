@@ -17,6 +17,7 @@ import { useToolbarSettingsSync } from '@web/hooks/useToolbarSettingsSync';
 import { useUserPreferences } from '@web/hooks/useUserPreferences';
 import { isValidUuid } from '@web/lib/uuid';
 import type { Value } from 'platejs';
+import { DIALOG } from '@web/constants/dialog.constants';
 
 type GetDocumentResponse = {
   documentById: {
@@ -45,7 +46,8 @@ export function DocumentPage() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['document', id],
-    queryFn: () => graphqlClient.request<GetDocumentResponse>(GET_DOCUMENT, { id }),
+    queryFn: () =>
+      graphqlClient.request<GetDocumentResponse>(GET_DOCUMENT, { id }),
     enabled: isValidId && isAuthenticated,
   });
 
