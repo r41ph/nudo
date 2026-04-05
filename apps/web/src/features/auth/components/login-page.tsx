@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { isAuthenticatedAtom, tokenAtom, userAtom } from '@web/features/auth/state/auth.store';
-import { setToken, setStoredUser } from '@web/shared/lib/auth';
-import { API_URL } from '@web/shared/lib/api';
+import { Navigate } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { isAuthenticatedAtom } from '@web/features/auth/state/auth.store';
+import { useAuth } from '@web/features/auth/hooks/use-auth';
 import { Button } from '@ui/components/ui/button';
 import { Input } from '@ui/components/ui/input';
 import { Label } from '@ui/components/ui/label';
@@ -15,54 +13,26 @@ import {
   CardTitle,
 } from '@ui/components/ui/card';
 
-interface AuthResponse {
-  token: string;
-  user: { id: string; email: string; displayName: string | null };
-  error?: string;
-}
-
 export function LoginPage() {
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [isRegister, setIsRegister] = useState(false);
-  const navigate = useNavigate();
-  const setTokenAtom = useSetAtom(tokenAtom);
-  const setUserAtom = useSetAtom(userAtom);
+  const { login, register } = useAuth();
 
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: async () => {
-      const endpoint = isRegister ? '/auth/register' : '/auth/login';
-      const body: Record<string, string> = { email, password };
-      if (isRegister && displayName) body.displayName = displayName;
-
-      const res = await fetch(`${API_URL}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const data: AuthResponse = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong');
-      }
-      return data;
-    },
-    onSuccess: (data) => {
-      setToken(data.token);
-      setStoredUser(data.user);
-      setTokenAtom(data.token);
-      setUserAtom(data.user);
-      navigate('/');
-    },
-  });
+  const mutation = isRegister ? register : login;
+  const { isPending, error } = mutation;
 
   if (isAuthenticated) return <Navigate to="/" replace />;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutate();
+    if (isRegister) {
+      register.mutate({ email, password, displayName: displayName || undefined });
+    } else {
+      login.mutate({ email, password });
+    }
   };
 
   const errorMessage =
