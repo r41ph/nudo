@@ -6,7 +6,7 @@ import {
   MOCK_DOCUMENT_2,
   MOCK_FOLDER,
   MOCK_USER_SETTINGS,
-} from './fixtures';
+} from '@web/test/mocks/fixtures';
 
 export const handlers = [
   // GraphQL queries
