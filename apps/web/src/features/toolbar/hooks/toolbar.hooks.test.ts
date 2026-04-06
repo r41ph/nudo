@@ -7,7 +7,7 @@ import { tokenAtom, userAtom } from '@web/features/auth/state/auth.store';
 import { enabledToolsAtom } from '@web/features/toolbar/state/toolbar.store';
 import { server } from '@web/test/mocks/server';
 import { MOCK_USER } from '@web/test/mocks/fixtures';
-import type { ToolbarToolName } from '@web/features/toolbar/types';
+import type { ToolbarToolName } from '@web/features/toolbar/toolbar.types';
 
 describe('useUserPreferences', () => {
   it('does not fetch when not authenticated', () => {

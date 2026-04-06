@@ -2,7 +2,7 @@ import { Icon, type IconName } from '@ui/components/icon/icon';
 import {
   TOOLBAR_TOOLS,
   FONT_SIZE_TOOL_KEY,
-} from '@web/features/toolbar/constants';
+} from '@web/features/toolbar/toolbar.constants';
 
 interface ToolbarPreviewProps {
   enabledTools: string[];

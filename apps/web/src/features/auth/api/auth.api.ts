@@ -1,6 +1,6 @@
 import { API_URL } from '@web/shared/lib/api';
-import { AUTH_ROUTES } from '@web/features/auth/constants';
-import type { AuthResponse, LoginParams, RegisterParams } from '@web/features/auth/types';
+import { AUTH_ROUTES } from '@web/features/auth/auth.constants';
+import type { AuthResponse, LoginParams, RegisterParams } from '@web/features/auth/auth.types';
 
 export async function loginUser(params: LoginParams): Promise<AuthResponse> {
   const res = await fetch(`${API_URL}${AUTH_ROUTES.LOGIN}`, {

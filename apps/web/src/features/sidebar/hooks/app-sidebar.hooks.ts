@@ -5,7 +5,7 @@ import {
 } from '@web/features/folder/api/folder.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
-import type { FolderNode } from '@web/features/folder/types';
+import type { FolderNode } from '@web/features/folder/folder.types';
 
 interface DocumentsQueryData {
   allDocuments: {

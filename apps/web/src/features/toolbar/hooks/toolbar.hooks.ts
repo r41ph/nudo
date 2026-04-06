@@ -11,7 +11,7 @@ import {
   isAuthenticatedAtom,
 } from '@web/features/auth/state/auth.store';
 import { enabledToolsAtom } from '@web/features/toolbar/state/toolbar.store';
-import type { ToolbarToolName } from '@web/features/toolbar/types';
+import type { ToolbarToolName } from '@web/features/toolbar/toolbar.types';
 
 interface UserData {
   userById: {

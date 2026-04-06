@@ -9,12 +9,12 @@ import { DIALOG } from '@web/shared/state/dialog.constants';
 import { dialogAtom } from '@web/shared/state/dialog.atom';
 import { useAtom } from 'jotai';
 import { enabledToolsAtom } from '@web/features/toolbar/state/toolbar.store';
-import { TOOLBAR_TOOLS } from '@web/features/toolbar/constants';
+import { TOOLBAR_TOOLS } from '@web/features/toolbar/toolbar.constants';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useEditorRef, useEditorSelector } from 'platejs/react';
 import { ToolbarPreview } from '@web/features/toolbar/components/toolbar-preview';
 import { ToolbarToolsList } from '@web/features/toolbar/components/toolbar-tools-list';
-import type { ToolbarToolName } from '@web/features/toolbar/types';
+import type { ToolbarToolName } from '@web/features/toolbar/toolbar.types';
 
 export function EditorToolbarDialog() {
   const [dialogState, setDialogState] = useAtom(dialogAtom);

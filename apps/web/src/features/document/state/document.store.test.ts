@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createStore } from 'jotai';
 import { currentDocumentAtom } from '@web/features/document/state/document.store';
-import type { DocumentData } from '@web/features/document/types';
+import type { DocumentData } from '@web/features/document/document.types';
 
 const makeDoc = (overrides: Partial<DocumentData> = {}): DocumentData => ({
   id: 'doc-1',

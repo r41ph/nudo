@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { Icon, type IconName } from '@ui/components/icon/icon';
 import { Label } from '@ui/components/ui/label';
 import { Switch } from '@ui/components/ui/switch';
-import type { ToolbarToolName } from '@web/features/toolbar/types';
+import type { ToolbarToolName } from '@web/features/toolbar/toolbar.types';
 
 interface Tool {
   name: ToolbarToolName;

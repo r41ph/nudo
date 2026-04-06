@@ -24,7 +24,7 @@ import type {
   FolderTreeCallbacks,
   FolderTreeConfig,
 } from '@web/features/folder/components/folder-tree.types';
-import type { FolderNode } from '@web/features/folder/types';
+import type { FolderNode } from '@web/features/folder/folder.types';
 
 export function ManuscriptsSection() {
   const { id: activeDocId } = useParams<{ id: string }>();

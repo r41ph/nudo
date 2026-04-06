@@ -4,7 +4,7 @@ import { useSetAtom } from 'jotai';
 import { tokenAtom, userAtom } from '@web/features/auth/state/auth.store';
 import { setToken, setStoredUser } from '@web/shared/lib/auth';
 import { loginUser, registerUser } from '@web/features/auth/api/auth.api';
-import type { AuthResponse } from '@web/features/auth/types';
+import type { AuthResponse } from '@web/features/auth/auth.types';
 
 export function useAuth() {
   const navigate = useNavigate();
