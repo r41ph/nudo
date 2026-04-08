@@ -5,12 +5,9 @@ import React from 'react';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import { useComposedRef } from '@udecode/cn';
-import debounce from 'lodash.debounce';
-import { EraserIcon, PlusIcon } from 'lucide-react';
+import { EraserIcon } from 'lucide-react';
 import { useEditorRef, useEditorSelector } from 'platejs/react';
 
-import { buttonVariants } from '@ui/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,

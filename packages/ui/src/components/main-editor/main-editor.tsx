@@ -1,5 +1,6 @@
 import { PlateEditor } from '@ui/components/editor/plate-editor';
 import type { ReactNode } from 'react';
+import type { ToolbarToolName } from '@web/features/toolbar/types';
 
 export const MainEditor = ({
   handleEditToolbarDialog,
@@ -11,7 +12,7 @@ export const MainEditor = ({
   children,
 }: {
   handleEditToolbarDialog: () => void;
-  enabledTools: string[];
+  enabledTools: ToolbarToolName[];
   isDialogOpen?: boolean;
   initialContent?: unknown[];
   onContentChange?: (content: unknown[]) => void;

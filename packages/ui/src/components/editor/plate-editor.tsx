@@ -8,6 +8,7 @@ import { AlignToolbarButton } from '@ui/components/ui/align-toolbar-button';
 import { BasicNodesKit } from '@ui/components/editor/plugins/basic-nodes-kit';
 import { SuggestionKit } from '@ui/components/editor/plugins/suggestion-kit';
 import { CommentToolbarButton } from '@ui/components/ui/comment-toolbar-button';
+import type { ToolbarToolName } from '@web/features/toolbar/types';
 import { Editor, EditorContainer } from '@ui/components/ui/editor';
 import { FloatingToolbar } from '@ui/components/ui/floating-toolbar';
 import { MarkToolbarButton } from '@ui/components/ui/mark-toolbar-button';
@@ -41,7 +42,7 @@ export function PlateEditor({
   children,
 }: {
   handleEditToolbarDialog: () => void;
-  enabledTools: string[];
+  enabledTools: ToolbarToolName[];
   isDialogOpen?: boolean;
   initialContent?: unknown[];
   onContentChange?: (content: unknown[]) => void;
@@ -56,7 +57,7 @@ export function PlateEditor({
         : undefined,
   });
 
-  const isEnabled = (tool: string) => enabledTools.includes(tool);
+  const isEnabled = (tool: ToolbarToolName) => enabledTools.includes(tool);
 
   return (
     <div className="bg-[#FAF9F6] shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-sm overflow-hidden">
