@@ -8,20 +8,12 @@ import type { TElement } from 'platejs';
 import { DropdownMenuItemIndicator } from '@radix-ui/react-dropdown-menu';
 import {
   CheckIcon,
-  ChevronRightIcon,
-  Columns3Icon,
-  FileCodeIcon,
   Heading1Icon,
   Heading2Icon,
   Heading3Icon,
   Heading4Icon,
   Heading5Icon,
   Heading6Icon,
-  ListIcon,
-  ListOrderedIcon,
-  PilcrowIcon,
-  QuoteIcon,
-  SquareIcon,
 } from 'lucide-react';
 import { KEYS } from 'platejs';
 import { useEditorRef, useSelectionFragmentProp } from 'platejs/react';
@@ -165,7 +157,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
           }}
           // label="Turn into"
         >
-          {turnIntoItems.map(({ icon, label, value: itemValue }) => (
+          {turnIntoItems.map(({ icon, value: itemValue }) => (
             <DropdownMenuRadioItem
               key={itemValue}
               className="min-w-[30px] pl-2 *:first:[span]:hidden"

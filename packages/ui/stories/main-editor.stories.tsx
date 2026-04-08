@@ -8,6 +8,7 @@ import { EditorToolbarDialog } from '@web/components/toolbar-dialog/toolbar-dial
 import { TOOLBAR_TOOLS } from '@web/constants/toolbar.constants';
 import { dialogAtom } from '@web/state/dialog.atom';
 import { enabledToolsAtom } from '@web/state/toolbar.atom';
+import type { ToolbarToolName } from '@web/features/toolbar/types';
 import { DIALOG } from '@web/constants/dialog.constants';
 
 const ALL_TOOLS = Object.keys(TOOLBAR_TOOLS);
@@ -38,7 +39,7 @@ const storyContent = normalizeNodeId([
 function MainEditorWithDialog({
   enabledTools: initialEnabledTools,
 }: {
-  enabledTools: string[];
+  enabledTools: ToolbarToolName[];
 }) {
   const [dialogState, setDialog] = useAtom(dialogAtom);
   const enabledTools = useAtomValue(enabledToolsAtom);
