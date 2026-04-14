@@ -45,6 +45,9 @@ export const discussionPlugin = createPlatePlugin({
     onDeleteComment: undefined as
       | ((discussionId: string, commentId: string) => Promise<void>)
       | undefined,
+    onAddReply: undefined as
+      | ((comment: TComment) => Promise<void>)
+      | undefined,
     onDeleteDiscussion: undefined as
       | ((discussionId: string) => Promise<void>)
       | undefined,

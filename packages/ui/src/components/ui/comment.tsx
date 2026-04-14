@@ -20,7 +20,7 @@ import {
   TrashIcon,
   XIcon,
 } from 'lucide-react';
-import { type Value, KEYS, nanoid, NodeApi } from 'platejs';
+import { type Value, KEYS, NodeApi } from 'platejs';
 import {
   Plate,
   useEditorPlugin,
@@ -91,6 +91,10 @@ export function Comment(props: {
         return discussion;
       });
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
+    editor
+      .getOption(discussionPlugin, 'onResolveDiscussion')
+      ?.(id)
+      .catch(console.error);
   };
 
   const removeDiscussion = async (id: string) => {
@@ -126,6 +130,10 @@ export function Comment(props: {
         return discussion;
       });
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
+    editor
+      .getOption(discussionPlugin, 'onEditComment')
+      ?.(input.discussionId, input.id, input.contentRich)
+      .catch(console.error);
   };
 
   const { tf } = useEditorPlugin(CommentPlugin);
@@ -218,6 +226,15 @@ export function Comment(props: {
                 if (discussionLength === 1) {
                   tf.comment.unsetMark({ id: comment.discussionId });
                   void removeDiscussion(comment.discussionId);
+                  editor
+                    .getOption(discussionPlugin, 'onDeleteDiscussion')
+                    ?.(comment.discussionId)
+                    .catch(console.error);
+                } else {
+                  editor
+                    .getOption(discussionPlugin, 'onDeleteComment')
+                    ?.(comment.discussionId, comment.id)
+                    .catch(console.error);
                 }
               }}
               comment={comment}
@@ -448,34 +465,38 @@ export function CommentCreateForm({
       // Get existing discussion
       const discussion = discussions.find((d) => d.id === discussionId);
       if (!discussion) {
-        // Mock creating suggestion
+        const currentUserId = editor.getOption(discussionPlugin, 'currentUserId');
         const newDiscussion: TDiscussion = {
           id: discussionId,
           comments: [
             {
-              id: nanoid(),
+              id: crypto.randomUUID(),
               contentRich: commentValue,
               createdAt: new Date(),
               discussionId,
               isEdited: false,
-              userId: editor.getOption(discussionPlugin, 'currentUserId'),
+              userId: currentUserId,
             },
           ],
           createdAt: new Date(),
           isResolved: false,
-          userId: editor.getOption(discussionPlugin, 'currentUserId'),
+          userId: currentUserId,
         };
 
         editor.setOption(discussionPlugin, 'discussions', [
           ...discussions,
           newDiscussion,
         ]);
+        editor
+          .getOption(discussionPlugin, 'onCreateDiscussion')
+          ?.(newDiscussion)
+          .catch(console.error);
         return;
       }
 
       // Create reply comment
       const comment: TComment = {
-        id: nanoid(),
+        id: crypto.randomUUID(),
         contentRich: commentValue,
         createdAt: new Date(),
         discussionId,
@@ -483,18 +504,20 @@ export function CommentCreateForm({
         userId: editor.getOption(discussionPlugin, 'currentUserId'),
       };
 
-      // Add reply to discussion comments
       const updatedDiscussion = {
         ...discussion,
         comments: [...discussion.comments, comment],
       };
 
-      // Filter out old discussion and add updated one
       const updatedDiscussions = discussions
         .filter((d) => d.id !== discussionId)
         .concat(updatedDiscussion);
 
       editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
+      editor
+        .getOption(discussionPlugin, 'onAddReply')
+        ?.(comment)
+        .catch(console.error);
 
       return;
     }
@@ -509,13 +532,12 @@ export function CommentCreateForm({
       .map(([node]) => node.text)
       .join('');
 
-    const _discussionId = nanoid();
-    // Mock creating new discussion
+    const _discussionId = crypto.randomUUID();
     const newDiscussion: TDiscussion = {
       id: _discussionId,
       comments: [
         {
-          id: nanoid(),
+          id: crypto.randomUUID(),
           contentRich: commentValue,
           createdAt: new Date(),
           discussionId: _discussionId,
@@ -533,6 +555,10 @@ export function CommentCreateForm({
       ...discussions,
       newDiscussion,
     ]);
+    editor
+      .getOption(discussionPlugin, 'onCreateDiscussion')
+      ?.(newDiscussion)
+      .catch(console.error);
 
     const id = newDiscussion.id;
 
@@ -550,7 +576,6 @@ export function CommentCreateForm({
   return (
     <div className={cn('flex w-full', className)}>
       <div className="mt-2 mr-1 shrink-0">
-        {/* Replace to your own backend or refer to potion */}
         <Avatar className="size-5">
           <AvatarImage alt={userInfo?.name} src={userInfo?.avatarUrl} />
           <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>
