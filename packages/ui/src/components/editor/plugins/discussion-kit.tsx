@@ -8,21 +8,32 @@ import { createPlatePlugin } from 'platejs/react';
 
 import { BlockDiscussion } from '@ui/components/ui/block-discussion';
 
-export type TDiscussion = {
-  id: string;
-  comments: TComment[];
-  createdAt: Date;
-  isResolved: boolean;
-  userId: string;
-  documentContent?: string;
-};
+export type {
+  DiscussionData,
+  TDiscussion,
+  TUser,
+} from './discussion-kit.types';
+import type { TDiscussion, TUser } from './discussion-kit.types';
 
-export type TUser = {
-  id: string;
-  avatarUrl: string;
-  name: string;
-  hue?: number;
-};
+type OnCreateDiscussion = (discussion: TDiscussion) => Promise<void>;
+
+type OnEditComment = (
+  discussionId: string,
+  commentId: string,
+  contentRich: Value
+) => Promise<void>;
+
+type OnDeleteComment = (
+  discussionId: string,
+  commentId: string
+) => Promise<void>;
+
+type OnAddReply = (comment: TComment) => Promise<void>;
+
+type OnDeleteDiscussion = (discussionId: string) => Promise<void>;
+
+type OnResolveDiscussion = (discussionId: string) => Promise<void>;
+console.log('🚀 ~ :55 ~ discussionPlugin:aaaa');
 
 // This plugin is purely UI. Discussions, users and persistence callbacks
 // are injected by the host app via editor.setOption(discussionPlugin, ...).
@@ -32,28 +43,12 @@ export const discussionPlugin = createPlatePlugin({
     currentUserId: '' as string,
     discussions: [] as TDiscussion[],
     users: {} as Record<string, TUser>,
-    onCreateDiscussion: undefined as
-      | ((discussion: TDiscussion) => Promise<void>)
-      | undefined,
-    onEditComment: undefined as
-      | ((
-          discussionId: string,
-          commentId: string,
-          contentRich: Value
-        ) => Promise<void>)
-      | undefined,
-    onDeleteComment: undefined as
-      | ((discussionId: string, commentId: string) => Promise<void>)
-      | undefined,
-    onAddReply: undefined as
-      | ((comment: TComment) => Promise<void>)
-      | undefined,
-    onDeleteDiscussion: undefined as
-      | ((discussionId: string) => Promise<void>)
-      | undefined,
-    onResolveDiscussion: undefined as
-      | ((discussionId: string) => Promise<void>)
-      | undefined,
+    onCreateDiscussion: undefined as OnCreateDiscussion | undefined,
+    onEditComment: undefined as OnEditComment | undefined,
+    onDeleteComment: undefined as OnDeleteComment | undefined,
+    onAddReply: undefined as OnAddReply | undefined,
+    onDeleteDiscussion: undefined as OnDeleteDiscussion | undefined,
+    onResolveDiscussion: undefined as OnResolveDiscussion | undefined,
   },
 })
   .configure({
