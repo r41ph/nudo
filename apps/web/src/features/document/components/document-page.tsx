@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -12,6 +12,7 @@ import { DocumentLayout } from '@web/layouts/document-layout';
 import { MainEditor } from '@writing-app/ui/src/components/main-editor/main-editor';
 import { EditorToolbarDialog } from '@web/features/toolbar/components/toolbar-dialog';
 import { useAutoSave } from '@web/features/document/components/document-page.hooks';
+import { useDocumentDiscussions } from '@web/features/document/hooks/use-document-discussions';
 import { useToolbarSettingsSync, useUserPreferences } from '@web/features/toolbar/hooks/toolbar.hooks';
 import { isValidUuid } from '@web/shared/lib/uuid';
 import type { Value } from 'platejs';
@@ -52,6 +53,44 @@ export function DocumentPage() {
   const doc = data?.documentById;
 
   const { scheduleAutoSave, saveNow } = useAutoSave(id || null);
+
+  const [isDiscussionOpen, setIsDiscussionOpen] = useState(false);
+  const {
+    currentUserId: discussionUserId,
+    discussions,
+    users,
+    onCreateDiscussion,
+    onAddReply,
+    onEditComment,
+    onDeleteComment,
+    onDeleteDiscussion,
+    onResolveDiscussion,
+  } = useDocumentDiscussions(id || null, isDiscussionOpen);
+
+  const discussionData = useMemo(
+    () => ({
+      currentUserId: discussionUserId,
+      discussions,
+      users,
+      onCreateDiscussion,
+      onAddReply,
+      onEditComment,
+      onDeleteComment,
+      onDeleteDiscussion,
+      onResolveDiscussion,
+    }),
+    [
+      discussionUserId,
+      discussions,
+      users,
+      onCreateDiscussion,
+      onAddReply,
+      onEditComment,
+      onDeleteComment,
+      onDeleteDiscussion,
+      onResolveDiscussion,
+    ]
+  );
 
   const liveCountTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -129,6 +168,7 @@ export function DocumentPage() {
         enabledTools={enabledTools}
         isDialogOpen={isDialogOpen}
         initialContent={doc.content}
+        discussionData={discussionData}
         onContentChange={handleContentChange}
         onWordCountChange={handleWordCountChange}
       >

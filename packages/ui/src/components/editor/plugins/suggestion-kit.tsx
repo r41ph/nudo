@@ -2,6 +2,8 @@
 
 import type { ExtendConfig, Path } from 'platejs';
 
+// import { commentPlugin } from './comment-kit';
+// import { discussionPlugin } from './discussion-kit';
 import {
   type BaseSuggestionConfig,
   BaseSuggestionPlugin,
@@ -13,9 +15,6 @@ import {
   SuggestionLeaf,
   SuggestionLineBreak,
 } from '@ui/components/ui/suggestion-node';
-
-import { commentPlugin } from './comment-kit';
-import { discussionPlugin } from './discussion-kit';
 
 export type SuggestionConfig = ExtendConfig<
   BaseSuggestionConfig,
@@ -31,7 +30,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
   ({ editor }) => ({
     options: {
       activeId: null,
-      currentUserId: editor.getOption(discussionPlugin, 'currentUserId'),
+      // currentUserId: editor.getOption(discussionPlugin, 'currentUserId'),
       hoverId: null,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       uniquePathMap: new Map(),
@@ -90,8 +89,4 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
   },
 });
 
-export const SuggestionKit = [
-  commentPlugin,
-  discussionPlugin,
-  suggestionPlugin,
-];
+export const SuggestionKit = [suggestionPlugin];
