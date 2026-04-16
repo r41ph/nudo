@@ -4,16 +4,28 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { GET_DOCUMENT } from '@web/features/document/api/document.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
-import { currentDocumentAtom, liveWordCountAtom } from '@web/features/document/state/document.store';
+import {
+  currentDocumentAtom,
+  liveWordCountAtom,
+} from '@web/features/document/state/document.store';
 import { enabledToolsAtom } from '@web/features/toolbar/state/toolbar.store';
-import { dialogAtom, isToolbarDialogOpenAtom } from '@web/shared/state/dialog.atom';
-import { isAuthenticatedAtom, userIdAtom } from '@web/features/auth/state/auth.store';
+import {
+  dialogAtom,
+  isToolbarDialogOpenAtom,
+} from '@web/shared/state/dialog.atom';
+import {
+  isAuthenticatedAtom,
+  userIdAtom,
+} from '@web/features/auth/state/auth.store';
 import { DocumentLayout } from '@web/layouts/document-layout';
 import { MainEditor } from '@writing-app/ui/src/components/main-editor/main-editor';
 import { EditorToolbarDialog } from '@web/features/toolbar/components/toolbar-dialog';
 import { useAutoSave } from '@web/features/document/components/document-page.hooks';
 import { useDocumentDiscussions } from '@web/features/document/hooks/use-document-discussions';
-import { useToolbarSettingsSync, useUserPreferences } from '@web/features/toolbar/hooks/toolbar.hooks';
+import {
+  useToolbarSettingsSync,
+  useUserPreferences,
+} from '@web/features/toolbar/hooks/toolbar.hooks';
 import { isValidUuid } from '@web/shared/lib/uuid';
 import type { Value } from 'platejs';
 import { DIALOG } from '@web/shared/state/dialog.constants';
@@ -65,6 +77,7 @@ export function DocumentPage() {
     onDeleteComment,
     onDeleteDiscussion,
     onResolveDiscussion,
+    pruneOrphanedDiscussions,
   } = useDocumentDiscussions(id || null, isDiscussionOpen);
 
   const discussionData = useMemo(
@@ -78,6 +91,7 @@ export function DocumentPage() {
       onDeleteComment,
       onDeleteDiscussion,
       onResolveDiscussion,
+      pruneOrphanedDiscussions,
     }),
     [
       discussionUserId,
@@ -89,6 +103,7 @@ export function DocumentPage() {
       onDeleteComment,
       onDeleteDiscussion,
       onResolveDiscussion,
+      pruneOrphanedDiscussions,
     ]
   );
 

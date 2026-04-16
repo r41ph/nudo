@@ -33,8 +33,6 @@ type OnAddReply = (comment: TComment) => Promise<void>;
 type OnDeleteDiscussion = (discussionId: string) => Promise<void>;
 
 type OnResolveDiscussion = (discussionId: string) => Promise<void>;
-console.log('🚀 ~ :55 ~ discussionPlugin:aaaa');
-
 // This plugin is purely UI. Discussions, users and persistence callbacks
 // are injected by the host app via editor.setOption(discussionPlugin, ...).
 export const discussionPlugin = createPlatePlugin({

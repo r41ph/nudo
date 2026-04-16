@@ -82,6 +82,7 @@ export function Comment(props: {
   const currentUserId = usePluginOption(discussionPlugin, 'currentUserId');
 
   const resolveDiscussion = async (id: string) => {
+    await editor.getOption(discussionPlugin, 'onResolveDiscussion')?.(id);
     const updatedDiscussions = editor
       .getOption(discussionPlugin, 'discussions')
       .map((discussion) => {
@@ -91,10 +92,6 @@ export function Comment(props: {
         return discussion;
       });
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
-    editor
-      .getOption(discussionPlugin, 'onResolveDiscussion')
-      ?.(id)
-      .catch(console.error);
   };
 
   const removeDiscussion = async (id: string) => {
@@ -169,9 +166,13 @@ export function Comment(props: {
     setEditingId(null);
   };
 
-  const onResolveComment = () => {
-    void resolveDiscussion(comment.discussionId);
-    tf.comment.unsetMark({ id: comment.discussionId });
+  const onResolveComment = async () => {
+    try {
+      await resolveDiscussion(comment.discussionId);
+      tf.comment.unsetMark({ id: comment.discussionId });
+    } catch {
+      // error already toasted by the callback
+    }
   };
 
   const isFirst = index === 0;
@@ -222,19 +223,42 @@ export function Comment(props: {
                   commentEditor.tf.focus({ edge: 'endEditor' });
                 }, 0);
               }}
-              onRemoveComment={() => {
+              onRemoveComment={async () => {
                 if (discussionLength === 1) {
-                  tf.comment.unsetMark({ id: comment.discussionId });
-                  void removeDiscussion(comment.discussionId);
-                  editor
-                    .getOption(discussionPlugin, 'onDeleteDiscussion')
-                    ?.(comment.discussionId)
-                    .catch(console.error);
+                  try {
+                    await editor
+                      .getOption(discussionPlugin, 'onDeleteDiscussion')
+                      ?.(comment.discussionId);
+                    tf.comment.unsetMark({ id: comment.discussionId });
+                    await removeDiscussion(comment.discussionId);
+                  } catch {
+                    // error already toasted
+                  }
                 } else {
-                  editor
-                    .getOption(discussionPlugin, 'onDeleteComment')
-                    ?.(comment.discussionId, comment.id)
-                    .catch(console.error);
+                  try {
+                    await editor
+                      .getOption(discussionPlugin, 'onDeleteComment')
+                      ?.(comment.discussionId, comment.id);
+                    const updatedDiscussions = editor
+                      .getOption(discussionPlugin, 'discussions')
+                      .map((discussion) => {
+                        if (discussion.id !== comment.discussionId)
+                          return discussion;
+                        return {
+                          ...discussion,
+                          comments: discussion.comments.filter(
+                            (c) => c.id !== comment.id
+                          ),
+                        };
+                      });
+                    editor.setOption(
+                      discussionPlugin,
+                      'discussions',
+                      updatedDiscussions
+                    );
+                  } catch {
+                    // error already toasted
+                  }
                 }
               }}
               comment={comment}
@@ -329,35 +353,8 @@ function CommentMoreDropdown(props: {
   const onDeleteComment = React.useCallback(() => {
     if (!comment.id)
       return alert('You are operating too quickly, please try again later.');
-
-    // Find and update the discussion
-    const updatedDiscussions = editor
-      .getOption(discussionPlugin, 'discussions')
-      .map((discussion) => {
-        if (discussion.id !== comment.discussionId) {
-          return discussion;
-        }
-
-        const commentIndex = discussion.comments.findIndex(
-          (c) => c.id === comment.id
-        );
-        if (commentIndex === -1) {
-          return discussion;
-        }
-
-        return {
-          ...discussion,
-          comments: [
-            ...discussion.comments.slice(0, commentIndex),
-            ...discussion.comments.slice(commentIndex + 1),
-          ],
-        };
-      });
-
-    // Save back to session storage
-    editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
     onRemoveComment?.();
-  }, [comment.discussionId, comment.id, editor, onRemoveComment]);
+  }, [comment.id, onRemoveComment]);
 
   const onEditComment = React.useCallback(() => {
     selectedEditCommentRef.current = true;

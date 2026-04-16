@@ -1,5 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
 import type { Value } from 'platejs';
 
@@ -19,7 +20,7 @@ import {
   DELETE_DISCUSSION,
   DELETE_DISCUSSION_COMMENT,
   GET_DISCUSSIONS,
-  UPDATE_DISCUSSION,
+  PRUNE_ORPHANED_DISCUSSIONS,
   UPDATE_DISCUSSION_COMMENT,
 } from '@web/features/document/api/discussion.api';
 import { userIdAtom } from '@web/features/auth/state/auth.store';
@@ -129,12 +130,6 @@ export function useDocumentDiscussions(
     onSuccess: invalidate,
   });
 
-  const { mutateAsync: updateDiscussionMutation } = useMutation({
-    mutationFn: (vars: { id: string; isResolved: boolean }) =>
-      graphqlClient.request(UPDATE_DISCUSSION, vars),
-    onSuccess: invalidate,
-  });
-
   const { mutateAsync: updateCommentMutation } = useMutation({
     mutationFn: (vars: { id: string; contentRich: Value }) =>
       graphqlClient.request(UPDATE_DISCUSSION_COMMENT, vars),
@@ -158,20 +153,24 @@ export function useDocumentDiscussions(
   const onCreateDiscussion = useCallback(
     async (discussion: TDiscussion) => {
       if (!documentId) return;
-      await createDiscussionMutation({
-        id: discussion.id,
-        documentId,
-        userId: discussion.userId,
-        documentContent: discussion.documentContent,
-      });
-      const first = discussion.comments[0];
-      if (first) {
-        await createCommentMutation({
-          id: first.id,
-          discussionId: discussion.id,
-          userId: first.userId,
-          contentRich: first.contentRich,
+      try {
+        await createDiscussionMutation({
+          id: discussion.id,
+          documentId,
+          userId: discussion.userId,
+          documentContent: discussion.documentContent,
         });
+        const first = discussion.comments[0];
+        if (first) {
+          await createCommentMutation({
+            id: first.id,
+            discussionId: discussion.id,
+            userId: first.userId,
+            contentRich: first.contentRich,
+          });
+        }
+      } catch {
+        toast.error('Failed to create discussion.');
       }
     },
     [documentId, createDiscussionMutation, createCommentMutation]
@@ -179,42 +178,81 @@ export function useDocumentDiscussions(
 
   const onAddReply = useCallback(
     async (comment: TComment) => {
-      await createCommentMutation({
-        id: comment.id,
-        discussionId: comment.discussionId,
-        userId: comment.userId,
-        contentRich: comment.contentRich,
-      });
+      try {
+        await createCommentMutation({
+          id: comment.id,
+          discussionId: comment.discussionId,
+          userId: comment.userId,
+          contentRich: comment.contentRich,
+        });
+      } catch {
+        toast.error('Failed to add reply.');
+      }
     },
     [createCommentMutation]
   );
 
   const onEditComment = useCallback(
     async (_discussionId: string, commentId: string, contentRich: Value) => {
-      await updateCommentMutation({ id: commentId, contentRich });
+      try {
+        await updateCommentMutation({ id: commentId, contentRich });
+      } catch {
+        toast.error('Failed to edit comment.');
+      }
     },
     [updateCommentMutation]
   );
 
   const onDeleteComment = useCallback(
     async (_discussionId: string, commentId: string) => {
-      await deleteCommentMutation({ id: commentId });
+      try {
+        await deleteCommentMutation({ id: commentId });
+      } catch (err) {
+        toast.error('Failed to delete comment.');
+        throw err;
+      }
     },
     [deleteCommentMutation]
   );
 
   const onDeleteDiscussion = useCallback(
     async (discussionId: string) => {
-      await deleteDiscussionMutation({ id: discussionId });
+      try {
+        await deleteDiscussionMutation({ id: discussionId });
+      } catch (err) {
+        toast.error('Failed to delete discussion.');
+        throw err;
+      }
     },
     [deleteDiscussionMutation]
   );
 
   const onResolveDiscussion = useCallback(
     async (discussionId: string) => {
-      await updateDiscussionMutation({ id: discussionId, isResolved: true });
+      try {
+        await deleteDiscussionMutation({ id: discussionId });
+      } catch (err) {
+        toast.error('Failed to resolve discussion.');
+        throw err;
+      }
     },
-    [updateDiscussionMutation]
+    [deleteDiscussionMutation]
+  );
+
+  const pruneOrphanedDiscussions = useCallback(
+    async (activeIds: string[]) => {
+      if (!documentId) return;
+      try {
+        await graphqlClient.request(PRUNE_ORPHANED_DISCUSSIONS, {
+          docId: documentId,
+          activeIds,
+        });
+        await invalidate();
+      } catch {
+        // best-effort, non-blocking
+      }
+    },
+    [documentId, invalidate]
   );
 
   return {
@@ -226,6 +264,7 @@ export function useDocumentDiscussions(
     onDeleteDiscussion,
     onEditComment,
     onResolveDiscussion,
+    pruneOrphanedDiscussions,
     users,
   };
 }
