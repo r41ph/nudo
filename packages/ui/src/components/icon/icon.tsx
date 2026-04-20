@@ -16,11 +16,13 @@ import {
   Minimize2Icon,
   MessageSquareTextIcon,
   Minus,
+  MoonIcon,
   PencilLineIcon,
   PilcrowIcon,
   Plus,
   Quote,
   StrikethroughIcon,
+  SunIcon,
   Trash2Icon,
   UnderlineIcon,
 } from 'lucide-react';
@@ -49,6 +51,8 @@ const icons = {
   help: HelpCircleIcon,
   maximize: Maximize2Icon,
   minimize: Minimize2Icon,
+  moon: MoonIcon,
+  sun: SunIcon,
   trash: Trash2Icon,
 } as const;
 
