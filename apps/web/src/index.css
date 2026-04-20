@@ -11,3 +11,7 @@
   line-height: 1.8 !important;
   color: #4A5D5E !important;
 }
+
+.dark [data-slate-editor] {
+  color: var(--foreground) !important;
+}
