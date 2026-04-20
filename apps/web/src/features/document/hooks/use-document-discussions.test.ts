@@ -220,7 +220,50 @@ describe('useDocumentDiscussions', () => {
   // ── onEditComment ────────────────────────────────────────────────────────
 
   describe('onEditComment', () => {
-    it('shows toast.error on failure', async () => {
+    it('calls UpdateDiscussionComment with the correct variables', async () => {
+      let capturedVars: Record<string, unknown> | null = null;
+      server.use(
+        graphql.mutation('UpdateDiscussionComment', ({ variables }) => {
+          capturedVars = variables;
+          return HttpResponse.json({
+            data: { updateDiscussionCommentById: { discussionComment: { id: 'c-1' } } },
+          });
+        })
+      );
+
+      const { result } = renderHook();
+      const contentRich = [{ type: 'p', children: [{ text: 'edited' }] }];
+
+      await act(async () => {
+        await result.current.onEditComment('disc-1', 'c-1', contentRich);
+      });
+
+      expect(capturedVars).toMatchObject({ id: 'c-1', contentRich });
+    });
+
+    it('resolves without throwing on success', async () => {
+      server.use(
+        graphql.mutation('UpdateDiscussionComment', () =>
+          HttpResponse.json({
+            data: { updateDiscussionCommentById: { discussionComment: { id: 'c-1' } } },
+          })
+        )
+      );
+
+      const { result } = renderHook();
+
+      await act(async () => {
+        await expect(
+          result.current.onEditComment('disc-1', 'c-1', [
+            { type: 'p', children: [{ text: 'edited' }] },
+          ])
+        ).resolves.toBeUndefined();
+      });
+
+      expect(toast.error).not.toHaveBeenCalled();
+    });
+
+    it('shows toast.error and re-throws on failure', async () => {
       server.use(
         graphql.mutation('UpdateDiscussionComment', () =>
           HttpResponse.json({ errors: [{ message: 'DB error' }] })
@@ -230,9 +273,11 @@ describe('useDocumentDiscussions', () => {
       const { result } = renderHook();
 
       await act(async () => {
-        await result.current.onEditComment('disc-1', 'c-1', [
-          { type: 'p', children: [{ text: 'edited' }] },
-        ]);
+        await expect(
+          result.current.onEditComment('disc-1', 'c-1', [
+            { type: 'p', children: [{ text: 'edited' }] },
+          ])
+        ).rejects.toThrow();
       });
 
       expect(toast.error).toHaveBeenCalledWith('Failed to edit comment.');
