@@ -107,6 +107,9 @@ export function Comment(props: {
     discussionId: string;
     isEdited: boolean;
   }) => {
+    const onEditComment = editor.getOption(discussionPlugin, 'onEditComment');
+    if (!onEditComment) throw new Error('onEditComment is not configured');
+    await onEditComment(input.discussionId, input.id, input.contentRich);
     const updatedDiscussions = editor
       .getOption(discussionPlugin, 'discussions')
       .map((discussion) => {
@@ -117,7 +120,6 @@ export function Comment(props: {
                 ...comment,
                 contentRich: input.contentRich,
                 isEdited: true,
-                updatedAt: new Date(),
               };
             }
             return comment;
@@ -127,10 +129,6 @@ export function Comment(props: {
         return discussion;
       });
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
-    editor
-      .getOption(discussionPlugin, 'onEditComment')
-      ?.(input.discussionId, input.id, input.contentRich)
-      .catch(console.error);
   };
 
   const { tf } = useEditorPlugin(CommentPlugin);
@@ -156,14 +154,18 @@ export function Comment(props: {
     });
   };
 
-  const onSave = () => {
-    void updateComment({
-      id: comment.id,
-      contentRich: commentEditor.children,
-      discussionId: comment.discussionId,
-      isEdited: true,
-    });
-    setEditingId(null);
+  const onSave = async () => {
+    try {
+      await updateComment({
+        id: comment.id,
+        contentRich: commentEditor.children,
+        discussionId: comment.discussionId,
+        isEdited: true,
+      });
+      setEditingId(null);
+    } catch {
+      // error already toasted; keep edit UI open so the user can retry
+    }
   };
 
   const onResolveComment = async () => {

@@ -196,8 +196,9 @@ export function useDocumentDiscussions(
     async (_discussionId: string, commentId: string, contentRich: Value) => {
       try {
         await updateCommentMutation({ id: commentId, contentRich });
-      } catch {
+      } catch (err) {
         toast.error('Failed to edit comment.');
+        throw err;
       }
     },
     [updateCommentMutation]
