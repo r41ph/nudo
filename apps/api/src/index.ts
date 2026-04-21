@@ -1,12 +1,11 @@
+import './config/env.js';
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 
 import { authRouter } from './auth/routes.js';
 import { authMiddleware } from './auth/middleware.js';
 import { postgraphileMiddleware } from './config/postgraphile.js';
-
-dotenv.config();
 
 const app = express();
 const port = parseInt(process.env.API_PORT || '3001', 10);
