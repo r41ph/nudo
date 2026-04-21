@@ -5,6 +5,7 @@ import { Button } from '@ui/components/ui/button';
 import { Icon } from '@ui/components/icon/icon';
 import { SidebarFooter } from '@ui/components/ui/sidebar';
 import { AddNewButton } from '@web/features/sidebar/components/add-new-button';
+import { useLogout } from '@web/features/auth/hooks/use-logout';
 import { CREATE_DOCUMENT } from '@web/features/document/api/document.api';
 import { CREATE_FOLDER } from '@web/features/folder/api/folder.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
@@ -12,6 +13,7 @@ import { queryClient } from '@web/shared/lib/query-client';
 
 export function SidebarFooterActions() {
   const navigate = useNavigate();
+  const { logout } = useLogout();
 
   const { mutate: createDocument, isPending: isCreatingDoc } = useMutation({
     mutationFn: (variables: {
@@ -55,6 +57,15 @@ export function SidebarFooterActions() {
         onNewFolder={handleCreateFolder}
       />
       <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2 text-xs text-muted-foreground hover:text-foreground"
+          onClick={logout}
+        >
+          <Icon name="logOut" className="h-3.5 w-3.5" />
+          Log out
+        </Button>
         <Button
           variant="ghost"
           size="sm"

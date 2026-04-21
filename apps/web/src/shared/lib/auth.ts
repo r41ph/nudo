@@ -33,6 +33,11 @@ export function setStoredUser(user: AuthUser): void {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
+// Synchronously clears auth data from localStorage as the primary logout defence.
+// The server also returns Clear-Site-Data: "cache", "storage" on POST /auth/logout,
+// but that header is processed asynchronously and depends on the network request
+// succeeding. If the request fails or the browser doesn't support the directive,
+// calling this function ensures the token is never reused on the next page load.
 export function clearAuth(): void {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
