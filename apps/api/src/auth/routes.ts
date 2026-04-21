@@ -93,6 +93,11 @@ authRouter.post('/login', async (req: Request, res: Response) => {
   }
 });
 
+authRouter.post('/logout', (_req: Request, res: Response) => {
+  res.setHeader('Clear-Site-Data', '"cache", "storage"');
+  res.status(204).end();
+});
+
 authRouter.post('/refresh', async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {

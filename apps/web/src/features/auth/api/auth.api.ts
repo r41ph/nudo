@@ -13,6 +13,10 @@ export async function loginUser(params: LoginParams): Promise<AuthResponse> {
   return data;
 }
 
+export async function logoutUser(): Promise<void> {
+  await fetch(`${API_URL}${AUTH_ROUTES.LOGOUT}`, { method: 'POST' });
+}
+
 export async function registerUser(params: RegisterParams): Promise<AuthResponse> {
   const body: Record<string, string> = { email: params.email, password: params.password };
   if (params.displayName) body.displayName = params.displayName;

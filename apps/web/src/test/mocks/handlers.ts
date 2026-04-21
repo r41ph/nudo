@@ -144,4 +144,6 @@ export const handlers = [
       user: { ...MOCK_USER, email: body.email, displayName: body.displayName },
     });
   }),
+
+  http.post('*/auth/logout', () => new HttpResponse(null, { status: 204 })),
 ];
