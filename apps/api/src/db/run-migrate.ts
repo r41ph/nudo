@@ -51,11 +51,8 @@
  * - CI/CD behavior remains unchanged.
  */
 
- import dotenv from 'dotenv';
 import { execSync } from 'child_process';
 import { DATABASE_URL } from '../config/db.js';
-
-dotenv.config();
 
 const direction = process.argv[2] || 'up';
 const cmd = `DATABASE_URL="${DATABASE_URL}" npx node-pg-migrate --migration-file-language ts --envPath ../../.env -m src/db/migrations ${direction}`;
