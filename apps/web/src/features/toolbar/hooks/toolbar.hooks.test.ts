@@ -24,12 +24,17 @@ describe('useUserPreferences', () => {
     store.set(tokenAtom, 'fake-token');
     store.set(userAtom, MOCK_USER);
 
-    renderHookWithProviders(() => useUserPreferences(), { store });
+    const { result } = renderHookWithProviders(() => useUserPreferences(), {
+      store,
+    });
+
+    expect(result.current.isHydrated).toBe(false);
 
     // Wait for the query to resolve and the effect to run
     await vi.waitFor(() => {
       const tools = store.get(enabledToolsAtom);
       expect(tools).toEqual(['bold', 'italic', 'underline']);
+      expect(result.current.isHydrated).toBe(true);
     });
   });
 
