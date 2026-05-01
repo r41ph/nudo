@@ -107,9 +107,9 @@ export function Comment(props: {
     discussionId: string;
     isEdited: boolean;
   }) => {
-    const onEditComment = editor.getOption(discussionPlugin, 'onEditComment');
-    if (!onEditComment) throw new Error('onEditComment is not configured');
-    await onEditComment(input.discussionId, input.id, input.contentRich);
+    await editor
+      .getOption(discussionPlugin, 'onEditComment')
+      ?.(input.discussionId, input.id, input.contentRich);
     const updatedDiscussions = editor
       .getOption(discussionPlugin, 'discussions')
       .map((discussion) => {
