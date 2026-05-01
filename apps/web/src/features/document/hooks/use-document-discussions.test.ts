@@ -80,7 +80,9 @@ describe('useDocumentDiscussions', () => {
         ).rejects.toThrow();
       });
 
-      expect(toast.error).toHaveBeenCalledWith('Failed to resolve discussion.');
+      expect(toast.error).toHaveBeenCalledWith('Failed to resolve discussion.', {
+        id: 'resolve-discussion-error',
+      });
     });
   });
 
@@ -117,7 +119,9 @@ describe('useDocumentDiscussions', () => {
         ).rejects.toThrow();
       });
 
-      expect(toast.error).toHaveBeenCalledWith('Failed to delete discussion.');
+      expect(toast.error).toHaveBeenCalledWith('Failed to delete discussion.', {
+        id: 'delete-discussion-error',
+      });
     });
   });
 
@@ -159,7 +163,9 @@ describe('useDocumentDiscussions', () => {
         ).rejects.toThrow();
       });
 
-      expect(toast.error).toHaveBeenCalledWith('Failed to delete comment.');
+      expect(toast.error).toHaveBeenCalledWith('Failed to delete comment.', {
+        id: 'delete-comment-error',
+      });
     });
   });
 
@@ -186,7 +192,9 @@ describe('useDocumentDiscussions', () => {
         });
       });
 
-      expect(toast.error).toHaveBeenCalledWith('Failed to create discussion.');
+      expect(toast.error).toHaveBeenCalledWith('Failed to create discussion.', {
+        id: 'create-discussion-error',
+      });
     });
   });
 
@@ -213,7 +221,9 @@ describe('useDocumentDiscussions', () => {
         });
       });
 
-      expect(toast.error).toHaveBeenCalledWith('Failed to add reply.');
+      expect(toast.error).toHaveBeenCalledWith('Failed to add reply.', {
+        id: 'add-reply-error',
+      });
     });
   });
 
@@ -280,7 +290,9 @@ describe('useDocumentDiscussions', () => {
         ).rejects.toThrow();
       });
 
-      expect(toast.error).toHaveBeenCalledWith('Failed to edit comment.');
+      expect(toast.error).toHaveBeenCalledWith('Failed to edit comment.', {
+        id: 'edit-comment-error',
+      });
     });
   });
 

@@ -170,7 +170,9 @@ export function useDocumentDiscussions(
           });
         }
       } catch {
-        toast.error('Failed to create discussion.');
+        toast.error('Failed to create discussion.', {
+          id: 'create-discussion-error',
+        });
       }
     },
     [documentId, createDiscussionMutation, createCommentMutation]
@@ -186,7 +188,7 @@ export function useDocumentDiscussions(
           contentRich: comment.contentRich,
         });
       } catch {
-        toast.error('Failed to add reply.');
+        toast.error('Failed to add reply.', { id: 'add-reply-error' });
       }
     },
     [createCommentMutation]
@@ -197,7 +199,7 @@ export function useDocumentDiscussions(
       try {
         await updateCommentMutation({ id: commentId, contentRich });
       } catch (err) {
-        toast.error('Failed to edit comment.');
+        toast.error('Failed to edit comment.', { id: 'edit-comment-error' });
         throw err;
       }
     },
@@ -209,7 +211,9 @@ export function useDocumentDiscussions(
       try {
         await deleteCommentMutation({ id: commentId });
       } catch (err) {
-        toast.error('Failed to delete comment.');
+        toast.error('Failed to delete comment.', {
+          id: 'delete-comment-error',
+        });
         throw err;
       }
     },
@@ -221,7 +225,9 @@ export function useDocumentDiscussions(
       try {
         await deleteDiscussionMutation({ id: discussionId });
       } catch (err) {
-        toast.error('Failed to delete discussion.');
+        toast.error('Failed to delete discussion.', {
+          id: 'delete-discussion-error',
+        });
         throw err;
       }
     },
@@ -233,7 +239,9 @@ export function useDocumentDiscussions(
       try {
         await deleteDiscussionMutation({ id: discussionId });
       } catch (err) {
-        toast.error('Failed to resolve discussion.');
+        toast.error('Failed to resolve discussion.', {
+          id: 'resolve-discussion-error',
+        });
         throw err;
       }
     },
