@@ -24,12 +24,17 @@ describe('useUserPreferences', () => {
     store.set(tokenAtom, 'fake-token');
     store.set(userAtom, MOCK_USER);
 
-    renderHookWithProviders(() => useUserPreferences(), { store });
+    const { result } = renderHookWithProviders(() => useUserPreferences(), {
+      store,
+    });
+
+    expect(result.current.isHydrated).toBe(false);
 
     // Wait for the query to resolve and the effect to run
     await vi.waitFor(() => {
       const tools = store.get(enabledToolsAtom);
       expect(tools).toEqual(['bold', 'italic', 'underline']);
+      expect(result.current.isHydrated).toBe(true);
     });
   });
 
@@ -76,8 +81,37 @@ describe('useToolbarSettingsSync', () => {
     );
 
     renderHookWithProviders(() =>
-      useToolbarSettingsSync('user-1', ['bold', 'italic'])
+      useToolbarSettingsSync('user-1', ['bold', 'italic'], false)
     );
+
+    vi.advanceTimersByTime(2000);
+    expect(mutationSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not sync when isHydrated is false regardless of how many times the effect fires (StrictMode guard)', () => {
+    const mutationSpy = vi.fn();
+    server.use(
+      graphql.mutation('UpdateUserToolbar', () => {
+        mutationSpy();
+        return HttpResponse.json({
+          data: {
+            updateUserToolbar: {
+              user: { id: '1', enabledTools: ['bold', 'italic'], toolbarType: 'floating' },
+            },
+          },
+        });
+      })
+    );
+
+    // StrictMode fires effects twice on mount. A ref-based "skip first render" guard
+    // fails because refs persist across the simulated unmount/remount, letting the
+    // second fire write the atom's default value to the database.
+    // isHydrated=false must block the sync no matter how many times the effect runs.
+    const { rerender } = renderHookWithProviders(() =>
+      useToolbarSettingsSync('user-1', ['bold', 'italic'], false)
+    );
+    rerender(); // simulate StrictMode second invocation
+    rerender(); // extra rerenders should not matter either
 
     vi.advanceTimersByTime(2000);
     expect(mutationSpy).not.toHaveBeenCalled();
@@ -105,10 +139,10 @@ describe('useToolbarSettingsSync', () => {
     // Use a mutable ref to change tools on rerender
     let tools: ToolbarToolName[] = ['bold', 'italic'];
     const { rerender } = renderHookWithProviders(() =>
-      useToolbarSettingsSync(null, tools)
+      useToolbarSettingsSync(null, tools, true)
     );
 
-    // Trigger a rerender with different tools (past the initial mount skip)
+    // Trigger a rerender with different tools
     tools = ['bold', 'italic', 'underline'];
     rerender();
 
@@ -139,7 +173,7 @@ describe('useToolbarSettingsSync', () => {
 
     let tools: ToolbarToolName[] = ['bold', 'italic'];
     const { rerender } = renderHookWithProviders(() =>
-      useToolbarSettingsSync('user-1', tools)
+      useToolbarSettingsSync('user-1', tools, true)
     );
 
     // Simulate tools changing

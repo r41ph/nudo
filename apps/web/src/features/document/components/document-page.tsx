@@ -123,8 +123,8 @@ export function DocumentPage() {
     setDialog({ activeDialog: DIALOG.EDITOR_TOOLBAR });
   }, [setDialog]);
 
-  useUserPreferences();
-  useToolbarSettingsSync(userId, enabledTools);
+  const { isHydrated } = useUserPreferences();
+  useToolbarSettingsSync(userId, enabledTools, isHydrated);
 
   useEffect(() => {
     if (!isAuthenticated) {

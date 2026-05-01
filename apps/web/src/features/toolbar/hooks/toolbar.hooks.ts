@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -25,6 +25,7 @@ export function useUserPreferences() {
   const user = useAtomValue(userAtom);
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   const setEnabledTools = useSetAtom(enabledToolsAtom);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['currentUser', user?.id],
@@ -37,15 +38,17 @@ export function useUserPreferences() {
     const prefs = data?.userById;
     if (prefs?.enabledTools) {
       setEnabledTools(prefs.enabledTools as ToolbarToolName[]);
+      setIsHydrated(true);
     }
   }, [data, setEnabledTools]);
 
-  return { isLoading };
+  return { isLoading, isHydrated };
 }
 
 export function useToolbarSettingsSync(
   userId: string | null,
   enabledTools: ToolbarToolName[],
+  isHydrated: boolean,
   toolbarType?: string
 ) {
   const { mutate: updateToolbar } = useMutation({
@@ -56,15 +59,13 @@ export function useToolbarSettingsSync(
   });
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const initialRef = useRef(true);
 
   useEffect(() => {
-    // Skip the initial mount
-    if (initialRef.current) {
-      initialRef.current = false;
-      return;
-    }
-    if (!userId) return;
+    // Only sync after server preferences have been loaded into the atom.
+    // Using a ref-based "skip first render" flag is not reliable in StrictMode
+    // because refs persist across the simulated unmount/remount, causing the
+    // atom's default value to be written to the database on mount.
+    if (!isHydrated || !userId) return;
 
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
@@ -77,5 +78,5 @@ export function useToolbarSettingsSync(
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [userId, enabledTools, toolbarType, updateToolbar]);
+  }, [userId, enabledTools, toolbarType, isHydrated, updateToolbar]);
 }
