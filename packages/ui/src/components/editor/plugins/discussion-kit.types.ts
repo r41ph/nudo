@@ -32,4 +32,5 @@ export type DiscussionData = {
   onAddReply?: (comment: TComment) => Promise<void>;
   onDeleteDiscussion?: (discussionId: string) => Promise<void>;
   onResolveDiscussion?: (discussionId: string) => Promise<void>;
+  pruneOrphanedDiscussions?: (activeIds: string[]) => Promise<void>;
 };

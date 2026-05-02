@@ -27,7 +27,8 @@
     "platejs": "^52.0.17",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",

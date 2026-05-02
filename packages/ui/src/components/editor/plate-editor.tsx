@@ -104,16 +104,26 @@ export function PlateEditor({
       discussionData.onDeleteComment
     );
     editor.setOption(discussionPlugin, 'onAddReply', discussionData.onAddReply);
-    editor.setOption(
-      discussionPlugin,
-      'onDeleteDiscussion',
-      discussionData.onDeleteDiscussion
-    );
-    editor.setOption(
-      discussionPlugin,
-      'onResolveDiscussion',
-      discussionData.onResolveDiscussion
-    );
+    const getActiveCommentIds = () => {
+      const nodes = editor.api.comment.nodes();
+      return Array.from(
+        new Set(
+          nodes
+            .map(([leaf]) => editor.api.comment.nodeId(leaf))
+            .filter((id): id is string => !!id)
+        )
+      );
+    };
+
+    editor.setOption(discussionPlugin, 'onDeleteDiscussion', async (id: string) => {
+      await discussionData.onDeleteDiscussion?.(id);
+      await discussionData.pruneOrphanedDiscussions?.(getActiveCommentIds());
+    });
+
+    editor.setOption(discussionPlugin, 'onResolveDiscussion', async (id: string) => {
+      await discussionData.onResolveDiscussion?.(id);
+      await discussionData.pruneOrphanedDiscussions?.(getActiveCommentIds());
+    });
   }, [editor, discussionData]);
 
   return (
