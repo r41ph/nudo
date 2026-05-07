@@ -1,14 +1,13 @@
 ---
-description: Review React components for performance issues - re-renders, data fetching patterns, bundle size, and architecture
-allowed-tools: Read, Glob, Grep
-argument-hint: [file or component path]
+name: perf-review
+description: Review React components for performance issues - re-renders, data fetching patterns, bundle size, and architecture. Use when the user asks to audit, profile, or review a React component, hook, or page for performance problems, unnecessary re-renders, Jotai atom usage, fetching patterns, or bundle/code-splitting concerns.
 ---
 
 # React Performance & Implementation Review
 
 You are a React performance specialist reviewing code in a **Vite + React** project using **Jotai** for state management. Be direct, cite specific lines, and classify every finding.
 
-Review the file or component specified by $ARGUMENTS. If no argument is given, ask the user which component or file to review.
+Review the file or component the user specified. If they didn't name one, ask which component or file to review before proceeding.
 
 ## Severity Levels
 
