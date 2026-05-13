@@ -4,14 +4,16 @@
 # Runs on every `git push`. For each branch being pushed:
 #   1. Checks that every new commit message follows Conventional Commits.
 #      - For a brand-new branch: validates everything since it diverged from main.
-#      - For an existing branch: validates only the commits being added.
+#      - For an existing branch with fast-forward push: validates only the commits being added.
+#      - For a force-push after rebase: remote_sha is no longer in our history,
+#        so fall back to validating everything since divergence from main.
 #   2. Type-checks every workspace (whole project, not just changed files).
 # Push is blocked if either check fails. Bypass with `git push --no-verify`.
 
 ZERO=0000000000000000000000000000000000000000
 
 while read local_ref local_sha remote_ref remote_sha; do
-  if [ "$remote_sha" = "$ZERO" ]; then
+  if [ "$remote_sha" = "$ZERO" ] || ! git merge-base --is-ancestor "$remote_sha" "$local_sha"; then
     range_start=$(git merge-base "$local_sha" origin/main)
   else
     range_start="$remote_sha"
