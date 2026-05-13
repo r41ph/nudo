@@ -224,20 +224,14 @@ MSW handlers are defined in `apps/web/src/test/mocks/`. The test setup (`src/tes
 
 ## Environment Variables
 
-**`apps/web/.env`**
+Copy the `.env.example` files in each app to `.env` and fill in any placeholders:
 
-```
-VITE_API_URL=http://localhost:3000
+```bash
+cp apps/web/.env.example apps/web/.env
+cp apps/api/.env.example apps/api/.env
 ```
 
-**`apps/api/.env`**
-
-```
-PORT=3000
-DATABASE_URL=postgres://writing_app:writing_app_dev@localhost:5432/writing_app
-JWT_SECRET=your_secret_here
-JWT_REFRESH_SECRET=your_refresh_secret_here
-```
+`apps/api/.env.example` uses the dev credentials defined in `docker-compose.yml`. Replace `JWT_SECRET` and `JWT_REFRESH_SECRET` with random strings before running the API.
 
 ---
 
