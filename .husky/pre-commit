@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# .husky/pre-commit
+#
+# Runs on every `git commit`. For each staged file:
+#   - prettier --write       (formats + re-stages)
+#   - eslint --fix           (lint with no-console / no-debugger as errors)
+#   - secretlint             (blocks committed secrets)
+# Bypass with `git commit --no-verify`.
+
+pnpm lint-staged

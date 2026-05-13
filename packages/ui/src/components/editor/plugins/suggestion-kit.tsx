@@ -27,12 +27,11 @@ export type SuggestionConfig = ExtendConfig<
 
 export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
   BaseSuggestionPlugin,
-  ({ editor }) => ({
+  () => ({
     options: {
       activeId: null,
       // currentUserId: editor.getOption(discussionPlugin, 'currentUserId'),
       hoverId: null,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       uniquePathMap: new Map(),
     },
   })
@@ -83,7 +82,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
     },
   },
   render: {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     belowNodes: SuggestionLineBreak as any,
     node: SuggestionLeaf,
   },

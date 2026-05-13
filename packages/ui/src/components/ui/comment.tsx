@@ -107,9 +107,11 @@ export function Comment(props: {
     discussionId: string;
     isEdited: boolean;
   }) => {
-    await editor
-      .getOption(discussionPlugin, 'onEditComment')
-      ?.(input.discussionId, input.id, input.contentRich);
+    await editor.getOption(discussionPlugin, 'onEditComment')?.(
+      input.discussionId,
+      input.id,
+      input.contentRich
+    );
     const updatedDiscussions = editor
       .getOption(discussionPlugin, 'discussions')
       .map((discussion) => {
@@ -228,9 +230,10 @@ export function Comment(props: {
               onRemoveComment={async () => {
                 if (discussionLength === 1) {
                   try {
-                    await editor
-                      .getOption(discussionPlugin, 'onDeleteDiscussion')
-                      ?.(comment.discussionId);
+                    await editor.getOption(
+                      discussionPlugin,
+                      'onDeleteDiscussion'
+                    )?.(comment.discussionId);
                     tf.comment.unsetMark({ id: comment.discussionId });
                     await removeDiscussion(comment.discussionId);
                   } catch {
@@ -238,9 +241,10 @@ export function Comment(props: {
                   }
                 } else {
                   try {
-                    await editor
-                      .getOption(discussionPlugin, 'onDeleteComment')
-                      ?.(comment.discussionId, comment.id);
+                    await editor.getOption(
+                      discussionPlugin,
+                      'onDeleteComment'
+                    )?.(comment.discussionId, comment.id);
                     const updatedDiscussions = editor
                       .getOption(discussionPlugin, 'discussions')
                       .map((discussion) => {
@@ -348,8 +352,6 @@ function CommentMoreDropdown(props: {
     onRemoveComment,
   } = props;
 
-  const editor = useEditorRef();
-
   const selectedEditCommentRef = React.useRef<boolean>(false);
 
   const onDeleteComment = React.useCallback(() => {
@@ -406,7 +408,7 @@ function CommentMoreDropdown(props: {
 
 const useCommentEditor = (
   options: Omit<CreatePlateEditorOptions, 'plugins'> = {},
-  deps: any[] = []
+  deps: unknown[] = []
 ) => {
   const commentEditor = usePlateEditor(
     {
@@ -464,7 +466,10 @@ export function CommentCreateForm({
       // Get existing discussion
       const discussion = discussions.find((d) => d.id === discussionId);
       if (!discussion) {
-        const currentUserId = editor.getOption(discussionPlugin, 'currentUserId');
+        const currentUserId = editor.getOption(
+          discussionPlugin,
+          'currentUserId'
+        );
         const newDiscussion: TDiscussion = {
           id: discussionId,
           comments: [
@@ -487,8 +492,7 @@ export function CommentCreateForm({
           newDiscussion,
         ]);
         editor
-          .getOption(discussionPlugin, 'onCreateDiscussion')
-          ?.(newDiscussion)
+          .getOption(discussionPlugin, 'onCreateDiscussion')?.(newDiscussion)
           .catch(console.error);
         return;
       }
@@ -514,8 +518,7 @@ export function CommentCreateForm({
 
       editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
       editor
-        .getOption(discussionPlugin, 'onAddReply')
-        ?.(comment)
+        .getOption(discussionPlugin, 'onAddReply')?.(comment)
         .catch(console.error);
 
       return;
@@ -555,8 +558,7 @@ export function CommentCreateForm({
       newDiscussion,
     ]);
     editor
-      .getOption(discussionPlugin, 'onCreateDiscussion')
-      ?.(newDiscussion)
+      .getOption(discussionPlugin, 'onCreateDiscussion')?.(newDiscussion)
       .catch(console.error);
 
     const id = newDiscussion.id;

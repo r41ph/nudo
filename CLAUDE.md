@@ -47,6 +47,34 @@ Always use these; never use relative paths across packages.
 - Conventional Commits format: `feat:`, `fix:`, `refactor:`, etc.
 - Do not include `Co-Authored-By:` lines in commits
 
+## Local Hooks
+
+Husky runs checks at commit and push time. Don't manually re-run what the hooks already cover — wasted tokens.
+
+**Pre-commit** (`.husky/pre-commit` → lint-staged on staged files only):
+
+- prettier `--write`
+- eslint via `eslint.config.precommit.mts` (adds `no-console` / `no-debugger` as errors)
+- secretlint (preset-recommend rules)
+
+**Pre-push** (`.husky/pre-push`):
+
+- commitlint on the commits being pushed (new branch: range from `merge-base` with `origin/main`; existing branch: range from last pushed commit)
+- `pnpm typecheck` across `apps/web` and `apps/api` (covers `packages/ui` transitively via `apps/web`'s `tsc -b`)
+
+**WIP commits are allowed.** Conventional Commits are enforced at push time, not commit time. Don't fight this — commit `wip` freely if helpful and assume the user will `rebase -i` before pushing. Don't preemptively block or rewrite their `wip` commits.
+
+**`--no-verify` is an escape hatch, not a default.** Never bypass hooks for committed work without explicit user instruction.
+
+**Config files** (modify these to if instructed to change hook behavior):
+
+- `.husky/pre-commit`, `.husky/pre-push` — hook scripts
+- `eslint.config.precommit.mts` — extends base ESLint config with stricter pre-commit rules
+- `commitlint.config.mjs` — Conventional Commits config
+- `.secretlintrc.json` — secretlint rule preset
+- `.secretlintignore` — files secretlint should skip (e.g., `.env.example`, lockfile)
+- `package.json` — `lint-staged` block (which globs run which checks)
+
 ## Maintenance
 
 If you encounter a non-obvious command, convention, or gotcha that isn't covered by context7 and would cause mistakes without being documented, propose an addition to this file. Do not add anything discoverable from reading the code.

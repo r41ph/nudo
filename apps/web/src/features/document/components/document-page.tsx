@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -66,7 +66,6 @@ export function DocumentPage() {
 
   const { scheduleAutoSave, saveNow } = useAutoSave(id || null);
 
-  const [isDiscussionOpen, setIsDiscussionOpen] = useState(false);
   const {
     currentUserId: discussionUserId,
     discussions,
@@ -78,7 +77,7 @@ export function DocumentPage() {
     onDeleteDiscussion,
     onResolveDiscussion,
     pruneOrphanedDiscussions,
-  } = useDocumentDiscussions(id || null, isDiscussionOpen);
+  } = useDocumentDiscussions(id || null, false);
 
   const discussionData = useMemo(
     () => ({
