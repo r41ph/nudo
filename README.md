@@ -310,3 +310,46 @@ git push origin --delete feature/my-feature
 - Never commit directly to `main`.
 - `main` must always be in a deployable state.
 - Keep feature branches short. Long-running branches lead to painful merges.
+
+---
+
+## Local Hooks
+
+Husky runs automated checks at commit and push time so issues are caught before they hit the remote. `pnpm install` is the only install step — the `prepare` script wires everything up.
+
+### What runs when
+
+**On every `git commit`** (`.husky/pre-commit`, via lint-staged):
+
+- `prettier --write` — formats staged files
+- `eslint --fix` — lints staged code; `console.log` and `debugger` are errors
+- `secretlint` — blocks committed secrets (AWS, GitHub, Slack, Stripe, DB connection strings, private keys, …)
+
+Runs only on staged files. Typical single-file commit completes in ~3–5 seconds.
+
+**On every `git push`** (`.husky/pre-push`):
+
+- `commitlint` — every commit being pushed must follow Conventional Commits (`feat:`, `fix:`, `chore:`, …)
+- `pnpm typecheck` — runs `tsc --noEmit` across `apps/web` and `apps/api`
+
+### WIP commits
+
+Conventional Commits are enforced **at push time**, not commit time. You can freely:
+
+```bash
+git commit -m "wip"
+git commit -m "trying something"
+```
+
+…and clean up with `git rebase -i` before pushing. The pre-push hook checks the full range against `origin/main` (new branch) or against the last pushed commit (existing branch).
+
+### Escape hatch
+
+If you genuinely need to bypass the hooks:
+
+```bash
+git commit --no-verify
+git push --no-verify
+```
+
+Use sparingly — CI will eventually run the same checks.

@@ -16,7 +16,11 @@
     "docker:down": "docker compose down",
     "test": "pnpm --filter './apps/*' test && pnpm --filter './packages/*' test",
     "test:web": "pnpm --filter @writing-app/web test",
-    "test:api": "pnpm --filter @writing-app/api test"
+    "test:api": "pnpm --filter @writing-app/api test",
+    "format": "prettier --write .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint:precommit": "eslint --config eslint.config.precommit.mts",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -28,17 +32,34 @@
       "msw"
     ]
   },
+  "lint-staged": {
+    "*.{ts,tsx,mts,mjs,js}": [
+      "prettier --write",
+      "pnpm lint:precommit --fix --max-warnings=0",
+      "pnpm exec secretlint"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "prettier --write",
+      "pnpm exec secretlint"
+    ]
+  },
   "devDependencies": {
+    "@commitlint/cli": "21.0.1",
+    "@commitlint/config-conventional": "21.0.1",
     "@eslint/css": "^0.14.1",
     "@eslint/js": "^9.39.2",
     "@eslint/json": "^0.14.0",
     "@eslint/markdown": "^7.5.1",
+    "@secretlint/secretlint-rule-preset-recommend": "13.0.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.5.0",
+    "husky": "9.1.7",
     "jiti": "^2.6.1",
+    "lint-staged": "17.0.4",
     "prettier": "^3.7.4",
+    "secretlint": "13.0.0",
     "typescript-eslint": "^8.50.1"
   }
 }
