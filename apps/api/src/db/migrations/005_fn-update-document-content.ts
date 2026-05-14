@@ -75,11 +75,3 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     $$ LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
   `);
 }
-
-export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.sql(`
-    DROP FUNCTION IF EXISTS update_document_content(uuid, jsonb);
-    DROP FUNCTION IF EXISTS count_words(text);
-    DROP FUNCTION IF EXISTS extract_plain_text(jsonb);
-  `);
-}

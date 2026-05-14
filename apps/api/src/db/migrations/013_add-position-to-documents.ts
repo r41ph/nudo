@@ -22,7 +22,3 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     FROM ranked WHERE documents.id = ranked.id;
   `);
 }
-
-export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropColumn('documents', 'position');
-}

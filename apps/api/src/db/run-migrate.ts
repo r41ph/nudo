@@ -31,18 +31,11 @@
  *    - Locks env path to `../../.env`.
  *    - Prevents "works on my machine" issues.
  *
- * 4. Direction Handling
- *    - Accepts `up` or `down` as an argument.
- *    - Defaults to `up`.
- *
- * SAFETY NOTE
- * -----------
- * Running with `down` rolls back the most recently applied migration.
- * This may DROP tables, columns, or data.
- *
- * `down` should NOT be run in production unless:
- * - You fully understand the migration being reverted.
- * - Data loss is intentional and verified.
+ * 4. Forward-Only Policy
+ *    - Migrations are forward-only — there is no `down` direction.
+ *    - To revert a schema change, write a new migration that reverses it.
+ *    - Any positional argument passed to this script is ignored, with a
+ *      warning so callers know the forward-only policy is in effect.
  *
  * If refactoring or removing this file, ensure:
  * - DATABASE_URL remains explicitly controlled.
@@ -54,10 +47,15 @@
 import { execSync } from 'child_process';
 import { DATABASE_URL } from '../config/db.js';
 
-const direction = process.argv[2] || 'up';
-const cmd = `DATABASE_URL="${DATABASE_URL}" npx node-pg-migrate --migration-file-language ts --envPath ../../.env -m src/db/migrations ${direction}`;
+if (process.argv[2]) {
+  console.warn(
+    `Ignoring argument "${process.argv[2]}" — migrations are forward-only.`
+  );
+}
 
-console.log(`Running migrations ${direction}...`);
+const cmd = `DATABASE_URL="${DATABASE_URL}" npx node-pg-migrate --migration-file-language ts --envPath ../../.env -m src/db/migrations up`;
+
+console.warn('Running migrations...');
 execSync(cmd, {
   stdio: 'inherit',
   cwd: process.cwd(),

@@ -58,8 +58,3 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     $$;
   `);
 }
-
-export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.sql('DROP FUNCTION IF EXISTS reorder_folders(json);');
-  pgm.sql('DROP FUNCTION IF EXISTS move_and_reorder_document(uuid, uuid, json);');
-}

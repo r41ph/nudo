@@ -27,8 +27,3 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   // Hide auto-generated createFolder so only the custom function is used
   pgm.sql(`COMMENT ON TABLE folders IS E'@omit create';`);
 }
-
-export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.sql(`COMMENT ON TABLE folders IS NULL;`);
-  pgm.sql('DROP FUNCTION IF EXISTS create_new_folder(text);');
-}
