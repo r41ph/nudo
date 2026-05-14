@@ -28,22 +28,3 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     COMMENT ON COLUMN users.password_hash IS E'@omit';
   `);
 }
-
-export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.sql(`
-    COMMENT ON COLUMN users.password_hash IS NULL;
-    COMMENT ON TABLE users IS NULL;
-    COMMENT ON TABLE pgmigrations IS NULL;
-
-    ALTER DEFAULT PRIVILEGES IN SCHEMA public
-      REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLES FROM writing_app_visitor;
-    ALTER DEFAULT PRIVILEGES IN SCHEMA public
-      REVOKE EXECUTE ON FUNCTIONS FROM writing_app_visitor;
-
-    REVOKE ALL ON ALL TABLES IN SCHEMA public FROM writing_app_visitor;
-    REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM writing_app_visitor;
-    REVOKE USAGE ON SCHEMA public FROM writing_app_visitor;
-    REVOKE writing_app_visitor FROM writing_app;
-    DROP ROLE IF EXISTS writing_app_visitor;
-  `);
-}

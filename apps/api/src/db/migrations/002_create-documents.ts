@@ -64,7 +64,3 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       FOR DELETE USING (user_id::text = current_setting('app.current_user_id', true));
   `);
 }
-
-export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropTable('documents');
-}

@@ -59,8 +59,3 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
   pgm.createIndex('documents', 'folder_id');
 }
-
-export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropColumn('documents', 'folder_id');
-  pgm.dropTable('folders');
-}
