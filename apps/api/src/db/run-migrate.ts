@@ -55,7 +55,7 @@ if (process.argv[2]) {
 
 const cmd = `DATABASE_URL="${DATABASE_URL}" npx node-pg-migrate --migration-file-language ts --envPath ../../.env -m src/db/migrations up`;
 
-console.warn('Running migrations...');
+console.info('Running migrations...');
 execSync(cmd, {
   stdio: 'inherit',
   cwd: process.cwd(),
