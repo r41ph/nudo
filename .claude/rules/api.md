@@ -20,7 +20,7 @@ RLS is enabled on all tables via `app.current_user_id`. The database enforces ow
 - Forward-only — no `down()` functions. To revert a schema change, write a new migration that reverses it.
 - File naming: `0XX_description.ts` (next number in sequence)
 - Location: `apps/api/src/db/migrations/`
-- Run: `pnpm db:migrate` (requires `pnpm docker:up`)
+- Run: `pnpm db:migrate` (requires docker to be up, e.g.run `pnpm docker:up` if docker is not running)
 
 ## Auth
 
