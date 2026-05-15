@@ -1,6 +1,7 @@
 ---
 description: Express API conventions — PostGraphile, PostgreSQL, auth
-globs: 'apps/api/src/**'
+paths:
+  - 'apps/api/src/**'
 ---
 
 ## PostGraphile

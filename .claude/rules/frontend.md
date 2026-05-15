@@ -1,6 +1,7 @@
 ---
 description: React frontend architecture and conventions for apps/web
-globs: 'apps/web/src/**'
+paths:
+  - 'apps/web/src/**'
 ---
 
 ## Feature boundaries

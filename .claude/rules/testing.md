@@ -1,6 +1,9 @@
 ---
 description: Vitest and MSW testing conventions
-globs: 'apps/web/src/**/*.test.{ts,tsx}, apps/web/src/test/**'
+paths:
+  - 'apps/web/src/**/*.test.ts'
+  - 'apps/web/src/**/*.test.tsx'
+  - 'apps/web/src/test/**'
 ---
 
 ## Scope

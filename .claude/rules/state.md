@@ -1,6 +1,9 @@
 ---
 description: Jotai and TanStack Query state management patterns
-globs: 'apps/web/src/**/state/**, apps/web/src/**/*.atom.ts, apps/web/src/**/*.store.ts'
+paths:
+  - 'apps/web/src/**/state/**'
+  - 'apps/web/src/**/*.atom.ts'
+  - 'apps/web/src/**/*.store.ts'
 ---
 
 ## Jotai
