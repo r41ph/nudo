@@ -5,6 +5,8 @@ globs: 'apps/web/src/**/*.test.{ts,tsx}, apps/web/src/test/**'
 
 ## Scope
 
+This rule applies to **web tests only**. API tests (`apps/api`) use direct unit testing and never use MSW.
+
 Run only tests for the files you changed — never the full suite unless explicitly asked:
 
 ```bash
