@@ -10,13 +10,9 @@ Features are self-contained. Never import from another feature's internals.
 - Bad: `import { X } from '@web/features/document/hooks/use-document'` (used inside the `folder` feature)
 - Good: move the shared code to `src/shared/` first, then import from there
 
-## Library version pins
+## Always query context7 for library APIs
 
-These libraries have stale training data — always query context7 before touching:
-
-- **Plate.js v52** — editor API changes significantly between versions
-- **React Router v7** — loaders/actions API differs from v6
-- **Tailwind CSS v4** — several class names changed from v3
+Training data for third-party libraries is often stale. Always query context7 before touching any third-party library API -- do not rely on memory.
 
 ## GraphQL
 
