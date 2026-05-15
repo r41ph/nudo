@@ -157,6 +157,11 @@ Keep all code for a feature inside its own directory. If two features need to sh
 - Never use `<button>`, `<input>`, or `<label>` directly when a component exists
 - To add a missing component: `npx shadcn@latest add <component>` (run from the repo root; it targets `packages/ui/components.json`)
 
+### AI Development
+
+The project includes configuration for Claude Code in the `.claude/` directory, including repository rules and reusable skills. It also uses the [agent-skills](https://github.com/addyosmani/agent-skills)
+plugin to enable structured multi-agent workflows and help Claude Code follow consistent conventions and development practices across the repository.
+
 ### Naming conventions
 
 - **Files:** kebab-case (`document-page.tsx`, `use-auto-save.ts`)
