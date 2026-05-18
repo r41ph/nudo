@@ -47,6 +47,10 @@ Always use these; never use relative paths across packages.
 - Conventional Commits format: `feat:`, `fix:`, `refactor:`, etc.
 - Do not include `Co-Authored-By:` lines in commits
 
+## AI tool configuration
+
+Always query the official Claude Code documentation before creating or modifying any Claude configuration files. Do not rely on training data for this — conventions change between versions.
+
 ## Local Hooks
 
 Husky runs checks at commit and push time. Don't manually re-run what the hooks already cover — wasted tokens.
