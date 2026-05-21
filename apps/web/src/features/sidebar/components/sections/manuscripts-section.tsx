@@ -9,8 +9,17 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from '@ui/components/ui/sidebar';
-import { GET_DOCUMENTS, CREATE_DOCUMENT, RENAME_DOCUMENT, DELETE_DOCUMENT } from '@web/features/document/api/document.api';
-import { GET_FOLDERS, RENAME_FOLDER, DELETE_FOLDER } from '@web/features/folder/api/folder.api';
+import {
+  GET_DOCUMENTS,
+  CREATE_DOCUMENT,
+  RENAME_DOCUMENT,
+  DELETE_DOCUMENT,
+} from '@web/features/document/api/document.api';
+import {
+  GET_FOLDERS,
+  RENAME_FOLDER,
+  DELETE_FOLDER,
+} from '@web/features/folder/api/folder.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
 import { useSidebarDnd } from '@web/features/sidebar/hooks/app-sidebar.hooks';
@@ -168,7 +177,9 @@ export function ManuscriptsSection() {
 
   const config: FolderTreeConfig = useMemo(
     () => ({
-      itemIcon: () => <Icon name="fileText" />,
+      itemIcon: ({ className }) => (
+        <Icon name="fileText" className={className} />
+      ),
       folderActions: (folderId) => (
         <Button
           variant="ghost"

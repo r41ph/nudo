@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useEffect, useCallback } from 'react';
-import { PenIcon, ChevronRightIcon, Trash2Icon } from 'lucide-react';
+import { Icon } from '@ui/components/icon/icon';
 import { SidebarMenuItem, SidebarMenuButton } from '@ui/components/ui/sidebar';
 import { Button } from '@ui/components/ui/button';
 import { Input } from '@ui/components/ui/input';
@@ -66,12 +66,17 @@ export const FolderItem = memo(function FolderItem({
         />
       ) : (
         <div className="group/folder-row flex items-center">
-          <SidebarMenuButton className="flex-1">
-            <ChevronRightIcon
+          <SidebarMenuButton className="group/folder-icon flex-1">
+            <Icon
+              name="chevronRight"
               className={cn(
-                'h-4 w-4 shrink-0 transition-transform',
-                isOpen && 'rotate-90',
+                'h-4 w-4 shrink-0 transition-transform group-hover/folder-icon:hidden',
+                isOpen && 'rotate-90'
               )}
+            />
+            <Icon
+              name="gripVertical"
+              className="hidden h-4 w-4 shrink-0 group-hover/folder-icon:block"
             />
             <span className="truncate">{name}</span>
           </SidebarMenuButton>
@@ -84,17 +89,17 @@ export const FolderItem = memo(function FolderItem({
               variant="ghost"
               size="icon-sm"
               onClick={startEditing}
-              className="h-5 w-5 [&_svg]:size-3.5"
+              className="h-5 w-5 [&_svg]:size-3.5 hover:cursor-pointer"
             >
-              <PenIcon />
+              <Icon name="pen" />
             </Button>
             <Button
               variant="ghost"
               size="icon-sm"
               onClick={handleDelete}
-              className="h-5 w-5 [&_svg]:size-3.5"
+              className="h-5 w-5 [&_svg]:size-3.5 hover:cursor-pointer"
             >
-              <Trash2Icon />
+              <Icon name="trash" />
             </Button>
           </div>
         </div>

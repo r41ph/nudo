@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useEffect, useCallback } from 'react';
-import { FileTextIcon, PenIcon, Trash2Icon } from 'lucide-react';
+import { Icon } from '@ui/components/icon/icon';
 import {
   SidebarMenuItem,
   SidebarMenuButton,
@@ -58,7 +58,7 @@ export const TreeItem = memo(function TreeItem({
     onDelete(domainId);
   }, [onDelete, domainId]);
 
-  const ItemIcon = config?.itemIcon ?? FileTextIcon;
+  const ItemIcon = config?.itemIcon;
 
   return (
     <SidebarMenuItem>
@@ -76,8 +76,23 @@ export const TreeItem = memo(function TreeItem({
         />
       ) : (
         <>
-          <SidebarMenuButton isActive={isActive} onClick={handleClick}>
-            <ItemIcon className="h-4 w-4" />
+          <SidebarMenuButton
+            isActive={isActive}
+            onClick={handleClick}
+            className="group/tree-icon"
+          >
+            {ItemIcon ? (
+              <ItemIcon className="h-4 w-4 group-hover/tree-icon:hidden" />
+            ) : (
+              <Icon
+                name="fileText"
+                className="h-4 w-4 group-hover/tree-icon:hidden"
+              />
+            )}
+            <Icon
+              name="gripVertical"
+              className="hidden h-4 w-4 shrink-0 group-hover/tree-icon:block"
+            />
             <span className="truncate">{title}</span>
           </SidebarMenuButton>
           <SidebarMenuAction
@@ -85,14 +100,14 @@ export const TreeItem = memo(function TreeItem({
             showOnHover
             className="[&>svg]:size-3.5 right-6"
           >
-            <PenIcon />
+            <Icon name="pen" />
           </SidebarMenuAction>
           <SidebarMenuAction
             onClick={handleDelete}
             showOnHover
             className="[&>svg]:size-3.5"
           >
-            <Trash2Icon />
+            <Icon name="trash" />
           </SidebarMenuAction>
         </>
       )}
