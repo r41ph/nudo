@@ -1,6 +1,6 @@
-# Writing App
+# Nudo.Ink
 
-A full-stack novel writing application built for long-form writing. Users organise their work into folders, write in a rich text editor with a customisable toolbar, and have their work saved automatically as they type.
+A full-stack writing application built for long-form writing. Users organise their work into folders, write in a rich text editor with a customisable toolbar, and have their work saved automatically as they type.
 
 ## Features
 
