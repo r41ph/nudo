@@ -2,7 +2,10 @@ import { Router, type Router as RouterType } from 'express';
 import type { Request, Response } from 'express';
 import { pool } from '../config/db.js';
 import { hashPassword, comparePassword, signToken } from './utils.js';
-import { WELCOME_DOCUMENT, WELCOME_WORD_COUNT } from '../constants/welcome-document.js';
+import {
+  WELCOME_DOCUMENT,
+  WELCOME_WORD_COUNT,
+} from '../constants/welcome-document.js';
 
 export const authRouter: RouterType = Router();
 
@@ -33,10 +36,17 @@ authRouter.post('/register', async (req: Request, res: Response) => {
     const token = signToken({ userId: user.id, email: user.email });
 
     // Create a welcome document for the new user
-    const welcomeDoc = await pool.query(
+    await pool.query(
       `INSERT INTO documents (user_id, title, slug, content, plain_text, word_count)
-       VALUES ($1, $2, $3, $4::jsonb, $5, $6) RETURNING id`,
-      [user.id, WELCOME_DOCUMENT.title, WELCOME_DOCUMENT.slug, JSON.stringify(WELCOME_DOCUMENT.content), WELCOME_DOCUMENT.plainText, WELCOME_WORD_COUNT]
+       VALUES ($1, $2, $3, $4::jsonb, $5, $6)`,
+      [
+        user.id,
+        WELCOME_DOCUMENT.title,
+        WELCOME_DOCUMENT.slug,
+        JSON.stringify(WELCOME_DOCUMENT.content),
+        WELCOME_DOCUMENT.plainText,
+        WELCOME_WORD_COUNT,
+      ]
     );
     res.status(201).json({
       token,
