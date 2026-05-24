@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { hashPassword, comparePassword, signToken, verifyToken } from './utils.js';
+import {
+  hashPassword,
+  comparePassword,
+  signToken,
+  verifyToken,
+} from './utils.js';
 
 vi.mock('bcrypt');
 

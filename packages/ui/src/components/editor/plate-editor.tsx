@@ -115,15 +115,23 @@ export function PlateEditor({
       );
     };
 
-    editor.setOption(discussionPlugin, 'onDeleteDiscussion', async (id: string) => {
-      await discussionData.onDeleteDiscussion?.(id);
-      await discussionData.pruneOrphanedDiscussions?.(getActiveCommentIds());
-    });
+    editor.setOption(
+      discussionPlugin,
+      'onDeleteDiscussion',
+      async (id: string) => {
+        await discussionData.onDeleteDiscussion?.(id);
+        await discussionData.pruneOrphanedDiscussions?.(getActiveCommentIds());
+      }
+    );
 
-    editor.setOption(discussionPlugin, 'onResolveDiscussion', async (id: string) => {
-      await discussionData.onResolveDiscussion?.(id);
-      await discussionData.pruneOrphanedDiscussions?.(getActiveCommentIds());
-    });
+    editor.setOption(
+      discussionPlugin,
+      'onResolveDiscussion',
+      async (id: string) => {
+        await discussionData.onResolveDiscussion?.(id);
+        await discussionData.pruneOrphanedDiscussions?.(getActiveCommentIds());
+      }
+    );
   }, [editor, discussionData]);
 
   return (

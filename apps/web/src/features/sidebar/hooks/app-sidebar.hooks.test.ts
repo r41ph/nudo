@@ -15,8 +15,18 @@ describe('useSidebarDnd', () => {
     queryClient.setQueryData(['folders'], {
       allFolders: {
         nodes: [
-          { id: 'f1', name: 'Folder 1', position: 0, documentsByFolderId: { nodes: [] } },
-          { id: 'f2', name: 'Folder 2', position: 1, documentsByFolderId: { nodes: [] } },
+          {
+            id: 'f1',
+            name: 'Folder 1',
+            position: 0,
+            documentsByFolderId: { nodes: [] },
+          },
+          {
+            id: 'f2',
+            name: 'Folder 2',
+            position: 1,
+            documentsByFolderId: { nodes: [] },
+          },
         ],
       },
     });
@@ -82,7 +92,9 @@ describe('useSidebarDnd', () => {
     const docsCache = queryClient.getQueryData<{
       allDocuments: { nodes: Array<DocNode> };
     }>(['documents']);
-    const doc = (docsCache?.allDocuments.nodes ?? []).find((d: DocNode) => d.id === 'd1');
+    const doc = (docsCache?.allDocuments.nodes ?? []).find(
+      (d: DocNode) => d.id === 'd1'
+    );
     expect(doc?.folderId).toBe('f1');
   });
 
@@ -90,8 +102,20 @@ describe('useSidebarDnd', () => {
     queryClient.setQueryData(['documents'], {
       allDocuments: {
         nodes: [
-          { id: 'd1', title: 'Doc 1', updatedAt: '2026-01-01', folderId: null, position: 2 },
-          { id: 'd2', title: 'Doc 2', updatedAt: '2026-01-01', folderId: null, position: 0 },
+          {
+            id: 'd1',
+            title: 'Doc 1',
+            updatedAt: '2026-01-01',
+            folderId: null,
+            position: 2,
+          },
+          {
+            id: 'd2',
+            title: 'Doc 2',
+            updatedAt: '2026-01-01',
+            folderId: null,
+            position: 0,
+          },
         ],
       },
     });
@@ -127,8 +151,20 @@ describe('useSidebarDnd', () => {
     queryClient.setQueryData(['documents'], {
       allDocuments: {
         nodes: [
-          { id: 'd1', title: 'Doc 1', updatedAt: '2026-01-01', folderId: null, position: 0 },
-          { id: 'd2', title: 'Doc 2', updatedAt: '2026-01-01', folderId: 'f1', position: 0 },
+          {
+            id: 'd1',
+            title: 'Doc 1',
+            updatedAt: '2026-01-01',
+            folderId: null,
+            position: 0,
+          },
+          {
+            id: 'd2',
+            title: 'Doc 2',
+            updatedAt: '2026-01-01',
+            folderId: 'f1',
+            position: 0,
+          },
         ],
       },
     });
@@ -140,7 +176,14 @@ describe('useSidebarDnd', () => {
             name: 'Folder 1',
             position: 0,
             documentsByFolderId: {
-              nodes: [{ id: 'd2', title: 'Doc 2', updatedAt: '2026-01-01', position: 0 }],
+              nodes: [
+                {
+                  id: 'd2',
+                  title: 'Doc 2',
+                  updatedAt: '2026-01-01',
+                  position: 0,
+                },
+              ],
             },
           },
         ],
@@ -161,12 +204,19 @@ describe('useSidebarDnd', () => {
     });
 
     type DocRef = { id: string };
-    type FolderNode = { id: string; documentsByFolderId: { nodes: Array<DocRef> } };
+    type FolderNode = {
+      id: string;
+      documentsByFolderId: { nodes: Array<DocRef> };
+    };
     const foldersCache = queryClient.getQueryData<{
       allFolders: { nodes: Array<FolderNode> };
     }>(['folders']);
-    const folder = (foldersCache?.allFolders.nodes ?? []).find((f: FolderNode) => f.id === 'f1');
-    const docIds = (folder?.documentsByFolderId.nodes ?? []).map((d: DocRef) => d.id);
+    const folder = (foldersCache?.allFolders.nodes ?? []).find(
+      (f: FolderNode) => f.id === 'f1'
+    );
+    const docIds = (folder?.documentsByFolderId.nodes ?? []).map(
+      (d: DocRef) => d.id
+    );
     expect(docIds).toContain('d1');
     expect(docIds).toContain('d2');
   });

@@ -2,7 +2,10 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { selectAtom } from 'jotai/utils';
 import { useQuery } from '@tanstack/react-query';
-import { currentDocumentAtom, liveWordCountAtom } from '@web/features/document/state/document.store';
+import {
+  currentDocumentAtom,
+  liveWordCountAtom,
+} from '@web/features/document/state/document.store';
 import { GET_DOCUMENTS } from '@web/features/document/api/document.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 
@@ -33,7 +36,7 @@ export function useWordCount(documentId?: string): number {
       ? liveWordCount.count
       : null;
 
-  const allDocs = data?.allDocuments?.nodes ?? [];
+  const allDocs = useMemo(() => data?.allDocuments?.nodes ?? [], [data]);
 
   const total = useMemo(
     () =>

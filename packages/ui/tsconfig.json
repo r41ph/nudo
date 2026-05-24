@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
@@ -10,11 +10,7 @@
       "@web/*": ["../../apps/web/src/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "stories/**/*",
-    ".storybook/**/*"
-  ],
+  "include": ["src/**/*", "stories/**/*", ".storybook/**/*"],
   "exclude": [
     "node_modules",
     "dist",

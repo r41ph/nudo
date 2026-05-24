@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -25,7 +25,6 @@ export function useUserPreferences() {
   const user = useAtomValue(userAtom);
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   const setEnabledTools = useSetAtom(enabledToolsAtom);
-  const [isHydrated, setIsHydrated] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['currentUser', user?.id],
@@ -38,9 +37,13 @@ export function useUserPreferences() {
     const prefs = data?.userById;
     if (prefs?.enabledTools) {
       setEnabledTools(prefs.enabledTools as ToolbarToolName[]);
-      setIsHydrated(true);
     }
   }, [data, setEnabledTools]);
+
+  // Derived: server preferences have been received and pushed into the atom.
+  // useToolbarSettingsSync gates on this to avoid writing the atom's default
+  // value back to the database on mount (esp. under StrictMode).
+  const isHydrated = !!data?.userById?.enabledTools;
 
   return { isLoading, isHydrated };
 }

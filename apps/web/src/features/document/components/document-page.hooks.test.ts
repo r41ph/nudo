@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act } from '@testing-library/react';
 import { useAutoSave } from '@web/features/document/components/document-page.hooks';
+import { renderHookWithProviders, createStore } from '@web/test/test-utils';
 import {
-  renderHookWithProviders,
-  createStore,
-} from '@web/test/test-utils';
-import { saveStatusAtom, lastSavedAtom } from '@web/shared/state/save-status.atom';
+  saveStatusAtom,
+  lastSavedAtom,
+} from '@web/shared/state/save-status.atom';
 
 describe('useAutoSave', () => {
   beforeEach(() => {
@@ -68,9 +68,12 @@ describe('useAutoSave', () => {
     });
 
     // Wait for debounce + mutation to complete
-    await vi.waitFor(() => {
-      expect(store.get(saveStatusAtom)).toBe('saved');
-    }, { timeout: 5000 });
+    await vi.waitFor(
+      () => {
+        expect(store.get(saveStatusAtom)).toBe('saved');
+      },
+      { timeout: 5000 }
+    );
 
     expect(store.get(lastSavedAtom)).toBeInstanceOf(Date);
   });
@@ -104,9 +107,12 @@ describe('useAutoSave', () => {
 
     server.use(
       graphql.mutation('UpdateDocumentContent', () => {
-        return HttpResponse.json({
-          errors: [{ message: 'Save failed' }],
-        }, { status: 500 });
+        return HttpResponse.json(
+          {
+            errors: [{ message: 'Save failed' }],
+          },
+          { status: 500 }
+        );
       })
     );
 

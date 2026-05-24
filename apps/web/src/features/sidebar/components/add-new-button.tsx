@@ -14,7 +14,11 @@ interface AddNewButtonProps {
   onNewFolder: () => void;
 }
 
-export const AddNewButton = memo(function AddNewButton({ disabled, onNewDocument, onNewFolder }: AddNewButtonProps) {
+export const AddNewButton = memo(function AddNewButton({
+  disabled,
+  onNewDocument,
+  onNewFolder,
+}: AddNewButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

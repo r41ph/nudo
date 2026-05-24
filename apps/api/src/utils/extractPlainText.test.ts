@@ -18,10 +18,7 @@ describe('extractPlainText', () => {
   it('extracts text from nested children recursively', () => {
     const nodes = [
       {
-        children: [
-          { text: 'Nested' },
-          { children: [{ text: 'deep' }] },
-        ],
+        children: [{ text: 'Nested' }, { children: [{ text: 'deep' }] }],
       },
     ];
     expect(extractPlainText(nodes)).toBe('Nested deep');
@@ -41,7 +38,10 @@ describe('extractPlainText', () => {
 
   it('handles mixed nodes with and without text', () => {
     const nodes = [
-      { type: 'p', children: [{ text: 'Bold', bold: true }, { text: ' text' }] },
+      {
+        type: 'p',
+        children: [{ text: 'Bold', bold: true }, { text: ' text' }],
+      },
     ];
     expect(extractPlainText(nodes)).toBe('Bold  text');
   });

@@ -41,7 +41,9 @@ describe('App routing', () => {
     renderWithProviders(<App />, { initialRoute: '/' });
     expect(screen.getByTestId('app-layout')).toBeInTheDocument();
     expect(screen.getByTestId('workspace-layout')).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByTestId('home-page')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByTestId('home-page')).toBeInTheDocument()
+    );
   });
 
   it('renders document page at /document/:id inside app shell', async () => {
@@ -56,7 +58,9 @@ describe('App routing', () => {
 
     expect(screen.getByTestId('app-layout')).toBeInTheDocument();
     expect(screen.getByTestId('workspace-layout')).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByTestId('document-page')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByTestId('document-page')).toBeInTheDocument()
+    );
   });
 
   it('login and register routes do not render app shell', () => {

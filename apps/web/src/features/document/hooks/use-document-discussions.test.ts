@@ -49,7 +49,7 @@ describe('useDocumentDiscussions', () => {
 
   describe('onResolveDiscussion', () => {
     it('calls DeleteDiscussion (not UpdateDiscussion)', async () => {
-      let deleteCalled = false;
+      const deleteCalled = false;
       let updateCalled = false;
 
       server.use(
@@ -80,9 +80,12 @@ describe('useDocumentDiscussions', () => {
         ).rejects.toThrow();
       });
 
-      expect(toast.error).toHaveBeenCalledWith('Failed to resolve discussion.', {
-        id: 'resolve-discussion-error',
-      });
+      expect(toast.error).toHaveBeenCalledWith(
+        'Failed to resolve discussion.',
+        {
+          id: 'resolve-discussion-error',
+        }
+      );
     });
   });
 
@@ -134,7 +137,11 @@ describe('useDocumentDiscussions', () => {
         graphql.mutation('DeleteDiscussionComment', () => {
           called = true;
           return HttpResponse.json({
-            data: { deleteDiscussionCommentById: { deletedDiscussionCommentId: 'c-1' } },
+            data: {
+              deleteDiscussionCommentById: {
+                deletedDiscussionCommentId: 'c-1',
+              },
+            },
           });
         })
       );
@@ -236,7 +243,9 @@ describe('useDocumentDiscussions', () => {
         graphql.mutation('UpdateDiscussionComment', ({ variables }) => {
           capturedVars = variables;
           return HttpResponse.json({
-            data: { updateDiscussionCommentById: { discussionComment: { id: 'c-1' } } },
+            data: {
+              updateDiscussionCommentById: { discussionComment: { id: 'c-1' } },
+            },
           });
         })
       );
@@ -255,7 +264,9 @@ describe('useDocumentDiscussions', () => {
       server.use(
         graphql.mutation('UpdateDiscussionComment', () =>
           HttpResponse.json({
-            data: { updateDiscussionCommentById: { discussionComment: { id: 'c-1' } } },
+            data: {
+              updateDiscussionCommentById: { discussionComment: { id: 'c-1' } },
+            },
           })
         )
       );

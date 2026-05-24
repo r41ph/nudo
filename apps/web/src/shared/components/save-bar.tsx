@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { Icon } from '@ui/components/icon/icon';
-import { saveStatusAtom, lastSavedAtom } from '@web/shared/state/save-status.atom';
+import {
+  saveStatusAtom,
+  lastSavedAtom,
+} from '@web/shared/state/save-status.atom';
 
 const STATUS_CONFIG = {
   unsaved: { text: 'Unsaved changes', color: 'text-orange-500' },
@@ -10,30 +13,26 @@ const STATUS_CONFIG = {
   error: { text: 'Save failed', color: 'text-red-600' },
 } as const;
 
-export function SaveBar({ onSave: _onSave }: { onSave: () => void }) {
+export function SaveBar() {
   const saveStatus = useAtomValue(saveStatusAtom);
   const lastSaved = useAtomValue(lastSavedAtom);
-  const [isStatusVisible, setIsStatusVisible] = useState(false);
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Tracks whether the auto-hide timer has fired for the current saveStatus.
+  // Reset to false whenever saveStatus changes (derived-state pattern below).
+  const [autoHidden, setAutoHidden] = useState(false);
+  const [prevStatus, setPrevStatus] = useState(saveStatus);
+  if (prevStatus !== saveStatus) {
+    setPrevStatus(saveStatus);
+    setAutoHidden(false);
+  }
 
   useEffect(() => {
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-
-    if (saveStatus === 'idle') {
-      setIsStatusVisible(false);
-      return;
-    }
-
-    setIsStatusVisible(true);
-
-    if (saveStatus === 'saved' || saveStatus === 'error') {
-      hideTimerRef.current = setTimeout(() => setIsStatusVisible(false), 4000);
-    }
-
-    return () => {
-      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-    };
+    if (saveStatus !== 'saved' && saveStatus !== 'error') return;
+    const timer = setTimeout(() => setAutoHidden(true), 4000);
+    return () => clearTimeout(timer);
   }, [saveStatus]);
+
+  const isStatusVisible = saveStatus !== 'idle' && !autoHidden;
 
   const status =
     saveStatus in STATUS_CONFIG

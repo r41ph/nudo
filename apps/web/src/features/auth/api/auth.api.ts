@@ -1,6 +1,10 @@
 import { API_URL } from '@web/shared/lib/api';
 import { AUTH_ROUTES } from '@web/features/auth/auth.constants';
-import type { AuthResponse, LoginParams, RegisterParams } from '@web/features/auth/auth.types';
+import type {
+  AuthResponse,
+  LoginParams,
+  RegisterParams,
+} from '@web/features/auth/auth.types';
 
 export async function loginUser(params: LoginParams): Promise<AuthResponse> {
   const res = await fetch(`${API_URL}${AUTH_ROUTES.LOGIN}`, {
@@ -17,8 +21,13 @@ export async function logoutUser(): Promise<void> {
   await fetch(`${API_URL}${AUTH_ROUTES.LOGOUT}`, { method: 'POST' });
 }
 
-export async function registerUser(params: RegisterParams): Promise<AuthResponse> {
-  const body: Record<string, string> = { email: params.email, password: params.password };
+export async function registerUser(
+  params: RegisterParams
+): Promise<AuthResponse> {
+  const body: Record<string, string> = {
+    email: params.email,
+    password: params.password,
+  };
   if (params.displayName) body.displayName = params.displayName;
 
   const res = await fetch(`${API_URL}${AUTH_ROUTES.REGISTER}`, {

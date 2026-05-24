@@ -41,7 +41,10 @@ export function ThemeToggle() {
 
   return (
     <div className="flex items-center gap-1.5">
-      <span aria-hidden="true" className="flex items-center text-muted-foreground">
+      <span
+        aria-hidden="true"
+        className="flex items-center text-muted-foreground"
+      >
         <Icon name="sun" className="size-3.5" />
       </span>
       <Switch
@@ -49,7 +52,10 @@ export function ThemeToggle() {
         onCheckedChange={handleToggle}
         aria-label="Toggle dark mode"
       />
-      <span aria-hidden="true" className="flex items-center text-muted-foreground">
+      <span
+        aria-hidden="true"
+        className="flex items-center text-muted-foreground"
+      >
         <Icon name="moon" className="size-3.5" />
       </span>
     </div>
