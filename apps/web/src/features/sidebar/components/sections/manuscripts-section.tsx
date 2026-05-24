@@ -89,7 +89,7 @@ export function ManuscriptsSection() {
     onSuccess: invalidate,
   });
 
-  const { mutate: deleteFolder, mutateAsync: deleteFolderAsync } = useMutation({
+  const { mutateAsync: deleteFolderAsync } = useMutation({
     mutationFn: (variables: { id: string }) =>
       graphqlClient.request(DELETE_FOLDER, variables),
     onSuccess: invalidate,
@@ -111,8 +111,14 @@ export function ManuscriptsSection() {
     },
   });
 
-  const documents = docsData?.allDocuments?.nodes || [];
-  const rawFolders = foldersData?.allFolders?.nodes || [];
+  const documents = useMemo(
+    () => docsData?.allDocuments?.nodes ?? [],
+    [docsData]
+  );
+  const rawFolders = useMemo(
+    () => foldersData?.allFolders?.nodes ?? [],
+    [foldersData]
+  );
 
   const folders: TreeFolderItem[] = useMemo(
     () =>
@@ -163,7 +169,6 @@ export function ManuscriptsSection() {
     }),
     [
       renameFolder,
-      deleteFolder,
       deleteFolderAsync,
       renameDocument,
       deleteDocument,
