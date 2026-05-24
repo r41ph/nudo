@@ -135,7 +135,7 @@ export function PlateEditor({
   }, [editor, discussionData]);
 
   return (
-    <div className="bg-[#FAF9F6] dark:bg-card shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)] rounded-sm overflow-hidden">
+    <div className="bg-[#FAF9F6] dark:bg-card shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(255,255,255,0.3)] rounded-sm overflow-hidden">
       <Plate
         editor={editor}
         onValueChange={({ value }) => {
