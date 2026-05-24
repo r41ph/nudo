@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { buildTreeMap } from '@web/features/folder/components/folder-tree';
-import type { TreeFolderItem, TreeLeafItem } from '@web/features/folder/components/folder-tree.types';
+import { buildTreeMap } from '@web/features/folder/components/folder-tree.utils';
+import type {
+  TreeFolderItem,
+  TreeLeafItem,
+} from '@web/features/folder/components/folder-tree.types';
 
 describe('buildTreeMap', () => {
   it('builds a tree with only root when given empty inputs', () => {
@@ -11,7 +14,9 @@ describe('buildTreeMap', () => {
   });
 
   it('places root docs in the root children list', () => {
-    const rootItems: TreeLeafItem[] = [{ id: 'd1', title: 'Doc 1', position: 0 }];
+    const rootItems: TreeLeafItem[] = [
+      { id: 'd1', title: 'Doc 1', position: 0 },
+    ];
     const map = buildTreeMap([], rootItems);
     expect(map['root'].children).toEqual(['doc-d1']);
   });
@@ -34,7 +39,12 @@ describe('buildTreeMap', () => {
       { id: 'd2', title: 'Doc 2', position: 2 },
     ];
     const map = buildTreeMap(folders, rootItems);
-    expect(map['root'].children).toEqual(['doc-d1', 'folder-f1', 'doc-d2', 'folder-f2']);
+    expect(map['root'].children).toEqual([
+      'doc-d1',
+      'folder-f1',
+      'doc-d2',
+      'folder-f2',
+    ]);
   });
 
   it('correctly reflects global positions used by onDrop', () => {
@@ -49,7 +59,12 @@ describe('buildTreeMap', () => {
       { id: 'd2', title: 'D2', position: 3 },
     ];
     const map = buildTreeMap(folders, rootItems);
-    expect(map['root'].children).toEqual(['folder-f1', 'doc-d1', 'folder-f2', 'doc-d2']);
+    expect(map['root'].children).toEqual([
+      'folder-f1',
+      'doc-d1',
+      'folder-f2',
+      'doc-d2',
+    ]);
   });
 
   it('places folder children as doc-* ids in order', () => {
@@ -73,22 +88,41 @@ describe('buildTreeMap', () => {
       { id: 'f1', name: 'My Folder', position: 0, items: [] },
     ];
     const map = buildTreeMap(folders, []);
-    expect(map['folder-f1'].item).toEqual({ type: 'folder', domainId: 'f1', name: 'My Folder' });
+    expect(map['folder-f1'].item).toEqual({
+      type: 'folder',
+      domainId: 'f1',
+      name: 'My Folder',
+    });
   });
 
   it('builds correct item data for root documents', () => {
-    const rootItems: TreeLeafItem[] = [{ id: 'd1', title: 'My Doc', position: 0 }];
+    const rootItems: TreeLeafItem[] = [
+      { id: 'd1', title: 'My Doc', position: 0 },
+    ];
     const map = buildTreeMap([], rootItems);
-    expect(map['doc-d1'].item).toEqual({ type: 'document', domainId: 'd1', title: 'My Doc' });
+    expect(map['doc-d1'].item).toEqual({
+      type: 'document',
+      domainId: 'd1',
+      title: 'My Doc',
+    });
     expect(map['doc-d1'].children).toEqual([]);
   });
 
   it('builds correct item data for folder documents', () => {
     const folders: TreeFolderItem[] = [
-      { id: 'f1', name: 'Folder', position: 0, items: [{ id: 'd1', title: 'Nested' }] },
+      {
+        id: 'f1',
+        name: 'Folder',
+        position: 0,
+        items: [{ id: 'd1', title: 'Nested' }],
+      },
     ];
     const map = buildTreeMap(folders, []);
-    expect(map['doc-d1'].item).toEqual({ type: 'document', domainId: 'd1', title: 'Nested' });
+    expect(map['doc-d1'].item).toEqual({
+      type: 'document',
+      domainId: 'd1',
+      title: 'Nested',
+    });
     expect(map['doc-d1'].children).toEqual([]);
   });
 
@@ -106,7 +140,9 @@ describe('buildTreeMap', () => {
 
   it('root doc overrides folder with lower position', () => {
     // doc at position 0 should appear before folder at position 1
-    const folders: TreeFolderItem[] = [{ id: 'f1', name: 'F', position: 1, items: [] }];
+    const folders: TreeFolderItem[] = [
+      { id: 'f1', name: 'F', position: 1, items: [] },
+    ];
     const rootItems: TreeLeafItem[] = [{ id: 'd1', title: 'D', position: 0 }];
     const map = buildTreeMap(folders, rootItems);
     expect(map['root'].children).toEqual(['doc-d1', 'folder-f1']);

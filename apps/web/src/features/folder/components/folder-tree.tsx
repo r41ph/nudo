@@ -1,4 +1,13 @@
-import { type Ref, type CSSProperties, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  type Ref,
+  type CSSProperties,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { useTree } from '@headless-tree/react';
 import {
   syncDataLoaderFeature,
@@ -11,19 +20,24 @@ import { FolderItem } from '@web/features/folder/components/folder-item';
 import { TreeItem } from '@web/features/folder/components/tree-item';
 import type {
   FolderTreeData,
-  TreeMap,
   TreeFolderItem,
   TreeLeafItem,
   FolderTreeCallbacks,
   FolderTreeConfig,
 } from '@web/features/folder/components/folder-tree.types';
+import {
+  buildTreeMap,
+  createTreeStore,
+} from '@web/features/folder/components/folder-tree.utils';
 
 function findParentFolderTreeId(
   folders: TreeFolderItem[],
   activeItemId: string | undefined
 ): string | null {
   if (!activeItemId) return null;
-  const parent = folders.find((f) => f.items.some((d) => d.id === activeItemId));
+  const parent = folders.find((f) =>
+    f.items.some((d) => d.id === activeItemId)
+  );
   return parent ? `folder-${parent.id}` : null;
 }
 
@@ -38,49 +52,6 @@ interface FolderTreeProps {
   config?: FolderTreeConfig;
   activeItemId?: string;
   ref?: Ref<FolderTreeHandle>;
-}
-
-export function buildTreeMap(
-  folders: TreeFolderItem[],
-  rootItems: TreeLeafItem[],
-): TreeMap {
-  const map: TreeMap = {};
-
-  // Interleave folders + root docs sorted by position
-  const rootEntries = [
-    ...folders.map((f) => ({ id: `folder-${f.id}`, position: f.position })),
-    ...rootItems.map((d, i) => ({
-      id: `doc-${d.id}`,
-      position: d.position ?? i,
-    })),
-  ].sort((a, b) => a.position - b.position);
-
-  map['root'] = {
-    item: { type: 'root' },
-    children: rootEntries.map((e) => e.id),
-  };
-
-  for (const folder of folders) {
-    map[`folder-${folder.id}`] = {
-      item: { type: 'folder', domainId: folder.id, name: folder.name },
-      children: folder.items.map((d) => `doc-${d.id}`),
-    };
-    for (const doc of folder.items) {
-      map[`doc-${doc.id}`] = {
-        item: { type: 'document', domainId: doc.id, title: doc.title },
-        children: [],
-      };
-    }
-  }
-
-  for (const doc of rootItems) {
-    map[`doc-${doc.id}`] = {
-      item: { type: 'document', domainId: doc.id, title: doc.title },
-      children: [],
-    };
-  }
-
-  return map;
 }
 
 const INDENT = 20;
@@ -105,38 +76,41 @@ export function FolderTree({
 }: FolderTreeProps) {
   const externalData = useMemo(
     () => buildTreeMap(folders, rootItems),
-    [folders, rootItems],
+    [folders, rootItems]
   );
 
-  // Trigger a re-render when server data changes so tree.getItems() reflects the
-  // latest data. The actual data lives in treeDataRef — this state holds no value.
-  const [, forceRender] = useState(0);
+  // External store holds the authoritative tree data. headless-tree's
+  // createOnDropHandler invokes our onChangeChildren callback once per affected
+  // parent within a single onDrop and then re-reads via getChildren — those
+  // reads must see the post-mutation children, so the store is the source of
+  // truth and the dataLoader reads getSnapshot() directly (not a closure).
+  const [store] = useState(() => createTreeStore(externalData));
 
-  // Authoritative source of truth for the dataLoader. Must NOT be synced on
-  // every render (doing so resets mutations made inside the async onDrop handler
-  // when React re-renders between removeItemsFromParents and insertItemsAtTarget).
-  const treeDataRef = useRef(externalData);
+  // Sync server-driven changes into the store. Object.is guard inside store.set
+  // prevents an unnecessary listener fan-out on mount.
+  useEffect(() => {
+    store.set(externalData);
+  }, [externalData, store]);
 
+  // Subscribe to store updates so the component re-renders on mutation.
+  // The returned snapshot is intentionally unused — the dataLoader reads the
+  // store directly so mid-drop mutations are visible to subsequent reads in
+  // the same async onDrop call.
+  useSyncExternalStore(store.subscribe, store.getSnapshot);
+
+  // Keep latest callbacks accessible to the async onDrop without re-creating
+  // useTree's options object every render.
   const callbacksRef = useRef(callbacks);
-  callbacksRef.current = callbacks;
-
-  // Sync when server data changes (outside of an active drag)
-  const prevExternalRef = useRef(externalData);
-  if (prevExternalRef.current !== externalData) {
-    prevExternalRef.current = externalData;
-    treeDataRef.current = externalData;
-    forceRender((n) => n + 1);
-  }
+  useEffect(() => {
+    callbacksRef.current = callbacks;
+  }, [callbacks]);
 
   const tree = useTree<FolderTreeData>({
     rootItemId: 'root',
     dataLoader: {
-      // Read from the ref so that mutations inside onDrop's onChangeChildren
-      // callback are visible to subsequent getChildren() calls within the
-      // same createOnDropHandler invocation (avoids duplicate entries).
       getItem: (id) =>
-        treeDataRef.current[id]?.item ?? ({ type: 'root' } as FolderTreeData),
-      getChildren: (id) => treeDataRef.current[id]?.children ?? [],
+        store.getSnapshot()[id]?.item ?? ({ type: 'root' } as FolderTreeData),
+      getChildren: (id) => store.getSnapshot()[id]?.children ?? [],
     },
     isItemFolder: (item) => item.getItemData().type !== 'document',
     getItemName: (item) => {
@@ -152,7 +126,7 @@ export function FolderTree({
     draggedItemOverwritesSelection: true,
     canDrop: (
       items: ItemInstance<FolderTreeData>[],
-      target: DragTarget<FolderTreeData>,
+      target: DragTarget<FolderTreeData>
     ) => {
       const targetId = String(target.item.getId());
       // Documents are leaves — nothing can be dropped into them
@@ -167,38 +141,33 @@ export function FolderTree({
     },
     onDrop: async (
       items: ItemInstance<FolderTreeData>[],
-      target: DragTarget<FolderTreeData>,
+      target: DragTarget<FolderTreeData>
     ) => {
       const dragged = items[0];
       const draggedId = String(dragged.getId());
       const newParentId = String(target.item.getId());
 
-      // Immediately mutate the ref in the callback so that
-      // insertItemsAtTarget (inside createOnDropHandler) sees the post-removal
-      // children when it calls getChildren() — prevents duplicate entries.
       const applyDrop = createOnDropHandler<FolderTreeData>(
         (item, newChildren) => {
-          const itemId = String(item.getId());
-          treeDataRef.current = {
-            ...treeDataRef.current,
-            [itemId]: { ...treeDataRef.current[itemId], children: newChildren },
-          };
-        },
+          store.mutateChildren(String(item.getId()), newChildren);
+        }
       );
       await applyDrop(items, target);
 
-      // Sync React state from the now-correct ref
-      forceRender((n) => n + 1);
+      // Persist using the post-drop snapshot
+      const snapshot = store.getSnapshot();
 
-      // Persist
       if (draggedId.startsWith('folder-')) {
         // Root-level folder reorder: use global positions (index in root.children)
         // for both folders and docs so they share a single position space and
         // buildTreeMap can correctly interleave them after the optimistic update.
-        const rootChildren = treeDataRef.current['root'].children;
+        const rootChildren = snapshot['root'].children;
         const folderPositions = rootChildren
           .filter((id) => id.startsWith('folder-'))
-          .map((id) => ({ id: id.replace('folder-', ''), position: rootChildren.indexOf(id) }));
+          .map((id) => ({
+            id: id.replace('folder-', ''),
+            position: rootChildren.indexOf(id),
+          }));
         callbacksRef.current.onReorderFolders(folderPositions);
 
         const rootDocs = rootChildren.filter((id) => id.startsWith('doc-'));
@@ -207,19 +176,33 @@ export function FolderTree({
             id: id.replace('doc-', ''),
             position: rootChildren.indexOf(id),
           }));
-          callbacksRef.current.onMoveDocument(rootDocs[0].replace('doc-', ''), null, docPositions);
+          callbacksRef.current.onMoveDocument(
+            rootDocs[0].replace('doc-', ''),
+            null,
+            docPositions
+          );
         }
       } else if (newParentId === 'root') {
         // Root-level doc reorder: same global-position approach.
-        const rootChildren = treeDataRef.current['root'].children;
+        const rootChildren = snapshot['root'].children;
         const docPositions = rootChildren
           .filter((id) => id.startsWith('doc-'))
-          .map((id) => ({ id: id.replace('doc-', ''), position: rootChildren.indexOf(id) }));
-        callbacksRef.current.onMoveDocument(draggedId.replace('doc-', ''), null, docPositions);
+          .map((id) => ({
+            id: id.replace('doc-', ''),
+            position: rootChildren.indexOf(id),
+          }));
+        callbacksRef.current.onMoveDocument(
+          draggedId.replace('doc-', ''),
+          null,
+          docPositions
+        );
 
         const folderPositions = rootChildren
           .filter((id) => id.startsWith('folder-'))
-          .map((id) => ({ id: id.replace('folder-', ''), position: rootChildren.indexOf(id) }));
+          .map((id) => ({
+            id: id.replace('folder-', ''),
+            position: rootChildren.indexOf(id),
+          }));
         if (folderPositions.length > 0) {
           callbacksRef.current.onReorderFolders(folderPositions);
         }
@@ -228,13 +211,13 @@ export function FolderTree({
         const targetFolderDomainId = newParentId.startsWith('folder-')
           ? newParentId.replace('folder-', '')
           : null;
-        const docPositions = (treeDataRef.current[newParentId]?.children ?? [])
+        const docPositions = (snapshot[newParentId]?.children ?? [])
           .filter((id) => id.startsWith('doc-'))
           .map((id, idx) => ({ id: id.replace('doc-', ''), position: idx }));
         callbacksRef.current.onMoveDocument(
           draggedId.replace('doc-', ''),
           targetFolderDomainId,
-          docPositions,
+          docPositions
         );
       }
     },
