@@ -1,0 +1,15 @@
+node_modules
+dist
+build
+storybook-static
+*storybook.log
+.env
+
+# Stray tsc emissions sitting next to .ts/.tsx sources
+apps/**/src/**/*.js
+packages/**/src/**/*.js
+packages/**/stories/**/*.js
+packages/**/.storybook/**/*.js
+
+# shadcn-managed components — do not auto-format
+packages/ui/src/components/ui/
