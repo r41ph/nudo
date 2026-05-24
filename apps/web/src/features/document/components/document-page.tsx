@@ -64,7 +64,7 @@ export function DocumentPage() {
 
   const doc = data?.documentById;
 
-  const { scheduleAutoSave, saveNow } = useAutoSave(id || null);
+  const { scheduleAutoSave } = useAutoSave(id || null);
 
   const {
     currentUserId: discussionUserId,
@@ -175,7 +175,7 @@ export function DocumentPage() {
   }
 
   return (
-    <DocumentLayout onSave={saveNow}>
+    <DocumentLayout>
       <MainEditor
         key={doc.id}
         handleEditToolbarDialog={handleEditToolbarDialog}
