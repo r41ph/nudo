@@ -29,7 +29,11 @@ export function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isRegister) {
-      register.mutate({ email, password, displayName: displayName || undefined });
+      register.mutate({
+        email,
+        password,
+        displayName: displayName || undefined,
+      });
     } else {
       login.mutate({ email, password });
     }

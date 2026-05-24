@@ -17,7 +17,11 @@ vi.mock('@web/features/folder/components/folder-tree', () => ({
     rootItems,
     activeItemId,
   }: {
-    folders: Array<{ id: string; name: string; items: Array<{ id: string; title: string }> }>;
+    folders: Array<{
+      id: string;
+      name: string;
+      items: Array<{ id: string; title: string }>;
+    }>;
     rootItems: Array<{ id: string; title: string }>;
     activeItemId?: string;
   }) => (
@@ -37,9 +41,7 @@ vi.mock('@web/features/folder/components/folder-tree', () => ({
           {item.title}
         </div>
       ))}
-      {activeItemId && (
-        <span data-testid="active-item">{activeItemId}</span>
-      )}
+      {activeItemId && <span data-testid="active-item">{activeItemId}</span>}
     </div>
   ),
 }));

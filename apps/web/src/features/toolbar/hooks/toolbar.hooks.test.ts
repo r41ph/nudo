@@ -96,7 +96,11 @@ describe('useToolbarSettingsSync', () => {
         return HttpResponse.json({
           data: {
             updateUserToolbar: {
-              user: { id: '1', enabledTools: ['bold', 'italic'], toolbarType: 'floating' },
+              user: {
+                id: '1',
+                enabledTools: ['bold', 'italic'],
+                toolbarType: 'floating',
+              },
             },
           },
         });

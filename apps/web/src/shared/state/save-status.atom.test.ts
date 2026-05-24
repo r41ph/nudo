@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { createStore } from 'jotai';
-import { saveStatusAtom, lastSavedAtom, type SaveStatus } from '@web/shared/state/save-status.atom';
+import {
+  saveStatusAtom,
+  lastSavedAtom,
+  type SaveStatus,
+} from '@web/shared/state/save-status.atom';
 
 describe('saveStatusAtom', () => {
   it('defaults to idle', () => {

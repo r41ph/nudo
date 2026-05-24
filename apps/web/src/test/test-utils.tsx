@@ -22,8 +22,11 @@ export function renderWithProviders(
   ui: ReactElement,
   options?: WrapperOptions & Omit<RenderOptions, 'wrapper'>
 ) {
-  const { initialRoute = '/', store = createStore(), ...renderOptions } =
-    options ?? {};
+  const {
+    initialRoute = '/',
+    store = createStore(),
+    ...renderOptions
+  } = options ?? {};
   const queryClient = createTestQueryClient();
 
   function Wrapper({ children }: { children: ReactNode }) {

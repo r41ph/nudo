@@ -8,11 +8,7 @@ const preview = {
   decorators: [
     jotaiDecorator,
     (Story) =>
-      React.createElement(
-        TooltipProvider,
-        null,
-        React.createElement(Story)
-      ),
+      React.createElement(TooltipProvider, null, React.createElement(Story)),
   ],
   parameters: {
     controls: {

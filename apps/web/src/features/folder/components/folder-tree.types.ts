@@ -33,7 +33,9 @@ export interface FolderTreeCallbacks {
   onRenameItem: (id: string, title: string) => void;
   onDeleteItem: (id: string) => void;
   onClickItem: (id: string) => void;
-  onReorderFolders: (positions: Array<{ id: string; position: number }>) => void;
+  onReorderFolders: (
+    positions: Array<{ id: string; position: number }>
+  ) => void;
   onMoveDocument: (
     docId: string,
     targetFolderId: string | null,

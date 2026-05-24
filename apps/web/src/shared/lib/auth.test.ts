@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   getToken,
   setToken,
@@ -34,9 +34,7 @@ describe('auth utilities', () => {
     it('removes the token from localStorage', () => {
       localStorage.setItem('writing_app_token', 'to-remove');
       removeToken();
-      expect(localStorage.removeItem).toHaveBeenCalledWith(
-        'writing_app_token'
-      );
+      expect(localStorage.removeItem).toHaveBeenCalledWith('writing_app_token');
       expect(getToken()).toBeNull();
     });
   });

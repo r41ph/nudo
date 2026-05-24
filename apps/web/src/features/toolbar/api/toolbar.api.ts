@@ -13,10 +13,7 @@ export const GET_CURRENT_USER = gql`
 export const UPDATE_USER_TOOLBAR = gql`
   mutation UpdateUserToolbar($enabledTools: JSON!, $toolbarType: String) {
     updateUserToolbar(
-      input: {
-        newEnabledTools: $enabledTools
-        newToolbarType: $toolbarType
-      }
+      input: { newEnabledTools: $enabledTools, newToolbarType: $toolbarType }
     ) {
       user {
         id

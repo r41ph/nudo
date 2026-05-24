@@ -24,7 +24,7 @@ export const postgraphileMiddleware = postgraphile(pool, 'public', {
   pgSettings: async (req: Request) => {
     const authReq = req as AuthRequest;
     const settings: Record<string, string> = {
-      'role': 'writing_app_visitor',
+      role: 'writing_app_visitor',
     };
     if (authReq.userId) {
       settings['app.current_user_id'] = authReq.userId;

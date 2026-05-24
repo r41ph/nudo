@@ -27,7 +27,9 @@ describe('ThemeToggle', () => {
   it('renders the switch', () => {
     window.matchMedia = mockMatchMedia(false);
     renderWithProviders(<ThemeToggle />);
-    expect(screen.getByRole('switch', { name: /toggle dark mode/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('switch', { name: /toggle dark mode/i })
+    ).toBeInTheDocument();
   });
 
   it('clicking switch when light switches to dark and adds .dark class', async () => {

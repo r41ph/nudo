@@ -14,11 +14,7 @@ export function ToolsSidebar() {
   const setFocusMode = useSetAtom(isFocusModeAtom);
 
   return (
-    <Sidebar
-      side="right"
-      collapsible="none"
-      className="w-fit"
-    >
+    <Sidebar side="right" collapsible="none" className="w-fit">
       <SidebarHeader className="flex items-center justify-center px-3 py-3 border-b border-sidebar-border">
         <Button
           variant="ghost"

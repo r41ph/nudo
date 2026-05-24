@@ -3,7 +3,10 @@ import { useMutation } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { UPDATE_DOCUMENT_CONTENT } from '@web/features/document/api/document.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
-import { saveStatusAtom, lastSavedAtom } from '@web/shared/state/save-status.atom';
+import {
+  saveStatusAtom,
+  lastSavedAtom,
+} from '@web/shared/state/save-status.atom';
 
 export function useAutoSave(documentId: string | null) {
   const setSaveStatus = useSetAtom(saveStatusAtom);

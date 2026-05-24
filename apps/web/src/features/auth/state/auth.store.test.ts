@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { createStore } from 'jotai';
-import { tokenAtom, userAtom, isAuthenticatedAtom } from '@web/features/auth/state/auth.store';
+import {
+  tokenAtom,
+  userAtom,
+  isAuthenticatedAtom,
+} from '@web/features/auth/state/auth.store';
 
 describe('auth atoms', () => {
   it('isAuthenticatedAtom returns false when tokenAtom is null', () => {
