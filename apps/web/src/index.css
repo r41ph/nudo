@@ -1,4 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
 @import '@ui/tailwind.css';
+
+@theme {
+  --font-newsreader: 'Newsreader', Georgia, serif;
+}
 
 /* Tell Tailwind to also scan the UI package for class names */
 /* Note: @source uses Node's fs directly, not Vite's resolver, so aliases like '@ui/' don't work */
