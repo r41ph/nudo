@@ -7,7 +7,7 @@ export function ProjectHeader({ name }: { name: string }) {
 
   return (
     <SidebarHeader className="px-5 pt-6 pb-4 border-b border-sidebar-border">
-      <h2 className="font-serif font-bold text-xl text-foreground leading-tight">
+      <h2 className="font-newsreader font-semibold text-xl text-foreground leading-tight">
         {name}
       </h2>
       <WordCounter count={totalWordCount} label="total words" />
