@@ -25,13 +25,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.26.1",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "bcrypt",
-      "msw"
-    ]
-  },
+  "packageManager": "pnpm@11.3.0",
   "lint-staged": {
     "*.{ts,tsx,mts,mjs,js}": [
       "prettier --write",
