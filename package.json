@@ -17,6 +17,8 @@
     "test": "pnpm --filter './apps/*' test && pnpm --filter './packages/*' test",
     "test:web": "pnpm --filter @writing-app/web test",
     "test:api": "pnpm --filter @writing-app/api test",
+    "test:api:int": "pnpm --filter @writing-app/api test:integration",
+    "test:db:setup": "pnpm --filter @writing-app/api test:db:setup",
     "format": "prettier --write .",
     "typecheck": "pnpm -r --if-present typecheck",
     "lint:precommit": "eslint --config eslint.config.precommit.mts",
