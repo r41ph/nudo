@@ -1,5 +1,5 @@
 import path from 'path';
-import { defineConfig } from 'vitest/config';
+import { defineConfig, configDefaults } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
@@ -10,5 +10,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Integration tests need a real DB and run via vitest.integration.config.ts.
+    exclude: [...configDefaults.exclude, 'src/**/*.integration.test.ts'],
   },
 });
