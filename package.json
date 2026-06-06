@@ -18,6 +18,7 @@
     "test:web": "pnpm --filter @writing-app/web test",
     "test:api": "pnpm --filter @writing-app/api test",
     "test:api:int": "pnpm --filter @writing-app/api test:integration",
+    "test:e2e": "pnpm --filter @writing-app/e2e test:e2e",
     "test:db:setup": "pnpm --filter @writing-app/api test:db:setup",
     "format": "prettier --write .",
     "typecheck": "pnpm -r --if-present typecheck",
