@@ -1,7 +1,7 @@
 # Spec: Testing Strategy — E2E Layer & Close-out
 
-> Status: Draft — awaiting approval
-> Branch: TBD (follow-up PR, off `main`)
+> Status: Implemented (PR #23 — https://github.com/r41ph/nudo/pull/23)
+> Branch: `chore/testing-strategy-e2e` (PR #23)
 > Builds on: [`testing-strategy.md`](./testing-strategy.md) (Phases 0–2: API
 > integration harness + per-feature rules)
 
@@ -21,12 +21,12 @@ tiny and fast enough to run locally on demand.
 
 ### Success criteria
 
-- [ ] A targeted e2e layer covering the critical journeys, runnable locally
+- [x] A targeted e2e layer covering the critical journeys, runnable locally
       against the full stack and ready to wire into CI later.
-- [ ] `pnpm test:e2e` boots web + api against `nudo_test` and runs the journeys.
-- [ ] `pnpm test:coverage` emits web + api reports with **no gating threshold**.
-- [ ] No flakiness: e2e auth/setup is deterministic (register/login once, reuse).
-- [ ] The two testing-strategy specs flip to `Status: Implemented` with PR links.
+- [x] `pnpm test:e2e` boots web + api against `nudo_test` and runs the journeys.
+- [x] `pnpm test:coverage` emits web + api reports with **no gating threshold**.
+- [x] No flakiness: e2e auth/setup is deterministic (register/login once, reuse).
+- [x] The two testing-strategy specs flip to `Status: Implemented` with PR links.
 
 ## Tech Stack
 

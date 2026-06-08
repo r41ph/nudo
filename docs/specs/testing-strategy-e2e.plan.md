@@ -1,9 +1,9 @@
 # Plan: Testing Strategy — E2E Layer & Close-out
 
-> Status: Draft — awaiting approval
+> Status: Implemented (PR #23 — https://github.com/r41ph/nudo/pull/23)
 > Spec: [`testing-strategy-e2e.md`](./testing-strategy-e2e.md)
 > Builds on: [`testing-strategy.plan.md`](./testing-strategy.plan.md) (Phases 0–2)
-> Branch: TBD (follow-up PR, off `main`)
+> Branch: `chore/testing-strategy-e2e` (PR #23)
 
 ## Approach summary
 
