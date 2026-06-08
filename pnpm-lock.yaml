@@ -107,6 +107,9 @@ importers:
       '@types/supertest':
         specifier: ^7.2.0
         version: 7.2.0
+      '@vitest/coverage-v8':
+        specifier: ^4.0.16
+        version: 4.0.16(@vitest/browser@4.0.16(msw@2.12.10(@types/node@24.10.4)(typescript@5.9.3))(vite@7.3.0(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.9.0))(vitest@4.0.16))(vitest@4.0.16)
       supertest:
         specifier: ^7.2.2
         version: 7.2.2
@@ -195,6 +198,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.1.1
         version: 5.1.2(vite@7.3.0(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.9.0))
+      '@vitest/coverage-v8':
+        specifier: ^4.0.16
+        version: 4.0.16(@vitest/browser@4.0.16(msw@2.12.10(@types/node@24.10.4)(typescript@5.9.3))(vite@7.3.0(@types/node@24.10.4)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.9.0))(vitest@4.0.16))(vitest@4.0.16)
       eslint-plugin-react-hooks:
         specifier: ^7.0.1
         version: 7.0.1(eslint@9.39.2(jiti@2.6.1))
