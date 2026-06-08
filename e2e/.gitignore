@@ -1,0 +1,6 @@
+# Authenticated storage state holds a real (test) JWT — never commit it.
+/playwright/.auth/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

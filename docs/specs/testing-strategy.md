@@ -1,7 +1,7 @@
 # Spec: Testing Strategy
 
-> Status: Draft — awaiting approval
-> Branch: TBD (proposed `chore/testing-strategy`)
+> Status: Implemented (PR #22 — https://github.com/r41ph/nudo/pull/22)
+> Branch: `chore/testing-strategy` (merged in #22)
 > Scope: Phases 0–2 (static base + unit + API-integration harness + per-feature
 > rules). The e2e layer and coverage diagnostic are a follow-up PR — see
 > [`testing-strategy-e2e.md`](./testing-strategy-e2e.md).

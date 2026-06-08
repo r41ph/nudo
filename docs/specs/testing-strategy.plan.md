@@ -1,8 +1,8 @@
 # Plan: Testing Strategy
 
-> Status: Draft — awaiting approval
+> Status: Implemented (PR #22 — https://github.com/r41ph/nudo/pull/22)
 > Spec: [`testing-strategy.md`](./testing-strategy.md)
-> Branch: TBD (proposed `chore/testing-strategy`)
+> Branch: `chore/testing-strategy` (merged in #22)
 > Scope: Phases 0–2. The e2e layer (Phase 3) and coverage close-out (Phase 4)
 > are planned in [`testing-strategy-e2e.plan.md`](./testing-strategy-e2e.plan.md).
 
