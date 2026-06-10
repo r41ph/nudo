@@ -1,5 +1,5 @@
 ---
-name: perf-review
+name: nudo-perf-review
 description: Review React components for performance issues - re-renders, data fetching patterns, bundle size, and architecture. Use when the user asks to audit, profile, or review a React component, hook, or page for performance problems, unnecessary re-renders, Jotai atom usage, fetching patterns, or bundle/code-splitting concerns.
 ---
 
