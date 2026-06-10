@@ -23,6 +23,7 @@ Every change brings the test layer(s) for its type. This is not optional.
 | New/changed SQL function or migration      | API integration via GraphQL **+ RLS isolation**                       |
 | New/changed Express/auth route             | API integration (supertest) incl. failure cases                       |
 | New web feature (component + hook + state) | Web integration (`renderWithProviders` + MSW); unit for pure helpers  |
+| New/changed UI component                   | Storybook story (`*.stories.tsx`) covering its meaningful states      |
 | New cross-cutting user journey             | Add/extend one e2e happy path                                         |
 | Bug fix                                    | Failing regression test at the lowest reproducing layer, **then** fix |
 
@@ -37,6 +38,10 @@ A feature/PR is not done until:
 - [ ] Any new/changed Express or auth route has integration tests covering the
       failure cases (400/401/409…), not just the happy path.
 - [ ] Bug fixes ship with a regression test that failed before the fix.
+- [ ] New or changed UI components ship a `*.stories.tsx` covering their
+      meaningful states (default, loading, error, empty…). API-only work skips.
+- [ ] Errors are handled, not swallowed: web surfaces failures to the user
+      (SaveBar / query error state); API returns correct status codes.
 - [ ] Unit tests stay DB-free so `pnpm test:api` remains fast.
 - [ ] Tests assert observable behavior / DB ground truth, not internals.
 - [ ] No test was `.skip`ped or deleted to go green.

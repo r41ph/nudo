@@ -18,3 +18,11 @@ Training data for third-party libraries is often stale. Always query context7 be
 ## GraphQL
 
 No codegen — all queries and mutations are raw strings in `features/<name>/api/`. The shared client at `@web/shared/lib/graphql-client.ts` handles JWT headers. Never instantiate a new GraphQL client inside a feature.
+
+## Error handling
+
+Never swallow errors or hide them behind silent fallbacks.
+
+- Surface failures to the user — render the TanStack Query `isError`/`error` state, don't show stale or empty content as if the request succeeded.
+- Mutations that can fail visibly (autosave, settings sync) must reflect the failure in the UI (e.g. the SaveBar), not just `console.error`.
+- Don't `catch` and continue with a default value unless the fallback is genuinely correct behavior; if you do, comment why.

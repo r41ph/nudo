@@ -14,6 +14,45 @@ pnpm docker:up             # Start PostgreSQL
 
 Note: `pnpm test` (root) fails because `packages/ui` has no test runner configured yet — use `pnpm test:web` instead.
 
+## Feature Workflow
+
+You execute features following this lifecycle. **Before you start,** the human
+decides if the change is trivial (docs-only, config, typos) and commits it
+directly to `main`, or non-trivial and needs a branch + PR.
+
+**For non-trivial changes (features, logic, UI):**
+
+1. **Worktree.** Work in a git worktree for this feature (the human may set this
+   up, or you can create one:
+   `git fetch origin && git worktree add -b feature-name ../feature-name origin/main`).
+   Worktrees keep branch state isolated so file changes don't leak across
+   features. Never work on a shared branch.
+2. **Read the spec.** If `docs/specs/<feature>.md` exists, follow it. If not,
+   ask the human before proceeding — the feature should have been specced first.
+3. **Spec-driven development.** Implement exactly what the spec requires. If you
+   discover the spec is incomplete or wrong, flag it before coding further.
+4. **TDD.** Write failing tests first for logic and bug fixes (regression test
+   before the fix). Satisfy every test layer the [required-tests
+   matrix](.claude/rules/testing.md) mandates — unit + integration always;
+   e2e only for cross-cutting user journeys.
+5. **Storybook stories.** Ship `*.stories.tsx` for every new or changed UI
+   component, covering meaningful states. Skip for API-only work.
+6. **Error handling.** Never swallow errors. Web: surface failures to the user
+   (SaveBar, error states). API: return correct status codes (400/401/404/409…)
+   with no internals leaked. See `frontend.md` / `api.md` rules.
+7. **Update docs.** If behavior, APIs, commands, or env vars change, update
+   `CLAUDE.md` and `.claude/rules/*` if conventions changed.
+8. **Finalize the PR.** When all changes are committed, push the branch and open
+   the PR. Point the PR description at the spec (`Spec: docs/specs/<feature>.md`).
+   Then update the spec with the PR URL (`> Status: <state> (PR #NN — <url>)`)
+   and commit that into the same PR. The spec and PR must link to each other.
+
+**Feature is done** when the [testing DoD](.claude/rules/testing.md) passes and
+the spec (if one exists) links to the PR.
+
+**For trivial changes** (docs, config, typos): the human commits directly to
+`main`. You don't handle these.
+
 ## Path Aliases
 
 - `@api/*` → `apps/api/src/*`

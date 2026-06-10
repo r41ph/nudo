@@ -27,3 +27,12 @@ RLS is enabled on all tables via `app.current_user_id`. The database enforces ow
 
 - Access + refresh JWT rotation; `JWT_SECRET` and `JWT_REFRESH_SECRET` are required env vars
 - Passwords hashed with bcrypt
+
+## Error handling
+
+Never swallow errors or return a misleading success.
+
+- Return the correct status code: `400` invalid input, `401` unauthenticated, `403`/RLS-denied, `404` missing, `409` conflict, `500` only for genuine unexpected failures.
+- Don't leak internals (stack traces, SQL, secrets) in responses; log server-side, return a safe message.
+- Let PostGraphile/RLS enforce ownership — a blocked write surfaces as null/empty, not a faked-success response.
+- Auth routes must cover and return the failure cases (bad credentials, reused/expired token), not just the happy path.
