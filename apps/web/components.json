@@ -13,8 +13,8 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@web/components",
-    "utils": "@writing-app/ui/lib/utils",
-    "ui": "@writing-app/ui/components/ui",
+    "utils": "@nudo/ui/lib/utils",
+    "ui": "@nudo/ui/components/ui",
     "lib": "@web/lib",
     "hooks": "@web/hooks"
   }

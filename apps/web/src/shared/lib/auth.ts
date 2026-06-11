@@ -1,5 +1,5 @@
-const TOKEN_KEY = 'writing_app_token';
-const USER_KEY = 'writing_app_user';
+const TOKEN_KEY = 'nudo_token';
+const USER_KEY = 'nudo_user';
 
 export interface AuthUser {
   id: string;

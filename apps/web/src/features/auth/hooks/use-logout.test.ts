@@ -39,8 +39,8 @@ describe('useLogout', () => {
       result.current.logout();
     });
 
-    expect(localStorage.removeItem).toHaveBeenCalledWith('writing_app_token');
-    expect(localStorage.removeItem).toHaveBeenCalledWith('writing_app_user');
+    expect(localStorage.removeItem).toHaveBeenCalledWith('nudo_token');
+    expect(localStorage.removeItem).toHaveBeenCalledWith('nudo_user');
   });
 
   it('navigates to /login', () => {

@@ -140,12 +140,12 @@ importers:
       '@headless-tree/react':
         specifier: ^1.6.3
         version: 1.6.3(@headless-tree/core@1.6.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@nudo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@tanstack/react-query':
         specifier: ^5.90.21
         version: 5.90.21(react@19.2.3)
-      '@writing-app/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       graphql:
         specifier: ^16.12.0
         version: 16.12.0
