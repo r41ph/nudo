@@ -1,5 +1,5 @@
 {
-  "name": "@writing-app/web",
+  "name": "@nudo/web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -20,7 +20,7 @@
     "@headless-tree/core": "^1.6.3",
     "@headless-tree/react": "^1.6.3",
     "@tanstack/react-query": "^5.90.21",
-    "@writing-app/ui": "workspace:*",
+    "@nudo/ui": "workspace:*",
     "graphql": "^16.12.0",
     "graphql-request": "^7.4.0",
     "jotai": "^2.16.2",

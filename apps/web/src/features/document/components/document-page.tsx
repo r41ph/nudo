@@ -18,7 +18,7 @@ import {
   userIdAtom,
 } from '@web/features/auth/state/auth.store';
 import { DocumentLayout } from '@web/layouts/document-layout';
-import { MainEditor } from '@writing-app/ui/src/components/main-editor/main-editor';
+import { MainEditor } from '@nudo/ui/src/components/main-editor/main-editor';
 import { EditorToolbarDialog } from '@web/features/toolbar/components/toolbar-dialog';
 import { useAutoSave } from '@web/features/document/components/document-page.hooks';
 import { useDocumentDiscussions } from '@web/features/document/hooks/use-document-discussions';

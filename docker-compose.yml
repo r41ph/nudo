@@ -5,9 +5,9 @@ services:
     ports:
       - '${DB_PORT:-5432}:5432'
     environment:
-      POSTGRES_USER: ${DB_USER:-writing_app}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-writing_app_dev}
-      POSTGRES_DB: ${DB_NAME:-writing_app}
+      POSTGRES_USER: ${DB_USER:-nudo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nudo_dev}
+      POSTGRES_DB: ${DB_NAME:-nudo}
     volumes:
       - pgdata:/var/lib/postgresql/data
 

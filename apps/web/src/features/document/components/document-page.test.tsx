@@ -15,7 +15,7 @@ vi.mock('@web/layouts/document-layout', () => ({
   ),
 }));
 
-vi.mock('@writing-app/ui/src/components/main-editor/main-editor', () => ({
+vi.mock('@nudo/ui/src/components/main-editor/main-editor', () => ({
   MainEditor: ({
     children,
     enabledTools,

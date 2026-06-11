@@ -3,7 +3,7 @@
  * in-process app (supertest), optionally authenticated as a seeded user.
  *
  * Unlike createDocument() in seed.ts, this goes through the real PostGraphile
- * stack — role `writing_app_visitor` plus the app.current_user_id derived from
+ * stack — role `nudo_visitor` plus the app.current_user_id derived from
  * the JWT — so it exercises row-level security exactly as the app does.
  */
 import request from 'supertest';

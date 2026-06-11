@@ -35,7 +35,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm --filter @writing-app/api dev',
+      command: 'pnpm --filter @nudo/api dev',
       url: `${API_URL}/graphiql`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
@@ -46,7 +46,7 @@ export default defineConfig({
       },
     },
     {
-      command: `pnpm --filter @writing-app/web exec vite --port ${WEB_PORT} --strictPort`,
+      command: `pnpm --filter @nudo/web exec vite --port ${WEB_PORT} --strictPort`,
       url: WEB_URL,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
