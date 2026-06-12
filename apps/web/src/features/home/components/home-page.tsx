@@ -16,7 +16,7 @@ export function HomePage() {
   const navigate = useNavigate();
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['documents'],
     queryFn: () =>
       graphqlClient.request<{
@@ -25,7 +25,11 @@ export function HomePage() {
     enabled: isAuthenticated,
   });
 
-  const { mutate: createDocument, isPending: creating } = useMutation({
+  const {
+    mutate: createDocument,
+    isPending: creating,
+    isError: createFailed,
+  } = useMutation({
     mutationFn: (variables: { title: string; content: unknown }) =>
       graphqlClient.request<{
         createNewDocument: { document: { id: string } };
@@ -53,13 +57,32 @@ export function HomePage() {
     );
   }
 
+  // Surface a failed load instead of falling through to the empty state, which
+  // would wrongly tell the user they have no documents (see frontend.md).
+  if (isError) {
+    return (
+      <div
+        role="alert"
+        className="flex flex-col h-64 items-center justify-center gap-4"
+      >
+        <p className="text-destructive">
+          We couldn&apos;t load your documents.{' '}
+          {error instanceof Error ? error.message : 'Please try again.'}
+        </p>
+        <Button variant="outline" onClick={() => refetch()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   const docs = data?.allDocuments?.nodes;
   if (docs && docs.length > 0) {
     return <Navigate to={`/document/${docs[0].id}`} />;
   }
 
   return (
-    <div className="flex flex-col h-64 items-center justify-center gap-4">
+    <div className="flex flex-col h-64 items-center justify-center gap-4 w-full">
       <p className="text-gray-500">
         No documents yet. Create one to get started.
       </p>
@@ -67,6 +90,11 @@ export function HomePage() {
         <PlusIcon className="h-4 w-4 mr-2" />
         Create Your First Document
       </Button>
+      {createFailed && (
+        <p role="alert" className="text-sm text-destructive">
+          Couldn&apos;t create the document. Please try again.
+        </p>
+      )}
     </div>
   );
 }
