@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { GET_DOCUMENT } from '@web/features/document/api/document.api';
+import { PlusIcon } from 'lucide-react';
+import {
+  GET_DOCUMENT,
+  CREATE_DOCUMENT,
+} from '@web/features/document/api/document.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
+import { queryClient } from '@web/shared/lib/query-client';
+import { Button } from '@ui/components/ui/button';
 import {
   currentDocumentAtom,
   liveWordCountAtom,
@@ -137,6 +143,28 @@ export function DocumentPage() {
     setDialog({ activeDialog: DIALOG.EDITOR_TOOLBAR });
   }, [setDialog]);
 
+  const {
+    mutate: createDocument,
+    isPending: creating,
+    isError: createFailed,
+  } = useMutation({
+    mutationFn: (variables: { title: string; content: unknown }) =>
+      graphqlClient.request<{
+        createNewDocument: { document: { id: string } };
+      }>(CREATE_DOCUMENT, variables),
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      navigate(`/document/${created.createNewDocument.document.id}`);
+    },
+  });
+
+  const handleCreateDocument = useCallback(() => {
+    createDocument({
+      title: 'Untitled Document',
+      content: [{ type: 'p', children: [{ text: '' }] }],
+    });
+  }, [createDocument]);
+
   const { isHydrated } = useUserPreferences();
   useToolbarSettingsSync(userId, enabledTools, isHydrated);
 
@@ -166,10 +194,27 @@ export function DocumentPage() {
     );
   }
 
-  if (error || !doc) {
+  if (error) {
     return (
       <div className="flex h-64 flex-1 items-center justify-center text-red-500">
-        {error instanceof Error ? error.message : 'Document not found'}
+        {error instanceof Error ? error.message : 'Failed to load document'}
+      </div>
+    );
+  }
+
+  if (!doc) {
+    return (
+      <div className="flex h-64 flex-1 flex-col items-center justify-center gap-4">
+        <p className="text-gray-500">Document not found</p>
+        <Button onClick={handleCreateDocument} disabled={creating}>
+          <PlusIcon className="h-4 w-4 mr-2" />
+          New Document
+        </Button>
+        {createFailed && (
+          <p role="alert" className="text-sm text-red-500">
+            Couldn&apos;t create the document. Please try again.
+          </p>
+        )}
       </div>
     );
   }
