@@ -24,6 +24,10 @@ import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
 import { useSidebarDnd } from '@web/features/sidebar/hooks/app-sidebar.hooks';
 import {
+  pickAdjacentDocumentId,
+  pickDocumentAfterFolderDeletion,
+} from '@web/features/sidebar/lib/pick-adjacent-document';
+import {
   FolderTree,
   type FolderTreeHandle,
 } from '@web/features/folder/components/folder-tree';
@@ -142,26 +146,108 @@ export function ManuscriptsSection() {
     [documents]
   );
 
+  // Deleting the document currently open in the editor must move the editor
+  // somewhere valid, otherwise it keeps showing the just-deleted doc. Open the
+  // adjacent sibling, or fall back to the home route (which renders the
+  // empty-state placeholder) when nothing remains.
+  const handleDeleteDocument = useCallback(
+    (id: string) => {
+      const isActive = id === activeDocId;
+      const nextDocId = isActive ? pickAdjacentDocumentId(documents, id) : null;
+
+      deleteDocument(
+        { id },
+        {
+          onSuccess: () => {
+            // Drop the deleted doc from the cache up front so HomePage doesn't
+            // briefly redirect back into it; invalidate() then reconciles.
+            queryClient.setQueryData<{
+              allDocuments: { nodes: Array<{ id: string }> };
+            }>(['documents'], (old) =>
+              old
+                ? {
+                    ...old,
+                    allDocuments: {
+                      ...old.allDocuments,
+                      nodes: old.allDocuments.nodes.filter((n) => n.id !== id),
+                    },
+                  }
+                : old
+            );
+            queryClient.removeQueries({ queryKey: ['document', id] });
+
+            if (isActive) {
+              navigate(nextDocId ? `/document/${nextDocId}` : '/');
+            }
+          },
+        }
+      );
+    },
+    [activeDocId, documents, deleteDocument, navigate]
+  );
+
+  // Deleting a folder deletes every document inside it. If the open document is
+  // one of them, move the editor to a remaining document (or the empty-state
+  // home route), same as deleting that document directly.
+  const handleDeleteFolder = useCallback(
+    async (id: string) => {
+      const folder = rawFolders.find((f) => f.id === id);
+      const docIds = folder?.documentsByFolderId.nodes.map((d) => d.id) ?? [];
+      const activeInFolder = !!activeDocId && docIds.includes(activeDocId);
+      const nextDocId = activeInFolder
+        ? pickDocumentAfterFolderDeletion(documents, docIds)
+        : null;
+
+      let pending = [
+        ...docIds.map((docId) => () => deleteDocumentAsync({ id: docId })),
+        () => deleteFolderAsync({ id }),
+      ];
+      // Make sure all documents are deleted even if some deletions fail
+      // (promise failures) to avoid leaving orphaned documents
+      while (pending.length > 0) {
+        const results = await Promise.allSettled(pending.map((fn) => fn()));
+        pending = pending.filter((_, i) => results[i].status === 'rejected');
+      }
+
+      if (activeInFolder) {
+        // Drop the deleted docs up front so HomePage doesn't briefly redirect
+        // back into one; invalidate() (per-mutation) then reconciles.
+        const removed = new Set(docIds);
+        queryClient.setQueryData<{
+          allDocuments: { nodes: Array<{ id: string }> };
+        }>(['documents'], (old) =>
+          old
+            ? {
+                ...old,
+                allDocuments: {
+                  ...old.allDocuments,
+                  nodes: old.allDocuments.nodes.filter(
+                    (n) => !removed.has(n.id)
+                  ),
+                },
+              }
+            : old
+        );
+        queryClient.removeQueries({ queryKey: ['document', activeDocId] });
+        navigate(nextDocId ? `/document/${nextDocId}` : '/');
+      }
+    },
+    [
+      rawFolders,
+      activeDocId,
+      documents,
+      deleteDocumentAsync,
+      deleteFolderAsync,
+      navigate,
+    ]
+  );
+
   const callbacks: FolderTreeCallbacks = useMemo(
     () => ({
       onRenameFolder: (id, name) => renameFolder({ id, name }),
-      onDeleteFolder: async (id) => {
-        const folder = rawFolders.find((f) => f.id === id);
-        const docIds = folder?.documentsByFolderId.nodes.map((d) => d.id) ?? [];
-
-        let pending = [
-          ...docIds.map((docId) => () => deleteDocumentAsync({ id: docId })),
-          () => deleteFolderAsync({ id }),
-        ];
-        // Make sure all documents are deleted even if some deletions fail
-        // (promise failures) to avoid leaving orphaned documents
-        while (pending.length > 0) {
-          const results = await Promise.allSettled(pending.map((fn) => fn()));
-          pending = pending.filter((_, i) => results[i].status === 'rejected');
-        }
-      },
+      onDeleteFolder: (id) => handleDeleteFolder(id),
       onRenameItem: (id, title) => renameDocument({ id, title }),
-      onDeleteItem: (id) => deleteDocument({ id }),
+      onDeleteItem: (id) => handleDeleteDocument(id),
       onClickItem: (id) => navigate(`/document/${id}`),
       onReorderFolders: (positions) => reorderFolders(positions),
       onMoveDocument: (docId, targetFolderId, docPositions) =>
@@ -169,11 +255,9 @@ export function ManuscriptsSection() {
     }),
     [
       renameFolder,
-      deleteFolderAsync,
+      handleDeleteFolder,
       renameDocument,
-      deleteDocument,
-      deleteDocumentAsync,
-      rawFolders,
+      handleDeleteDocument,
       navigate,
       reorderFolders,
       moveAndReorderDocument,
