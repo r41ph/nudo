@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { graphql, HttpResponse } from 'msw';
 import { DocumentPage } from '@web/features/document/components/document-page';
 import { renderWithProviders, createStore } from '@web/test/test-utils';
@@ -134,5 +134,78 @@ describe('DocumentPage', () => {
 
     // Should show error/not found state since the query is disabled
     expect(screen.getByText('Document not found')).toBeInTheDocument();
+  });
+
+  it('offers a create button on the not-found placeholder', async () => {
+    mockParams = { id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' };
+    server.use(
+      graphql.query('GetDocument', () =>
+        HttpResponse.json({ data: { documentById: null } })
+      )
+    );
+
+    const store = createStore();
+    store.set(tokenAtom, 'fake-token');
+    store.set(userAtom, MOCK_USER);
+
+    renderWithProviders(<DocumentPage />, { store });
+
+    expect(
+      await screen.findByRole('button', { name: /new document/i })
+    ).toBeInTheDocument();
+  });
+
+  it('creates a document from the placeholder and navigates to it', async () => {
+    mockParams = { id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' };
+    server.use(
+      graphql.query('GetDocument', () =>
+        HttpResponse.json({ data: { documentById: null } })
+      )
+    );
+
+    const store = createStore();
+    store.set(tokenAtom, 'fake-token');
+    store.set(userAtom, MOCK_USER);
+
+    renderWithProviders(<DocumentPage />, { store });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /new document/i })
+    );
+
+    // Default CreateDocument handler returns MOCK_DOCUMENT.
+    await waitFor(() =>
+      expect(mockNavigate).toHaveBeenCalledWith(`/document/${MOCK_DOCUMENT.id}`)
+    );
+  });
+
+  it('surfaces a failure when creating from the placeholder fails', async () => {
+    mockParams = { id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' };
+    server.use(
+      graphql.query('GetDocument', () =>
+        HttpResponse.json({ data: { documentById: null } })
+      ),
+      graphql.mutation('CreateDocument', () =>
+        HttpResponse.json(
+          { errors: [{ message: 'Create failed' }] },
+          { status: 500 }
+        )
+      )
+    );
+
+    const store = createStore();
+    store.set(tokenAtom, 'fake-token');
+    store.set(userAtom, MOCK_USER);
+
+    renderWithProviders(<DocumentPage />, { store });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /new document/i })
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /couldn't create the document/i
+    );
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

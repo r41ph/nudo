@@ -3,10 +3,33 @@ import { useMutation } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { UPDATE_DOCUMENT_CONTENT } from '@web/features/document/api/document.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
+import { queryClient } from '@web/shared/lib/query-client';
 import {
   saveStatusAtom,
   lastSavedAtom,
 } from '@web/shared/state/save-status.atom';
+
+type UpdateContentResponse = {
+  updateDocumentContent: {
+    document: {
+      id: string;
+      content: unknown[];
+      plainText: string;
+      wordCount: number;
+      updatedAt: string;
+    } | null;
+  };
+};
+
+// Shape of the GET_DOCUMENT query cache entry we patch on save.
+type DocumentQueryData = {
+  documentById: {
+    content: unknown[];
+    plainText: string;
+    wordCount: number;
+    updatedAt: string;
+  } | null;
+} | null;
 
 export function useAutoSave(documentId: string | null) {
   const setSaveStatus = useSetAtom(saveStatusAtom);
@@ -17,7 +40,33 @@ export function useAutoSave(documentId: string | null) {
 
   const { mutateAsync: updateContent } = useMutation({
     mutationFn: (variables: { docId: string; newContent: unknown[] }) =>
-      graphqlClient.request(UPDATE_DOCUMENT_CONTENT, variables),
+      graphqlClient.request<UpdateContentResponse>(
+        UPDATE_DOCUMENT_CONTENT,
+        variables
+      ),
+    // Write the saved content through to the document query cache. Without this
+    // the cache keeps the snapshot from initial load, and navigating away and
+    // back within staleTime re-seeds the editor with stale (pre-edit) content.
+    onSuccess: (data, variables) => {
+      const updated = data.updateDocumentContent.document;
+      if (!updated) return;
+      queryClient.setQueryData<DocumentQueryData>(
+        ['document', variables.docId],
+        (old) => {
+          if (!old?.documentById) return old;
+          return {
+            ...old,
+            documentById: {
+              ...old.documentById,
+              content: updated.content,
+              plainText: updated.plainText,
+              wordCount: updated.wordCount,
+              updatedAt: updated.updatedAt,
+            },
+          };
+        }
+      );
+    },
   });
 
   useEffect(() => {

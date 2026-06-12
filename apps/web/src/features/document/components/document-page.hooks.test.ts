@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act } from '@testing-library/react';
 import { useAutoSave } from '@web/features/document/components/document-page.hooks';
 import { renderHookWithProviders, createStore } from '@web/test/test-utils';
+import { queryClient } from '@web/shared/lib/query-client';
 import {
   saveStatusAtom,
   lastSavedAtom,
@@ -14,6 +15,8 @@ describe('useAutoSave', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    // onSuccess writes to the shared singleton cache; clear it between tests.
+    queryClient.removeQueries({ queryKey: ['document'] });
   });
 
   it('does not save when documentId is null', async () => {
@@ -131,5 +134,71 @@ describe('useAutoSave', () => {
     await vi.waitFor(() => {
       expect(store.get(saveStatusAtom)).toBe('error');
     });
+  });
+
+  // Regression: a successful save must write the new content through to the
+  // GET_DOCUMENT cache. Otherwise the cached pre-edit snapshot survives, and
+  // navigating away and back within staleTime re-seeds the editor with stale
+  // content.
+  it('writes saved content through to the document query cache', async () => {
+    vi.useRealTimers();
+
+    const { server } = await import('@web/test/mocks/server');
+    const { graphql, HttpResponse } = await import('msw');
+
+    const docId = '11111111-2222-3333-4444-555566667777';
+    const newContent = [{ type: 'p', children: [{ text: 'edited body' }] }];
+
+    // Echo the saved content back, as the real resolver does.
+    server.use(
+      graphql.mutation('UpdateDocumentContent', ({ variables }) =>
+        HttpResponse.json({
+          data: {
+            updateDocumentContent: {
+              document: {
+                id: variables.docId,
+                content: variables.newContent,
+                plainText: 'edited body',
+                wordCount: 2,
+                updatedAt: new Date().toISOString(),
+              },
+            },
+          },
+        })
+      )
+    );
+
+    // Seed the cache with the pre-edit snapshot, as the initial load would.
+    queryClient.setQueryData(['document', docId], {
+      documentById: {
+        id: docId,
+        title: 'Test Document',
+        slug: 'test-document',
+        content: [{ type: 'p', children: [{ text: 'stale body' }] }],
+        plainText: 'stale body',
+        wordCount: 2,
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-01-01T00:00:00Z',
+      },
+    });
+
+    const store = createStore();
+    const { result } = renderHookWithProviders(() => useAutoSave(docId), {
+      store,
+    });
+
+    await act(async () => {
+      result.current.scheduleAutoSave(newContent);
+      result.current.saveNow();
+    });
+
+    await vi.waitFor(() => {
+      expect(store.get(saveStatusAtom)).toBe('saved');
+    });
+
+    const cached = queryClient.getQueryData<{
+      documentById: { content: unknown[] };
+    }>(['document', docId]);
+    expect(cached?.documentById.content).toEqual(newContent);
   });
 });
