@@ -1,4 +1,6 @@
-# Nudo
+<img src="apps/web/src/assets/nudo-A-Editorial-Bold-transparent.svg" alt="nudo logo" height="32" />
+
+#
 
 A full-stack writing application built for long-form writing. Users organise their work into folders, write in a rich text editor with a customisable toolbar, and have their work saved automatically as they type.
 
@@ -10,7 +12,7 @@ A full-stack writing application built for long-form writing. Users organise the
 - **Document management** — create, rename, and delete documents
 - **Folder organisation** — group documents into folders with drag-and-drop reordering
 - **Auto-save** — content is saved automatically with a 2.5 s debounce; a status indicator shows save state
-- **Document versioning** — previous versions are stored automatically and can be restored
+- **Document versioning** — previous versions are stored automatically on save (restore exists as a database function but is not yet surfaced in the UI)
 - **Authentication** — JWT-based login and registration with access/refresh token rotation
 - **Word count** — live word count tracked per document
 
@@ -92,7 +94,7 @@ Do not use Jotai for data that comes from the server, and do not use TanStack Qu
 
 ## Getting Started
 
-**Prerequisites:** Node.js 20+, pnpm 10+, Docker
+**Prerequisites:** Node.js 20+, pnpm 11+, Docker
 
 ```bash
 # 1. Install dependencies
@@ -112,11 +114,12 @@ pnpm db:migrate
 pnpm dev
 ```
 
-| Service     | URL                           |
-| ----------- | ----------------------------- |
-| Web app     | http://localhost:5173         |
-| GraphQL API | http://localhost:3000/graphql |
-| Storybook   | http://localhost:6006         |
+| Service     | URL                            |
+| ----------- | ------------------------------ |
+| Web app     | http://localhost:5173          |
+| GraphQL API | http://localhost:3001/graphql  |
+| GraphiQL    | http://localhost:3001/graphiql |
+| Storybook   | http://localhost:6006          |
 
 No seed account is included — create one at `/login`.
 
@@ -194,9 +197,16 @@ PostGraphile auto-exposes queries and mutations for every table. For operations 
 Tests use **Vitest** and **Testing Library**. The web app uses **MSW (Mock Service Worker)** to intercept GraphQL requests at the network level — tests never call the real API.
 
 ```bash
-pnpm test:web   # Run all web tests
-pnpm test:api   # Run all API tests
+pnpm test:web       # Run web tests (Vitest)
+pnpm test:api       # Run API unit tests (fast, DB-free)
+pnpm test:api:int   # Run API integration tests (needs docker:up + test:db:setup)
 ```
+
+API tests are split: `pnpm test:api` runs unit tests only and never touches a
+database. Integration tests (`*.integration.test.ts`) hit a real Express +
+PostGraphile stack against the `nudo_test` database — start Docker
+(`pnpm docker:up`), create the test DB once (`pnpm test:db:setup`), then run
+`pnpm test:api:int`.
 
 **Run only the tests relevant to your change** — not the full suite:
 
@@ -212,16 +222,18 @@ MSW handlers are defined in `apps/web/src/test/mocks/`. The test setup (`src/tes
 
 ## Commands
 
-| Command            | Description                                   |
-| ------------------ | --------------------------------------------- |
-| `pnpm dev`         | Run web + api in parallel                     |
-| `pnpm test:web`    | Run web tests (Vitest)                        |
-| `pnpm test:api`    | Run API tests (Vitest)                        |
-| `pnpm storybook`   | UI component explorer (port 6006)             |
-| `pnpm lint`        | Lint entire monorepo                          |
-| `pnpm db:migrate`  | Run pending migrations (requires `docker:up`) |
-| `pnpm docker:up`   | Start PostgreSQL container                    |
-| `pnpm docker:down` | Stop PostgreSQL container                     |
+| Command              | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `pnpm dev`           | Run web + api in parallel                     |
+| `pnpm test:web`      | Run web tests (Vitest)                        |
+| `pnpm test:api`      | Run API unit tests (fast, DB-free)            |
+| `pnpm test:api:int`  | Run API integration tests (needs test DB)     |
+| `pnpm test:db:setup` | Create/migrate the `nudo_test` database       |
+| `pnpm storybook`     | UI component explorer (port 6006)             |
+| `pnpm lint`          | Lint entire monorepo                          |
+| `pnpm db:migrate`    | Run pending migrations (requires `docker:up`) |
+| `pnpm docker:up`     | Start PostgreSQL container                    |
+| `pnpm docker:down`   | Stop PostgreSQL container                     |
 
 > `pnpm test` (root) is not fully configured — use `pnpm test:web` or `pnpm test:api` instead.
 
