@@ -70,7 +70,6 @@ export interface SeededDocument {
   id: string;
   userId: string;
   title: string;
-  slug: string;
 }
 
 let docSeq = 0;
@@ -88,18 +87,16 @@ let docSeq = 0;
  */
 export async function createDocument(
   user: Pick<SeededUser, 'id'>,
-  overrides?: { title?: string; slug?: string }
+  overrides?: { title?: string }
 ): Promise<SeededDocument> {
   const n = ++docSeq;
   const title = overrides?.title ?? `Test Document ${n}`;
-  // Unique-by-default slug: documents has a unique (user_id, slug) index.
-  const slug = overrides?.slug ?? `test-document-${n}`;
 
   const { rows } = await getTestPool().query<{ id: string }>(
-    `INSERT INTO documents (user_id, title, slug)
-     VALUES ($1, $2, $3) RETURNING id`,
-    [user.id, title, slug]
+    `INSERT INTO documents (user_id, title)
+     VALUES ($1, $2) RETURNING id`,
+    [user.id, title]
   );
 
-  return { id: rows[0].id, userId: user.id, title, slug };
+  return { id: rows[0].id, userId: user.id, title };
 }

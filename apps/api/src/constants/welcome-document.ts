@@ -1,6 +1,5 @@
 export const WELCOME_DOCUMENT = {
   title: 'Welcome Document',
-  slug: 'welcome-document',
   content: [
     { type: 'h1', children: [{ text: 'Your Story Starts Here' }] },
     {

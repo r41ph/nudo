@@ -16,7 +16,8 @@ const ALL_DOCUMENTS = `{ allDocuments { nodes { id title } } }`;
 
 describe('authMiddleware on /graphql', () => {
   it('returns the authenticated user documents with a valid token', async () => {
-    // createUser registers through /auth/register, which seeds a welcome doc.
+    // createUser registers through /auth/register, which seeds the outline:
+    // a "Chapter One" folder holding the "Welcome Document".
     const user = await createUser();
 
     const res = await request(app)
@@ -26,8 +27,10 @@ describe('authMiddleware on /graphql', () => {
 
     expect(res.status).toBe(200);
     const nodes = res.body.data.allDocuments.nodes;
-    expect(nodes).toHaveLength(1);
-    expect(nodes[0].title).toBe('Welcome Document');
+    const titles = nodes.map((n: { title: string }) => n.title);
+    expect(titles).toEqual(
+      expect.arrayContaining(['Chapter One', 'Welcome Document'])
+    );
   });
 
   it('rejects a present-but-invalid Bearer token with 401', async () => {
