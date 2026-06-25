@@ -5,7 +5,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { PlusIcon } from 'lucide-react';
 import {
   GET_DOCUMENT,
-  CREATE_DOCUMENT,
+  CREATE_NODE,
 } from '@web/features/document/api/document.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
@@ -40,7 +40,6 @@ type GetDocumentResponse = {
   documentById: {
     id: string;
     title: string;
-    slug: string;
     content: Value;
     plainText: string;
     wordCount: number;
@@ -150,11 +149,17 @@ export function DocumentPage() {
   } = useMutation({
     mutationFn: (variables: { title: string; content: unknown }) =>
       graphqlClient.request<{
-        createNewDocument: { document: { id: string } };
-      }>(CREATE_DOCUMENT, variables),
+        createNode: { document: { id: string } };
+      }>(CREATE_NODE, {
+        kind: 'section',
+        parentId: null,
+        title: variables.title,
+        content: variables.content,
+      }),
     onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
-      navigate(`/document/${created.createNewDocument.document.id}`);
+      queryClient.invalidateQueries({ queryKey: ['outline'] });
+      navigate(`/document/${created.createNode.document.id}`);
     },
   });
 
@@ -179,7 +184,6 @@ export function DocumentPage() {
       setCurrentDocument({
         id: doc.id,
         title: doc.title,
-        slug: doc.slug,
         content: doc.content,
         wordCount: doc.wordCount,
       });

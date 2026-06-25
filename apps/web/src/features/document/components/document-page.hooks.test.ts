@@ -173,7 +173,6 @@ describe('useAutoSave', () => {
       documentById: {
         id: docId,
         title: 'Test Document',
-        slug: 'test-document',
         content: [{ type: 'p', children: [{ text: 'stale body' }] }],
         plainText: 'stale body',
         wordCount: 2,

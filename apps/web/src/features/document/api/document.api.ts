@@ -5,7 +5,6 @@ export const GET_DOCUMENT = gql`
     documentById(id: $id) {
       id
       title
-      slug
       content
       plainText
       wordCount
@@ -21,10 +20,9 @@ export const GET_DOCUMENTS = gql`
       nodes {
         id
         title
-        slug
         wordCount
         updatedAt
-        folderId
+        parentId
         position
       }
     }
@@ -47,18 +45,32 @@ export const GET_DOCUMENT_VERSIONS = gql`
   }
 `;
 
-export const CREATE_DOCUMENT = gql`
-  mutation CreateDocument($title: String, $content: JSON, $folderId: UUID) {
-    createNewDocument(
-      input: { docTitle: $title, docContent: $content, docFolderId: $folderId }
+// Creates any node (document | folder | separator) in the uniform tree.
+// parentId null = root. Used for the "+ Add" affordances and first-document flows.
+export const CREATE_NODE = gql`
+  mutation CreateNode(
+    $kind: String!
+    $parentId: UUID
+    $title: String
+    $content: JSON
+  ) {
+    createNode(
+      input: {
+        nodeKind: $kind
+        nodeParentId: $parentId
+        nodeTitle: $title
+        nodeContent: $content
+      }
     ) {
       document {
         id
         title
-        slug
         content
         wordCount
-        folderId
+        kind
+        status
+        parentId
+        position
         createdAt
         updatedAt
       }
