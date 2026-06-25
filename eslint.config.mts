@@ -15,6 +15,7 @@ export default defineConfig([
       '**/.next/**',
       '**/coverage/**',
       '**/.cache/**',
+      '**/storybook-static/**',
     ],
   },
   {
