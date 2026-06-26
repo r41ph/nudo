@@ -165,6 +165,41 @@ Keep all code for a feature inside its own directory. If two features need to sh
 The project includes configuration for Claude Code in the `.claude/` directory, including repository rules and reusable skills. It also uses the [agent-skills](https://github.com/addyosmani/agent-skills)
 plugin to enable structured multi-agent workflows and help Claude Code follow consistent conventions and development practices across the repository.
 
+### Grounding a feature: specs and design handoffs
+
+Every non-trivial feature is grounded in a **source of truth** before any code is
+written. There are two supported paths — pick whichever the work started from:
+
+- **Spec-driven** (`docs/specs/<feature>.md`) — you write a structured spec first,
+  via the `/spec` workflow, then implement against it.
+- **Design handoff** (`docs/design-handoffs/<feature>/`) — the work begins
+  **outside this repo**: a dev produces a prototype plus a scope doc in
+  [Claude design](https://claude.ai), then hands the bundle to Claude Code to
+  implement here. This is the path to follow whenever you bring in a Claude design
+  prototype.
+
+**If you create or receive a Claude design prototype, do this so the docs stay
+consistent:**
+
+1. **Commit the bundle** under `docs/design-handoffs/<feature>/` (kebab-case
+   feature name) as its own `docs:` commit. The bundle is a `README.md` (the
+   scope doc) plus the prototype files (HTML / JSX).
+2. **Treat the bundle's `README.md` as the contract.** Its "what changes vs.
+   current code" scope table is authoritative. The prototype files are a
+   **visual reference, not code to copy** — restyle and extend the existing
+   codebase using its own patterns and components, changing as little as
+   possible.
+3. **Implement in Claude Code** against that scope, following the normal branch +
+   PR flow below.
+4. **Link them.** Reference the bundle from the PR
+   (`Design handoff: docs/design-handoffs/<feature>/README.md`) and record the PR
+   URL back in the bundle's README. A committed handoff is **frozen** — don't keep
+   editing it as the implementation evolves; capture later changes in the PR or a
+   spec.
+
+The fuller version of this workflow lives in `CLAUDE.md` (Feature Workflow →
+Design-handoff workflow), which Claude Code reads automatically.
+
 ### Naming conventions
 
 - **Files:** kebab-case (`document-page.tsx`, `use-auto-save.ts`)

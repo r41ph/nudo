@@ -27,10 +27,13 @@ directly to `main`, or non-trivial and needs a branch + PR.
    `git fetch origin && git worktree add -b feature-name ../feature-name origin/main`).
    Worktrees keep branch state isolated so file changes don't leak across
    features. Never work on a shared branch.
-2. **Read the spec.** If `docs/specs/<feature>.md` exists, follow it. If not,
-   ask the human before proceeding — the feature should have been specced first.
-3. **Spec-driven development.** Implement exactly what the spec requires. If you
-   discover the spec is incomplete or wrong, flag it before coding further.
+2. **Read the source of truth.** A feature is grounded in **either** a spec
+   (`docs/specs/<feature>.md`) **or** a design handoff
+   (`docs/design-handoffs/<feature>/` — see below). If neither exists, ask the
+   human before proceeding — the feature should have been specced or handed off
+   first.
+3. **Implement from it.** Build exactly what the spec / handoff requires. If you
+   discover it is incomplete or wrong, flag it before coding further.
 4. **TDD.** Write failing tests first for logic and bug fixes (regression test
    before the fix). Satisfy every test layer the [required-tests
    matrix](.claude/rules/testing.md) mandates — unit + integration always;
@@ -43,15 +46,32 @@ directly to `main`, or non-trivial and needs a branch + PR.
 7. **Update docs.** If behavior, APIs, commands, or env vars change, update
    `CLAUDE.md` and `.claude/rules/*` if conventions changed.
 8. **Finalize the PR.** When all changes are committed, push the branch and open
-   the PR. Point the PR description at the spec (`Spec: docs/specs/<feature>.md`).
-   Then update the spec with the PR URL (`> Status: <state> (PR #NN — <url>)`)
-   and commit that into the same PR. The spec and PR must link to each other.
+   the PR. Point the PR description at the source of truth
+   (`Spec: docs/specs/<feature>.md` or
+   `Design handoff: docs/design-handoffs/<feature>/README.md`). Then record the
+   PR URL back in that doc (`> Status: <state> (PR #NN — <url>)`) and commit it
+   into the same PR. The doc and PR must link to each other.
 
 **Feature is done** when the [testing DoD](.claude/rules/testing.md) passes and
-the spec (if one exists) links to the PR.
+the spec or handoff (if one exists) links to the PR.
 
 **For trivial changes** (docs, config, typos): the human commits directly to
 `main`. You don't handle these.
+
+**Design-handoff workflow.** Some features arrive as a **design handoff** instead
+of a written spec: a prototype plus a scope doc produced in Claude design, then
+implemented here in Claude Code. They are two ends of one pipeline — the handoff
+is the _what/why_, the implementation is the _how_.
+
+- **Location:** one bundle per feature under `docs/design-handoffs/<feature>/`.
+- **Authoritative:** the bundle's `README.md` — its "what changes vs. current
+  code" scope table is the contract. The prototype files (HTML / Babel JSX) are
+  a **visual reference, not code to copy**: restyle/extend the existing codebase
+  with its own patterns and components, changing as little as possible.
+- **Frozen:** a committed handoff is a point-in-time reference; don't update it
+  as the implementation evolves. Capture later changes in the PR or a spec.
+- **Linking:** commit the bundle (a `docs:` commit) and reference it from the PR
+  like a spec (`Design handoff: docs/design-handoffs/<feature>/README.md`).
 
 ## Path Aliases
 
