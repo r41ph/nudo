@@ -95,79 +95,58 @@ describe('RLS: documents', () => {
   });
 });
 
-describe('RLS: folders', () => {
-  async function createFolder(user: SeededUser, name = 'A folder') {
-    const { rows } = await getTestPool().query<{ id: string }>(
-      'INSERT INTO folders (user_id, name) VALUES ($1, $2) RETURNING id',
-      [user.id, name]
+describe('RLS: outline functions', () => {
+  // Seed an A-owned folder + a doc nested in it, via the owner pool.
+  async function seedNestedDoc(owner: SeededUser) {
+    const folder = await getTestPool().query<{ id: string }>(
+      `INSERT INTO documents (user_id, title, kind)
+       VALUES ($1, 'A folder', 'folder') RETURNING id`,
+      [owner.id]
     );
-    return rows[0].id;
+    const doc = await getTestPool().query<{ id: string }>(
+      `INSERT INTO documents (user_id, title, kind, parent_id)
+       VALUES ($1, 'A doc', 'document', $2) RETURNING id`,
+      [owner.id, folder.rows[0].id]
+    );
+    return { folderId: folder.rows[0].id, docId: doc.rows[0].id };
   }
 
-  it('user B cannot read user A folder', async () => {
-    const folderId = await createFolder(userA, 'A secret folder');
+  it('user B cannot move user A node', async () => {
+    const { folderId, docId } = await seedNestedDoc(userA);
 
-    const res = await graphql<{ folderById: { id: string } | null }>(
-      `
-        query ($id: UUID!) {
-          folderById(id: $id) {
-            id
-            name
-          }
-        }
-      `,
-      { id: folderId },
-      userB.token
-    );
-
-    expect(res.data?.folderById).toBeNull();
-  });
-
-  it('user B cannot update user A folder', async () => {
-    const folderId = await createFolder(userA, 'Original');
-
+    // B tries to pull A's doc out to the root via move_and_reorder_node.
     await graphql(
       `
-        mutation ($id: UUID!, $name: String!) {
-          updateFolderById(input: { id: $id, folderPatch: { name: $name } }) {
-            folder {
-              id
-              name
+        mutation (
+          $nodeId: UUID!
+          $targetParentId: UUID
+          $nodePositions: JSON!
+        ) {
+          moveAndReorderNode(
+            input: {
+              nodeId: $nodeId
+              targetParentId: $targetParentId
+              nodePositions: $nodePositions
             }
+          ) {
+            clientMutationId
           }
         }
       `,
-      { id: folderId, name: 'Hijacked' },
+      {
+        nodeId: docId,
+        targetParentId: null,
+        nodePositions: [{ id: docId, position: 0 }],
+      },
       userB.token
     );
 
-    const { rows } = await getTestPool().query<{ name: string }>(
-      'SELECT name FROM folders WHERE id = $1',
-      [folderId]
+    // The function's `user_id = current_uid` guard leaves A's node untouched.
+    const { rows } = await getTestPool().query<{ parent_id: string | null }>(
+      'SELECT parent_id FROM documents WHERE id = $1',
+      [docId]
     );
-    expect(rows[0].name).toBe('Original');
-  });
-
-  it('user B cannot delete user A folder', async () => {
-    const folderId = await createFolder(userA);
-
-    await graphql(
-      `
-        mutation ($id: UUID!) {
-          deleteFolderById(input: { id: $id }) {
-            deletedFolderId
-          }
-        }
-      `,
-      { id: folderId },
-      userB.token
-    );
-
-    const { rowCount } = await getTestPool().query(
-      'SELECT 1 FROM folders WHERE id = $1',
-      [folderId]
-    );
-    expect(rowCount).toBe(1);
+    expect(rows[0].parent_id).toBe(folderId);
   });
 });
 

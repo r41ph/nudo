@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { isAuthenticatedAtom } from '@web/features/auth/state/auth.store';
 import {
   GET_DOCUMENTS,
-  CREATE_DOCUMENT,
+  CREATE_NODE,
 } from '@web/features/document/api/document.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
@@ -32,11 +32,17 @@ export function HomePage() {
   } = useMutation({
     mutationFn: (variables: { title: string; content: unknown }) =>
       graphqlClient.request<{
-        createNewDocument: { document: { id: string } };
-      }>(CREATE_DOCUMENT, variables),
+        createNode: { document: { id: string } };
+      }>(CREATE_NODE, {
+        kind: 'section',
+        parentId: null,
+        title: variables.title,
+        content: variables.content,
+      }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
-      navigate(`/document/${data.createNewDocument.document.id}`);
+      queryClient.invalidateQueries({ queryKey: ['outline'] });
+      navigate(`/document/${data.createNode.document.id}`);
     },
   });
 

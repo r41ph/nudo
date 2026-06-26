@@ -4,12 +4,12 @@ import { normalizeNodeId } from 'platejs';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { MainEditor } from '@ui/components/main-editor/main-editor';
-import { EditorToolbarDialog } from '@web/components/toolbar-dialog/toolbar-dialog';
-import { TOOLBAR_TOOLS } from '@web/constants/toolbar.constants';
-import { dialogAtom } from '@web/state/dialog.atom';
-import { enabledToolsAtom } from '@web/state/toolbar.atom';
-import type { ToolbarToolName } from '@web/features/toolbar/types';
-import { DIALOG } from '@web/constants/dialog.constants';
+import { EditorToolbarDialog } from '@web/features/toolbar/components/toolbar-dialog';
+import { TOOLBAR_TOOLS } from '@web/features/toolbar/toolbar.constants';
+import { dialogAtom } from '@web/shared/state/dialog.atom';
+import { enabledToolsAtom } from '@web/features/toolbar/state/toolbar.store';
+import type { ToolbarToolName } from '@web/features/toolbar/toolbar.types';
+import { DIALOG } from '@web/shared/state/dialog.constants';
 
 const ALL_TOOLS = Object.keys(TOOLBAR_TOOLS);
 

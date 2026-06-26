@@ -1,7 +1,7 @@
 /**
- * SQL-function mutations for documents, exercised through GraphQL:
- * create_new_document, update_document_content (word count + version row), and
- * restore_document_version.
+ * Content SQL-function mutations for documents, exercised through GraphQL:
+ * update_document_content (word count + version row) and
+ * restore_document_version. (Node creation lives in outline.integration.test.)
  */
 import { describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';
@@ -24,46 +24,6 @@ const UPDATE_CONTENT = `
     }
   }
 `;
-
-describe('create_new_document', () => {
-  it('derives the slug from the title and computes the word count', async () => {
-    const user = await createUser();
-
-    const res = await graphql<{
-      createNewDocument: {
-        document: {
-          slug: string;
-          title: string;
-          wordCount: number;
-          folderId: string | null;
-        };
-      };
-    }>(
-      `
-        mutation ($title: String, $content: JSON) {
-          createNewDocument(input: { docTitle: $title, docContent: $content }) {
-            document {
-              id
-              title
-              slug
-              wordCount
-              folderId
-            }
-          }
-        }
-      `,
-      { title: 'My First Doc', content: richText('one two three') },
-      user.token
-    );
-
-    expect(res.errors).toBeUndefined();
-    const doc = res.data?.createNewDocument.document;
-    expect(doc?.title).toBe('My First Doc');
-    expect(doc?.slug).toBe('my-first-doc');
-    expect(doc?.wordCount).toBe(3);
-    expect(doc?.folderId).toBeNull();
-  });
-});
 
 describe('update_document_content', () => {
   it('recomputes the word count and records a version row', async () => {

@@ -31,7 +31,6 @@ export type GetDiscussionsResult = {
 export interface DocumentData {
   id: string;
   title: string;
-  slug: string;
   content: unknown[];
   wordCount: number;
 }

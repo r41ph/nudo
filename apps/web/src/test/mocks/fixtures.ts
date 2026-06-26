@@ -9,7 +9,6 @@ export const MOCK_TOKEN = 'fake-jwt-token-for-testing';
 export const MOCK_DOCUMENT = {
   id: '11111111-2222-3333-4444-555566667777',
   title: 'Test Document',
-  slug: 'test-document',
   content: [{ type: 'p', children: [{ text: 'Hello world' }] }],
   plainText: 'Hello world',
   wordCount: 2,
@@ -22,7 +21,6 @@ export const MOCK_DOCUMENT = {
 export const MOCK_DOCUMENT_2 = {
   id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeffff0000',
   title: 'Second Document',
-  slug: 'second-document',
   content: [{ type: 'p', children: [{ text: 'Another doc' }] }],
   plainText: 'Another doc',
   wordCount: 2,

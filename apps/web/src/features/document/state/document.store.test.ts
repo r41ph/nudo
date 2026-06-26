@@ -6,7 +6,6 @@ import type { DocumentData } from '@web/features/document/document.types';
 const makeDoc = (overrides: Partial<DocumentData> = {}): DocumentData => ({
   id: 'doc-1',
   title: 'My Doc',
-  slug: 'my-doc',
   content: [],
   wordCount: 0,
   ...overrides,

@@ -35,19 +35,37 @@ authRouter.post('/register', async (req: Request, res: Response) => {
     const user = result.rows[0];
     const token = signToken({ userId: user.id, email: user.email });
 
-    // Create a welcome document for the new user
-    await pool.query(
-      `INSERT INTO documents (user_id, title, slug, content, plain_text, word_count)
-       VALUES ($1, $2, $3, $4::jsonb, $5, $6)`,
-      [
-        user.id,
-        WELCOME_DOCUMENT.title,
-        WELCOME_DOCUMENT.slug,
-        JSON.stringify(WELCOME_DOCUMENT.content),
-        WELCOME_DOCUMENT.plainText,
-        WELCOME_WORD_COUNT,
-      ]
-    );
+    // Seed the new user's outline. Most books have no "parts", so seed the
+    // common case: one Chapter at the root holding the welcome Section. Both
+    // are just documents in the uniform tree, created atomically.
+    const seed = await pool.connect();
+    try {
+      await seed.query('BEGIN');
+      const chapter = await seed.query(
+        `INSERT INTO documents (user_id, parent_id, kind, status, title, content, plain_text, word_count, position)
+         VALUES ($1, NULL, 'folder', 'drafting', 'Chapter One', '[]'::jsonb, '', 0, 0)
+         RETURNING id`,
+        [user.id]
+      );
+      await seed.query(
+        `INSERT INTO documents (user_id, parent_id, kind, title, content, plain_text, word_count, position)
+         VALUES ($1, $2, 'document', $3, $4::jsonb, $5, $6, 0)`,
+        [
+          user.id,
+          chapter.rows[0].id,
+          WELCOME_DOCUMENT.title,
+          JSON.stringify(WELCOME_DOCUMENT.content),
+          WELCOME_DOCUMENT.plainText,
+          WELCOME_WORD_COUNT,
+        ]
+      );
+      await seed.query('COMMIT');
+    } catch (seedErr) {
+      await seed.query('ROLLBACK');
+      throw seedErr;
+    } finally {
+      seed.release();
+    }
     res.status(201).json({
       token,
       user: {
