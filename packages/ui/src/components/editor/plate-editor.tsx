@@ -135,7 +135,7 @@ export function PlateEditor({
   }, [editor, discussionData]);
 
   return (
-    <div className="bg-[#FAF9F6] dark:bg-card shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(255,255,255,0.3)] rounded-sm overflow-hidden">
+    <div className="bg-background dark:bg-card shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(255,255,255,0.3)] rounded-sm overflow-hidden">
       <Plate
         editor={editor}
         onValueChange={({ value }) => {
@@ -230,7 +230,7 @@ export function PlateEditor({
 
         {/* TO-DO: <FixedToolbar className="border-b border-gray-300 px-2"></FixedToolbar> */}
 
-        <EditorContainer variant="default">
+        <EditorContainer variant="default" className="leaf-prose">
           <Editor variant="default" placeholder="Type..." />
         </EditorContainer>
         {children}

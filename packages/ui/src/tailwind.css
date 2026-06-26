@@ -168,3 +168,29 @@
     list-style: none;
   }
 }
+
+/* Leaf editorial prose: a Newsreader serif body with generous leading and a
+   drop cap on the opening paragraph. Scoped to the editor content so chrome is
+   unaffected; code keeps its monospace face. */
+.leaf-prose [data-slate-editor='true'] {
+  font-family: var(--font-serif);
+  color: var(--prose);
+  font-size: 1.25rem;
+  line-height: 1.72;
+}
+/* Paragraphs render as <div>; headings/blockquotes use their own tags, so this
+   only drop-caps a document that opens with a paragraph. */
+.leaf-prose
+  [data-slate-editor='true']
+  > div[data-slate-node='element']:first-child::first-letter {
+  float: left;
+  margin-right: 0.08em;
+  font-size: 3.1em;
+  font-weight: 500;
+  line-height: 0.84;
+  color: var(--foreground);
+}
+.leaf-prose [data-slate-editor='true'] code,
+.leaf-prose [data-slate-editor='true'] pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}

@@ -4,6 +4,7 @@ import { SaveBar } from '@web/shared/components/save-bar';
 import { Button } from '@ui/components/ui/button';
 import { Icon } from '@ui/components/icon/icon';
 import { isFocusModeAtom } from '@web/shared/state/focus-mode.atom';
+import { EditorTopBar } from '@web/features/document/components/editor-top-bar';
 
 export function DocumentLayout({ children }: { children: ReactNode }) {
   const [isFocusMode, setFocusMode] = useAtom(isFocusModeAtom);
@@ -24,9 +25,7 @@ export function DocumentLayout({ children }: { children: ReactNode }) {
           </Button>
         </div>
       ) : (
-        <div className="flex justify-end px-8 py-2">
-          <SaveBar />
-        </div>
+        <EditorTopBar />
       )}
       <main className="flex flex-1 justify-center px-8 py-10">
         <div className="w-full max-w-200">{children}</div>

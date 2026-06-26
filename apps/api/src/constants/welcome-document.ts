@@ -1,7 +1,7 @@
 export const WELCOME_DOCUMENT = {
   title: 'Welcome Document',
   content: [
-    { type: 'h1', children: [{ text: 'Your Story Starts Here' }] },
+    { type: 'p', children: [{ text: 'Your Story Starts Here' }] },
     {
       type: 'p',
       children: [
