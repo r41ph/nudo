@@ -151,7 +151,7 @@ export function DocumentPage() {
       graphqlClient.request<{
         createNode: { document: { id: string } };
       }>(CREATE_NODE, {
-        kind: 'section',
+        kind: 'document',
         parentId: null,
         title: variables.title,
         content: variables.content,

@@ -7,7 +7,7 @@ import { SidebarFooter } from '@ui/components/ui/sidebar';
 import { useLogout } from '@web/features/auth/hooks/use-logout';
 import { CREATE_NODE } from '@web/features/document/api/document.api';
 import { AddNodeMenu } from '@web/features/outline/components/add-node-menu';
-import type { NodeKind } from '@web/features/outline/outline.types';
+import type { NodeKind } from '@web/shared/types/outline.types';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
 

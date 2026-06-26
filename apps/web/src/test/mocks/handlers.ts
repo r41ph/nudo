@@ -48,10 +48,10 @@ export const handlers = [
   }),
 
   // GraphQL mutations
-  graphql.mutation('CreateDocument', () => {
+  graphql.mutation('CreateNode', () => {
     return HttpResponse.json({
       data: {
-        createNewDocument: {
+        createNode: {
           document: MOCK_DOCUMENT,
         },
       },

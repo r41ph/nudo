@@ -1,4 +1,4 @@
-import type { OutlineNode } from '@web/features/outline/outline.types';
+import type { OutlineNode } from '@web/shared/types/outline.types';
 import type { TreeMap } from '@web/features/outline/components/outline-tree.types';
 
 /**

@@ -7,7 +7,7 @@ import { NodeStatusControl } from '@web/features/outline/components/status-contr
 import { AddNodeMenu } from '@web/features/outline/components/add-node-menu';
 import { RowGrip } from '@web/features/outline/components/row-grip';
 import { useInlineRename } from '@web/features/outline/components/use-inline-rename';
-import type { NodeKind, NodeStatus } from '@web/features/outline/outline.types';
+import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 
 interface OutlineRowProps {
   id: string;

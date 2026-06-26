@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@ui/components/ui/dropdown-menu';
 import { cn } from '@ui/lib/utils';
-import type { NodeStatus } from '@web/features/outline/outline.types';
+import type { NodeStatus } from '@web/shared/types/outline.types';
 
 const STATUS_LABELS: Record<NodeStatus, string> = {
   planned: 'Planned',
