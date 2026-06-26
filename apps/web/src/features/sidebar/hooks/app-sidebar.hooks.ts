@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { MOVE_AND_REORDER_NODE } from '@web/features/outline/api/outline.api';
+import { MOVE_AND_REORDER_NODE } from '@web/shared/api/outline.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
 import type { Positions } from '@web/features/outline/components/outline-tree.types';

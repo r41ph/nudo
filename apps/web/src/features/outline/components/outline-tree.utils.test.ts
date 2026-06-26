@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildTreeMap } from '@web/features/outline/components/outline-tree.utils';
 import type { TreeMap } from '@web/features/outline/components/outline-tree.types';
-import type { OutlineNode } from '@web/features/outline/outline.types';
+import type { OutlineNode } from '@web/shared/types/outline.types';
 
 const node = (id: string, over: Partial<OutlineNode> = {}): OutlineNode => ({
   id,

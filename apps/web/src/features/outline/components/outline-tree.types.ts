@@ -1,4 +1,4 @@
-import type { NodeKind, NodeStatus } from '@web/features/outline/outline.types';
+import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 
 /** Per-node data carried in the headless-tree map. */
 export type OutlineTreeData =

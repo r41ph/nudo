@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@ui/components/ui/dropdown-menu';
-import type { NodeKind } from '@web/features/outline/outline.types';
+import type { NodeKind } from '@web/shared/types/outline.types';
 
 const KIND_META: { kind: NodeKind; label: string; icon: IconName }[] = [
   { kind: 'document', label: 'Document', icon: 'fileText' },

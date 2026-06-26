@@ -10,7 +10,7 @@ import type {
   NodeKind,
   NodeStatus,
   OutlineNode,
-} from '@web/features/outline/outline.types';
+} from '@web/shared/types/outline.types';
 
 const { navigateSpy } = vi.hoisted(() => ({ navigateSpy: vi.fn() }));
 

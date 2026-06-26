@@ -27,7 +27,7 @@ import {
   buildTreeMap,
   createTreeStore,
 } from '@web/features/outline/components/outline-tree.utils';
-import type { OutlineNode } from '@web/features/outline/outline.types';
+import type { OutlineNode } from '@web/shared/types/outline.types';
 
 /** Ancestors of the active node, so we can auto-expand the path to it. */
 function ancestorIds(
