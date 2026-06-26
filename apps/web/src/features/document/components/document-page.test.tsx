@@ -157,10 +157,17 @@ describe('DocumentPage', () => {
 
   it('creates a document from the placeholder and navigates to it', async () => {
     mockParams = { id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' };
+    let createKind: unknown;
     server.use(
       graphql.query('GetDocument', () =>
         HttpResponse.json({ data: { documentById: null } })
-      )
+      ),
+      graphql.mutation('CreateNode', ({ variables }) => {
+        createKind = variables.kind;
+        return HttpResponse.json({
+          data: { createNode: { document: MOCK_DOCUMENT } },
+        });
+      })
     );
 
     const store = createStore();
@@ -173,10 +180,12 @@ describe('DocumentPage', () => {
       await screen.findByRole('button', { name: /new document/i })
     );
 
-    // Default CreateDocument handler returns MOCK_DOCUMENT.
     await waitFor(() =>
       expect(mockNavigate).toHaveBeenCalledWith(`/document/${MOCK_DOCUMENT.id}`)
     );
+    // The placeholder must create a writable 'document' — not an invalid kind
+    // that the DB's `kind` CHECK constraint would reject.
+    expect(createKind).toBe('document');
   });
 
   it('surfaces a failure when creating from the placeholder fails', async () => {
@@ -185,7 +194,7 @@ describe('DocumentPage', () => {
       graphql.query('GetDocument', () =>
         HttpResponse.json({ data: { documentById: null } })
       ),
-      graphql.mutation('CreateDocument', () =>
+      graphql.mutation('CreateNode', () =>
         HttpResponse.json(
           { errors: [{ message: 'Create failed' }] },
           { status: 500 }
