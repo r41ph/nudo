@@ -1,10 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { MemoryRouter } from 'react-router-dom';
 import { EditorBreadcrumb } from '@web/features/document/components/editor-breadcrumb';
 
 const meta = {
   title: 'Editor/EditorBreadcrumb',
   component: EditorBreadcrumb,
   parameters: { layout: 'padded' },
+  decorators: [
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 } satisfies Meta<typeof EditorBreadcrumb>;
 
 export default meta;
