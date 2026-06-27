@@ -1,10 +1,12 @@
 import { Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import type { Crumb } from '@web/features/document/hooks/use-breadcrumb';
 
 /**
- * Presentational ancestor breadcrumb for the editor top bar: ancestors muted,
- * the open document emphasised, faint `/` separators. Pure — the ancestry is
- * computed by `useBreadcrumb` and passed in.
+ * Presentational ancestor breadcrumb for the editor top bar: ancestors are
+ * muted links to their own document, the open document emphasised and inert,
+ * faint `/` separators. Pure — the ancestry is computed by `useBreadcrumb` and
+ * passed in.
  */
 export function EditorBreadcrumb({ crumbs }: { crumbs: Crumb[] }) {
   return (
@@ -21,16 +23,21 @@ export function EditorBreadcrumb({ crumbs }: { crumbs: Crumb[] }) {
                 /
               </span>
             )}
-            <span
-              className={
-                isLast
-                  ? 'truncate font-medium text-foreground'
-                  : 'truncate text-muted-foreground'
-              }
-              aria-current={isLast ? 'page' : undefined}
-            >
-              {crumb.title}
-            </span>
+            {isLast ? (
+              <span
+                className="truncate font-medium text-foreground"
+                aria-current="page"
+              >
+                {crumb.title}
+              </span>
+            ) : (
+              <Link
+                to={`/document/${crumb.id}`}
+                className="truncate rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {crumb.title}
+              </Link>
+            )}
           </Fragment>
         );
       })}
