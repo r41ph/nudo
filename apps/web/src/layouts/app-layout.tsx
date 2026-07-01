@@ -10,8 +10,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const isFocusMode = useAtomValue(isFocusModeAtom);
   const isEditorRoute = useIsEditorRoute();
 
-  // The editor route renders its own consolidated top bar (EditorTopBar), so the
-  // global chrome is suppressed there as well as in focus mode.
+  // `TopBar` is the global app chrome (wordmark + theme switch) for non-editor
+  // pages — future projects/settings lists, logged-out pages, etc. Reuse/extend
+  // it for those rather than building a new header. Today the only such page is
+  // the no-documents empty state, since `/` redirects into the editor once any
+  // document exists; the editor route renders `EditorTopBar` instead, and focus
+  // mode hides all chrome.
   const showTopBar = !isFocusMode && !isEditorRoute;
 
   return (

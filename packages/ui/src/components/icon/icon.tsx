@@ -26,6 +26,7 @@ import {
   PilcrowIcon,
   Plus,
   Quote,
+  SettingsIcon,
   StrikethroughIcon,
   SunIcon,
   Trash2Icon,
@@ -62,6 +63,7 @@ const icons = {
   minimize: Minimize2Icon,
   moon: MoonIcon,
   pen: PenIcon,
+  settings: SettingsIcon,
   sun: SunIcon,
   trash: Trash2Icon,
 } as const;
