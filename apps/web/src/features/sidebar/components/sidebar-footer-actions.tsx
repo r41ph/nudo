@@ -54,10 +54,11 @@ export function SidebarFooterActions() {
         align="start"
         trigger={
           <Button
+            variant="ghost"
             disabled={isPending}
-            className="w-full gap-2 bg-sidebar-action text-sidebar-action-foreground hover:bg-sidebar-action/90 hover:text-sidebar-action-foreground text-xs font-semibold uppercase tracking-widest"
+            className="w-full justify-start gap-2 px-2 text-sm font-normal text-muted-foreground hover:bg-transparent hover:text-accent-foreground"
           >
-            <Icon name="plus" className="h-3.5 w-3.5" />
+            <Icon name="plus" className="h-4 w-4" />
             New
           </Button>
         }
