@@ -25,5 +25,14 @@ export const FontKit = [
   }),
   FontBackgroundColorPlugin.configure(options),
   FontSizePlugin.configure(options),
-  FontFamilyPlugin.configure(options),
+  // The app has no font-family picker: a `fontFamily` mark can only enter the
+  // document by pasting HTML from outside (Word, Google Docs, the web), where it
+  // overrides the app's own typography. Disable the plugin's HTML deserializer
+  // so external font families are dropped on paste and the app font wins.
+  // In-app copy/paste is unaffected — it round-trips through Slate's fragment
+  // data, not HTML deserialization.
+  FontFamilyPlugin.configure({
+    ...options,
+    parsers: { html: { deserializer: { query: () => false } } },
+  }),
 ];
