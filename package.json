@@ -27,8 +27,8 @@
     "prepare": "husky"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "r41ph",
+  "license": "MIT",
   "packageManager": "pnpm@11.3.0",
   "lint-staged": {
     "*.{ts,tsx,mts,mjs,js}": [
