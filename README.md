@@ -2,6 +2,9 @@
 
 #
 
+[![CI](https://github.com/r41ph/nudo/actions/workflows/ci.yml/badge.svg)](https://github.com/r41ph/nudo/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A full-stack writing application built for long-form writing. Users organise their work into folders, write in a rich text editor with a customisable toolbar, and have their work saved automatically as they type.
 
 ## Features
@@ -44,7 +47,7 @@ The frontend is organised by **feature** rather than by type:
 src/features/
   auth/
   document/
-  folder/
+  outline/
   toolbar/
   sidebar/
   ...
@@ -101,8 +104,8 @@ Do not use Jotai for data that comes from the server, and do not use TanStack Qu
 pnpm install
 
 # 2. Copy and fill in environment variables (see Environment Variables below)
-cp apps/web/.env.example apps/web/.env
-cp apps/api/.env.example apps/api/.env
+cp .env.example .env                    # API — read from the repo root
+cp apps/web/.env.example apps/web/.env  # web
 
 # 3. Start PostgreSQL
 pnpm docker:up
@@ -276,14 +279,14 @@ MSW handlers are defined in `apps/web/src/test/mocks/`. The test setup (`src/tes
 
 ## Environment Variables
 
-Copy the `.env.example` files in each app to `.env` and fill in any placeholders:
+The API reads a single `.env` at the **repo root**; the web app reads its own `apps/web/.env` (Vite convention). Copy both examples and fill in any placeholders:
 
 ```bash
-cp apps/web/.env.example apps/web/.env
-cp apps/api/.env.example apps/api/.env
+cp .env.example .env                    # API — repo root
+cp apps/web/.env.example apps/web/.env  # web
 ```
 
-`apps/api/.env.example` uses the dev credentials defined in `docker-compose.yml`. Replace `JWT_SECRET` and `JWT_REFRESH_SECRET` with random strings before running the API.
+The root `.env.example` uses the dev credentials defined in `docker-compose.yml`. Replace `JWT_SECRET` with a random string before running the API.
 
 ---
 
@@ -404,4 +407,4 @@ git commit --no-verify
 git push --no-verify
 ```
 
-Use sparingly — CI will eventually run the same checks.
+Use sparingly — CI runs the same checks (lint, typecheck, tests) on every push and PR.
