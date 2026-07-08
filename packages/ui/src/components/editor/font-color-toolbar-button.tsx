@@ -141,7 +141,6 @@ function PureColorPicker({
   colors,
   // customColors,
   updateColor,
-  updateCustomColor,
   ...props
 }: React.ComponentProps<'div'> & {
   colors: TColor[];

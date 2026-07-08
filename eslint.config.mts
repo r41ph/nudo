@@ -16,6 +16,10 @@ export default defineConfig([
       '**/coverage/**',
       '**/.cache/**',
       '**/storybook-static/**',
+      // Design-handoff prototypes: visual reference only, not linted.
+      'docs/**',
+      // shadcn-managed UI primitives (packages/ui/src/components/ui), not linted.
+      'packages/ui/src/components/ui/**',
     ],
   },
   {

@@ -85,7 +85,7 @@ export function EditorToolbarDialog() {
         <DialogHeader className="shrink-0">
           <DialogTitle>Select Editor tools</DialogTitle>
           <DialogDescription>
-            Select all the tools you want to use in the editor's toolbar.
+            Select all the tools you want to use in the editor&apos;s toolbar.
           </DialogDescription>
         </DialogHeader>
         <ToolbarPreview enabledTools={enabledTools} />
