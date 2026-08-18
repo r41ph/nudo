@@ -14,6 +14,14 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+    server: {
+      deps: {
+        // packages/ui editor modules pull in Plate packages that import CSS
+        // (e.g. @platejs/math -> katex.min.css). Node cannot load `.css`, so
+        // these must be transformed by Vite instead of externalized.
+        inline: [/@platejs\//, 'katex'],
+      },
+    },
     include: ['src/**/*.test.{ts,tsx}'],
     coverage: {
       provider: 'v8',
