@@ -10,6 +10,14 @@ services:
       POSTGRES_DB: ${DB_NAME:-nudo}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    # Lets `docker compose up -d --wait` block until Postgres actually accepts
+    # connections, instead of returning as soon as the container is created.
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-nudo} -d ${DB_NAME:-nudo}']
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 5s
 
 volumes:
   pgdata:

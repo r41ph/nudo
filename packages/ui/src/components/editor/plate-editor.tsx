@@ -1,4 +1,4 @@
-import type { Value } from 'platejs';
+import { KEYS, type Value } from 'platejs';
 import { Plate, usePlateEditor } from 'platejs/react';
 import { type ReactNode, useEffect } from 'react';
 
@@ -20,7 +20,7 @@ import { Editor, EditorContainer } from '@ui/components/ui/editor';
 import { FloatingToolbar } from '@ui/components/ui/floating-toolbar';
 import { MarkToolbarButton } from '@ui/components/ui/mark-toolbar-button';
 import { SuggestionToolbarButton } from '@ui/components/ui/suggestion-toolbar-button';
-import { ToolbarButton, ToolbarGroup } from '@ui/components/ui/toolbar';
+import { ToolbarGroup } from '@ui/components/ui/toolbar';
 import {
   BoldIcon,
   ItalicIcon,
@@ -37,6 +37,9 @@ import {
 import { TurnIntoToolbarButton } from '@ui/components/ui/turn-into-toolbar-button';
 import { FontSizeToolbarButton } from '@ui/components/editor/font-size-toolbar-button';
 import { FontColorToolbarButton } from '@ui/components/editor/font-color-toolbar-button';
+import { setBlockType } from '@ui/components/editor/transforms';
+import { BlockToolbarButton } from '@ui/components/editor/block-toolbar-button';
+import { stripUnknownMarks } from '@ui/components/editor/sanitize-content';
 import { ToolbarCustomButton } from '../toolbar-custom-button/toolbar-custom-button';
 
 export function PlateEditor({
@@ -69,7 +72,7 @@ export function PlateEditor({
     ],
     value:
       initialContent && initialContent.length > 0
-        ? (initialContent as Value)
+        ? stripUnknownMarks(initialContent as Value)
         : undefined,
   });
 
@@ -157,9 +160,13 @@ export function PlateEditor({
           <ToolbarGroup>
             {isEnabled('fontSize') && <FontSizeToolbarButton />}
             {isEnabled('paragraph') && (
-              <MarkToolbarButton nodeType="pilcrow" tooltip="Text (Ctrl+Alt+0)">
+              <BlockToolbarButton
+                nodeType={KEYS.p}
+                onTransform={() => setBlockType(editor, KEYS.p)}
+                tooltip="Text (⌘+Alt+0)"
+              >
                 <PilcrowIcon />
-              </MarkToolbarButton>
+              </BlockToolbarButton>
             )}
             {isEnabled('bold') && (
               <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
@@ -185,28 +192,31 @@ export function PlateEditor({
               </MarkToolbarButton>
             )}
             {isEnabled('blockquote') && (
-              <ToolbarButton
-                onClick={() => editor.tf.blockquote.toggle()}
+              <BlockToolbarButton
+                nodeType={KEYS.blockquote}
+                onTransform={() => editor.tf.blockquote.toggle()}
                 tooltip="Blockquote (⌘+Shift+>)"
               >
                 <Quote />
-              </ToolbarButton>
+              </BlockToolbarButton>
             )}
+            {/* Keyed `codeBlock` for backwards-compat with persisted toolbar
+                settings, but this applies an inline code mark. */}
             {isEnabled('codeBlock') && (
-              <ToolbarButton
-                onClick={() => editor.tf.code.toggle()}
-                tooltip="Code Block (Ctrl+E)"
+              <MarkToolbarButton
+                nodeType={KEYS.code}
+                tooltip="Inline code (⌘+E)"
               >
                 <CodeIcon />
-              </ToolbarButton>
+              </MarkToolbarButton>
             )}
             {isEnabled('highlightColor') && (
-              <ToolbarButton
-                onClick={() => editor.tf.highlight.toggle()}
-                tooltip="Highlight (Ctrl+Shift+H)"
+              <MarkToolbarButton
+                nodeType={KEYS.highlight}
+                tooltip="Highlight (⌘+Shift+H)"
               >
                 <HighlighterIcon />
-              </ToolbarButton>
+              </MarkToolbarButton>
             )}
             {isEnabled('headings') && <TurnIntoToolbarButton />}
             {isEnabled('textAlignment') && <AlignToolbarButton />}

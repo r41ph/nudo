@@ -8,7 +8,9 @@ export const TOOLBAR_TOOLS = {
   underline: 'Underline',
   strikethrough: 'Strike through',
   blockquote: 'Blockquote',
-  codeBlock: 'Code Block',
+  // Keyed `codeBlock` for backwards-compat with persisted toolbar settings, but
+  // the button applies an inline code mark (there is no code-block plugin).
+  codeBlock: 'Inline Code',
   highlightColor: 'Highlight Color',
   headings: 'Headings',
   textAlignment: 'Text Alignment',

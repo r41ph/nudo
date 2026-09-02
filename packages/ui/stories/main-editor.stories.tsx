@@ -95,3 +95,14 @@ export const AllTools: Story = {
     enabledTools: ALL_TOOLS,
   },
 };
+
+/**
+ * Block-type tools only. Select the heading and press ¶ to send it back to body
+ * text — the button should light up while the caret sits in a paragraph, and
+ * the toolbar should stay open with the caret intact after each press.
+ */
+export const BlockTypeTools: Story = {
+  args: {
+    enabledTools: ['paragraph', 'headings', 'blockquote'],
+  },
+};

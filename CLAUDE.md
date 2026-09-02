@@ -1,7 +1,8 @@
 ## Commands
 
 ```bash
-pnpm dev                   # Run web + api in parallel
+pnpm dev                   # Start PostgreSQL (waits for healthy), then web + api in parallel
+pnpm dev:web               # Web only — no Docker needed
 pnpm test:web              # Run web tests (Vitest)
 pnpm test:api              # Run API unit tests (fast, DB-free)
 pnpm test:api:int          # Run API integration tests (needs docker:up + test:db:setup)
@@ -9,7 +10,7 @@ pnpm test:db:setup         # Create/migrate the nudo_test database
 pnpm storybook             # UI component explorer (port 6006)
 pnpm lint                  # Lint entire monorepo
 pnpm db:migrate            # Run pending migrations (requires docker:up)
-pnpm docker:up             # Start PostgreSQL
+pnpm docker:up             # Start PostgreSQL and wait until it accepts connections
 ```
 
 Note: `pnpm test` (root) fails because `packages/ui` has no test runner configured yet — use `pnpm test:web` instead.
