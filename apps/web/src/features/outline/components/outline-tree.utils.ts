@@ -65,6 +65,25 @@ export function buildTreeMap(nodes: OutlineNode[]): TreeMap {
   return map;
 }
 
+/**
+ * How many nodes sit inside `id`'s subtree, excluding `id` itself — the blast
+ * radius a cascading delete would take with it. The `seen` set keeps this
+ * terminating even if the map ever contained a cycle.
+ */
+export function countDescendants(map: TreeMap, id: string): number {
+  const seen = new Set([id]);
+  const stack = [...(map[id]?.children ?? [])];
+  let count = 0;
+  while (stack.length) {
+    const current = stack.pop() as string;
+    if (seen.has(current)) continue;
+    seen.add(current);
+    count++;
+    stack.push(...(map[current]?.children ?? []));
+  }
+  return count;
+}
+
 export type TreeStore = {
   getSnapshot: () => TreeMap;
   subscribe: (listener: () => void) => () => void;

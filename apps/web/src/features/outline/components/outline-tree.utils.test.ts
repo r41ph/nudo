@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { buildTreeMap } from '@web/features/outline/components/outline-tree.utils';
+import {
+  buildTreeMap,
+  countDescendants,
+} from '@web/features/outline/components/outline-tree.utils';
 import type { TreeMap } from '@web/features/outline/components/outline-tree.types';
 import type { OutlineNode } from '@web/shared/types/outline.types';
 
@@ -91,5 +94,39 @@ describe('buildTreeMap', () => {
     expect(nodeItem(map, 'leaf').wordCount).toBe(4); // own only
     expect(nodeItem(map, 'sub').wordCount).toBe(5); // 1 + 4
     expect(nodeItem(map, 'f').wordCount).toBe(5); // 0 + 5
+  });
+});
+
+describe('countDescendants', () => {
+  it('returns 0 for a leaf', () => {
+    const map = buildTreeMap([node('a')]);
+    expect(countDescendants(map, 'a')).toBe(0);
+  });
+
+  it('counts every node in the subtree, not just direct children', () => {
+    const map = buildTreeMap([
+      node('f', { kind: 'folder' }),
+      node('c1', { parentId: 'f', kind: 'folder', position: 0 }),
+      node('c2', { parentId: 'f', position: 1 }),
+      node('g1', { parentId: 'c1', position: 0 }),
+      node('g2', { parentId: 'c1', position: 1 }),
+    ]);
+    expect(countDescendants(map, 'f')).toBe(4);
+    expect(countDescendants(map, 'c1')).toBe(2);
+    expect(countDescendants(map, 'c2')).toBe(0);
+  });
+
+  it('returns 0 for an unknown id', () => {
+    expect(countDescendants(buildTreeMap([]), 'nope')).toBe(0);
+  });
+
+  it('terminates on a cyclic map instead of looping forever', () => {
+    const map = buildTreeMap([
+      node('a', { kind: 'folder' }),
+      node('b', { parentId: 'a' }),
+    ]);
+    // Force a cycle the real data should never contain.
+    map.b.children = ['a'];
+    expect(countDescendants(map, 'a')).toBe(1);
   });
 });
