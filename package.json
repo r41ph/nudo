@@ -23,7 +23,7 @@
     "test:db:setup": "pnpm --filter @nudo/api test:db:setup",
     "format": "prettier --write .",
     "typecheck": "pnpm -r --if-present typecheck",
-    "lint:precommit": "eslint --config eslint.config.precommit.mts",
+    "lint:precommit": "eslint --config eslint.config.precommit.mts --no-warn-ignored",
     "prepare": "husky"
   },
   "keywords": [],

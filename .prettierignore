@@ -13,3 +13,6 @@ packages/**/.storybook/**/*.js
 
 # shadcn-managed components — do not auto-format
 packages/ui/src/components/ui/
+
+# Frozen design handoffs — point-in-time references, not living source
+docs/design-handoffs/
