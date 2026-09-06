@@ -6,14 +6,21 @@ import {
   lastSavedAtom,
 } from '@web/shared/state/save-status.atom';
 
+// Tokens only — these were raw Tailwind colours (orange/yellow/red/green) with
+// no dark variant, the one place the chrome routed around the token layer.
 const STATUS_CONFIG = {
-  unsaved: { text: 'Unsaved changes', color: 'text-orange-500' },
-  saving: { text: 'Saving...', color: 'text-yellow-600' },
-  saved: { text: 'Saved', color: 'text-muted-foreground' },
-  error: { text: 'Save failed', color: 'text-red-600' },
+  unsaved: { text: 'Unsaved changes', color: 'text-accent-foreground' },
+  saving: { text: 'Saving...', color: 'text-muted-foreground' },
+  saved: { text: 'Saved', color: 'text-status-done' },
+  error: { text: 'Save failed', color: 'text-destructive' },
 } as const;
 
-export function SaveBar() {
+/**
+ * `showTimestamp={false}` keeps the save *state* (including failures) while
+ * dropping the second-precision "Last saved" line — focus mode wants the one
+ * without the other.
+ */
+export function SaveBar({ showTimestamp = true }: { showTimestamp?: boolean }) {
   const saveStatus = useAtomValue(saveStatusAtom);
   const lastSaved = useAtomValue(lastSavedAtom);
 
@@ -47,8 +54,8 @@ export function SaveBar() {
           <span>{status.text}</span>
         </div>
       )}
-      {lastSaved && (
-        <span className="text-green-800 text-sm">
+      {showTimestamp && lastSaved && (
+        <span className="text-sm text-muted-foreground">
           Last saved: {lastSaved.toLocaleTimeString()}
         </span>
       )}
