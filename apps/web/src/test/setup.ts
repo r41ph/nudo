@@ -38,5 +38,28 @@ const localStorageMock = (() => {
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
+// jsdom implements no Pointer Capture API; sonner's swipe-to-dismiss and Radix's
+// pointer handling both call into it on any real click.
+if (!Element.prototype.setPointerCapture) {
+  Element.prototype.setPointerCapture = vi.fn();
+  Element.prototype.releasePointerCapture = vi.fn();
+  Element.prototype.hasPointerCapture = vi.fn(() => false);
+}
+
+// jsdom has no matchMedia; ThemeToggle reads it to resolve the "system" theme.
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }),
+});
+
 // Mock import.meta.env for API_URL
 vi.stubEnv('VITE_API_URL', 'http://localhost:3000');
