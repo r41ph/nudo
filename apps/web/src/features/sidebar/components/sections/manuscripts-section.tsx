@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Icon } from '@ui/components/icon/icon';
+import { Button } from '@ui/components/ui/button';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -22,6 +23,7 @@ import {
   pickAdjacentDocumentId,
   pickDocumentAfterContainerDeletion,
 } from '@web/features/sidebar/lib/pick-adjacent-document';
+import { AddNodeMenu } from '@web/features/outline/components/add-node-menu';
 import {
   OutlineTree,
   type OutlineTreeHandle,
@@ -178,6 +180,11 @@ export function ManuscriptsSection() {
     [deleteNode, subtreeIds, navigateAfterRemoval]
   );
 
+  const handleAddRoot = useCallback(
+    (kind: NodeKind) => addChild({ kind, parentId: null }),
+    [addChild]
+  );
+
   const callbacks: OutlineTreeCallbacks = useMemo(
     () => ({
       onOpenNode: (id) => navigate(`/document/${id}`),
@@ -193,9 +200,26 @@ export function ManuscriptsSection() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="flex items-center gap-1.5 uppercase tracking-widest text-sm">
-        <Icon name="bookOpen" className="h-3.5 w-3.5 shrink-0" />
+      {/* The group label sits under the chapter titles, not over them: 10.5px at
+          0.14em, with the root-add button on the same row. `--muted-foreground`
+          rather than the handoff's `--faint`, which is only 3.24:1 on the rail
+          and would put this label under the 4.5:1 bar the same doc sets. */}
+      <SidebarGroupLabel className="justify-between gap-2 pl-4 pr-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Story
+        <AddNodeMenu
+          onAdd={handleAddRoot}
+          align="end"
+          trigger={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Add to Story"
+              className="size-6.5 rounded-md text-muted-foreground hover:cursor-pointer hover:text-accent-foreground [&_svg]:size-3.5"
+            >
+              <Icon name="plus" />
+            </Button>
+          }
+        />
       </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
