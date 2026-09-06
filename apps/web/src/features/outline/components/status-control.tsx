@@ -54,6 +54,43 @@ export const StatusDot = memo(function StatusDot({
   );
 });
 
+/**
+ * The status choices, as menu items. Shared by the row's own status dot and the
+ * row menu's "Set status" submenu so the two can never drift apart.
+ */
+export const StatusMenuItems = memo(function StatusMenuItems({
+  status,
+  onChange,
+}: {
+  status: NodeStatus | null;
+  onChange: (status: NodeStatus | null) => void;
+}) {
+  return (
+    <>
+      {STATUS_ORDER.map((value) => (
+        <DropdownMenuItem
+          key={value}
+          onSelect={() => onChange(value)}
+          className="gap-2"
+        >
+          <StatusDot status={value} />
+          <span className="flex-1">{STATUS_LABELS[value]}</span>
+          {value === status && (
+            <Icon name="check" className="size-3.5 text-accent-foreground" />
+          )}
+        </DropdownMenuItem>
+      ))}
+      <DropdownMenuItem onSelect={() => onChange(null)} className="gap-2">
+        <span className="size-2.25 rounded-full border border-dashed border-faint" />
+        <span className="flex-1">No status</span>
+        {status === null && (
+          <Icon name="check" className="size-3.5 text-accent-foreground" />
+        )}
+      </DropdownMenuItem>
+    </>
+  );
+});
+
 interface NodeStatusControlProps {
   status: NodeStatus | null;
   onChange: (status: NodeStatus | null) => void;
@@ -78,9 +115,15 @@ export const NodeStatusControl = memo(function NodeStatusControl({
           }
           onClick={(e) => e.stopPropagation()}
           className={cn(
-            'flex size-5 shrink-0 items-center justify-center rounded-full transition-opacity hover:cursor-pointer',
+            'flex size-6.5 shrink-0 items-center justify-center rounded-full hover:cursor-pointer',
+            // A status that is set is real state — always shown. The "add a
+            // status" placeholder is not, so it takes no width until hover.
             !status &&
-              'opacity-0 group-hover/row:opacity-100 data-[state=open]:opacity-100'
+              'h-6.5 w-0 overflow-hidden opacity-0 ' +
+                'group-hover/row:w-6.5 group-hover/row:opacity-100 ' +
+                'focus-visible:w-6.5 focus-visible:opacity-100 ' +
+                'group-focus-visible/item:w-6.5 group-focus-visible/item:opacity-100 ' +
+                'data-[state=open]:w-6.5 data-[state=open]:opacity-100'
           )}
         >
           {status ? (
@@ -101,26 +144,7 @@ export const NodeStatusControl = memo(function NodeStatusControl({
         <DropdownMenuLabel className="text-xs text-muted-foreground">
           Status
         </DropdownMenuLabel>
-        {STATUS_ORDER.map((value) => (
-          <DropdownMenuItem
-            key={value}
-            onSelect={() => onChange(value)}
-            className="gap-2"
-          >
-            <StatusDot status={value} />
-            <span className="flex-1">{STATUS_LABELS[value]}</span>
-            {value === status && (
-              <Icon name="check" className="size-3.5 text-accent-foreground" />
-            )}
-          </DropdownMenuItem>
-        ))}
-        <DropdownMenuItem onSelect={() => onChange(null)} className="gap-2">
-          <span className="size-2.25 rounded-full border border-dashed border-faint" />
-          <span className="flex-1">No status</span>
-          {status === null && (
-            <Icon name="check" className="size-3.5 text-accent-foreground" />
-          )}
-        </DropdownMenuItem>
+        <StatusMenuItems status={status} onChange={onChange} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

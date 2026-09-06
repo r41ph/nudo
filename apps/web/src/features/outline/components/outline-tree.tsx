@@ -25,6 +25,7 @@ import type {
 } from '@web/features/outline/components/outline-tree.types';
 import {
   buildTreeMap,
+  countDescendants,
   createTreeStore,
 } from '@web/features/outline/components/outline-tree.utils';
 import type { OutlineNode } from '@web/shared/types/outline.types';
@@ -123,7 +124,10 @@ interface OutlineTreeProps {
   ref?: Ref<OutlineTreeHandle>;
 }
 
-const INDENT = 14;
+/** One `ml-5` step per level, per the handoff's geometry table. */
+const INDENT = 20;
+/** How far left of a nested row its group's guide line sits. */
+const GUIDE_OFFSET = 6;
 
 const itemStyleCache: Record<number, CSSProperties> = {};
 const getItemStyle = (level: number): CSSProperties => {
@@ -132,6 +136,38 @@ const getItemStyle = (level: number): CSSProperties => {
   }
   return itemStyleCache[level];
 };
+
+const guideStyleCache: Record<number, CSSProperties> = {};
+const getGuideStyle = (depth: number): CSSProperties => {
+  if (!guideStyleCache[depth]) {
+    guideStyleCache[depth] = {
+      left: `${depth * INDENT - GUIDE_OFFSET}px`,
+    };
+  }
+  return guideStyleCache[depth];
+};
+
+/**
+ * The 1px rules that mark a nested group. Rows render flat (headless-tree gives
+ * us a flat list, not nested DOM), so each row draws one segment per ancestor
+ * level; stacked over adjacent rows they read as continuous lines that stop
+ * after a group's last child.
+ */
+function IndentGuides({ level }: { level: number }) {
+  if (level < 1) return null;
+  return (
+    <>
+      {Array.from({ length: level }, (_, i) => (
+        <span
+          key={i}
+          aria-hidden
+          style={getGuideStyle(i + 1)}
+          className="pointer-events-none absolute inset-y-0 w-px bg-sidebar-border"
+        />
+      ))}
+    </>
+  );
+}
 
 export function OutlineTree({
   nodes,
@@ -313,13 +349,16 @@ export function OutlineTree({
               isSeparator ? toggleFold(id) : callbacks.onOpenNode(id)
             }
             style={getItemStyle(level)}
+            className="group/item relative outline-none"
           >
+            <IndentGuides level={level} />
             <OutlineRow
               id={data.id}
               title={data.title}
               kind={data.kind}
               status={data.status}
               wordCount={data.wordCount}
+              descendantCount={countDescendants(snapshot, id)}
               isOpen={isSeparator ? !folded.has(id) : item.isExpanded()}
               isActive={activeItemId === data.id}
               onRename={callbacks.onRenameNode}

@@ -33,18 +33,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// A leaf you write in — bullet marker. Hover to reveal grip + actions.
+// A leaf you write in. Hover to reveal the grip and the `⋯` action slot.
 export const Document: Story = {};
 
 export const ActiveDocument: Story = {
   args: { isActive: true },
 };
 
+// The moon dot shows on any row that has a status; rows without one reveal a
+// dashed "add status" dot on hover.
 export const DocumentWithStatus: Story = {
   args: { title: 'Chapter Three', status: 'drafting' },
 };
 
-// A container — chevron marker; word count is the rolled-up total.
+// A container — chevron + status dot; word count is the rolled-up total.
 export const FolderCollapsed: Story = {
   args: { title: 'Part One', kind: 'folder', wordCount: 18280 },
 };
