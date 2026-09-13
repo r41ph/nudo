@@ -33,7 +33,7 @@ export function EditorTopBar() {
   const delta = useDailyWordDelta(docId, wordCount);
 
   return (
-    <header className="flex h-13 shrink-0 items-center justify-between gap-4 border-b border-border bg-background px-7.5">
+    <header className="flex h-13 shrink-0 items-center justify-between gap-4 bg-background px-7.5">
       <EditorBreadcrumb crumbs={crumbs} />
 
       <div className="flex shrink-0 items-center gap-4">

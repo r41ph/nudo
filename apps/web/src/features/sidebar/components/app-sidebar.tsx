@@ -5,7 +5,10 @@ import { SidebarFooterActions } from '@web/features/sidebar/components/sidebar-f
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="none">
+    <Sidebar
+      collapsible="none"
+      className="border-r border-gray-200 dark:border-gray-800"
+    >
       <ProjectHeader name="Project Alpha" />
       <SidebarContent>
         <ManuscriptsSection />

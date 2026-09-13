@@ -5,11 +5,11 @@
 
 :root {
   /* Warm editorial ("Leaf") palette — light. Values from design handoff token table. */
-  --background: #f7f3ec; /* bg — editor surface */
+  --background: #fff; /* bg — editor surface */
   --foreground: #2a251f; /* ink — primary text */
   --card: #fffcf6; /* pill — raised surface */
   --card-foreground: #2a251f;
-  --popover: #fffcf6; /* pill — floating toolbar / menus */
+  --popover: #fff; /* pill — floating toolbar / menus */
   --popover-foreground: #2a251f;
   --primary: #2a251f; /* ink */
   --primary-foreground: #f7f3ec;
@@ -30,16 +30,11 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.5rem;
-  --sidebar: #f1eadd; /* side — rail surface */
+  --sidebar: #fff; /* side — rail surface */
   --sidebar-foreground: #2a251f;
   --sidebar-primary: #a8502f; /* accent */
   --sidebar-primary-foreground: #fffcf6;
-  --sidebar-accent: rgba(
-    168,
-    80,
-    47,
-    0.12
-  ); /* accentSoft — selected row fill */
+  --sidebar-accent: rgba(0, 0, 0, 0.1); /* selected row fill */
   --sidebar-accent-foreground: #a8502f;
   --sidebar-border: #ded2bf; /* sideEdge — rail border / nested rules */
   --sidebar-ring: #a8502f;
