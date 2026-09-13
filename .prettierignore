@@ -14,5 +14,6 @@ packages/**/.storybook/**/*.js
 # shadcn-managed components — do not auto-format
 packages/ui/src/components/ui/
 
-# Frozen design handoffs — point-in-time references, not living source
-docs/design-handoffs/
+# Docs are dev/agent documents, not codebase — never formatted or linted.
+# ESLint ignores docs/** in eslint.config.mts for the same reason.
+docs/
