@@ -9,7 +9,6 @@ import {
 } from '@web/test/mocks/fixtures';
 
 export const handlers = [
-  // GraphQL queries
   graphql.query('GetDocuments', () => {
     return HttpResponse.json({
       data: {
@@ -47,7 +46,6 @@ export const handlers = [
     });
   }),
 
-  // GraphQL mutations
   graphql.mutation('CreateNode', () => {
     return HttpResponse.json({
       data: {
@@ -128,7 +126,6 @@ export const handlers = [
     });
   }),
 
-  // REST auth endpoints
   http.post('*/auth/login', async ({ request }) => {
     const body = (await request.json()) as Record<string, string>;
     if (body.email === 'test@example.com' && body.password === 'password123') {

@@ -108,8 +108,6 @@ export function useDocumentDiscussions(
     return { discussions: mapped, users: usersMap };
   }, [data]);
 
-  // ── Mutations ──────────────────────────────────────────────────────────────
-
   const { mutateAsync: createDiscussionMutation } = useMutation({
     mutationFn: (vars: {
       id: string;
@@ -147,8 +145,6 @@ export function useDocumentDiscussions(
       graphqlClient.request(DELETE_DISCUSSION_COMMENT, vars),
     onSuccess: invalidate,
   });
-
-  // ── Callbacks (injected into discussionPlugin) ─────────────────────────────
 
   const onCreateDiscussion = useCallback(
     async (discussion: TDiscussion) => {

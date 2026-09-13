@@ -63,8 +63,7 @@ export function HomePage() {
     );
   }
 
-  // Surface a failed load instead of falling through to the empty state, which
-  // would wrongly tell the user they have no documents (see frontend.md).
+  // Falling through to the empty state would wrongly say "no documents".
   if (isError) {
     return (
       <div

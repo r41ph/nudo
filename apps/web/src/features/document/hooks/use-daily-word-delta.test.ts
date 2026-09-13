@@ -7,7 +7,6 @@ const today = (): string => new Date().toISOString().slice(0, 10);
 const key = (docId: string, day: string = today()): string =>
   `${PREFIX}${docId}:${day}`;
 
-// localStorage is cleared after each test by the global setup.
 describe('useDailyWordDelta', () => {
   it('records the baseline and returns 0 the first time a doc is opened today', () => {
     const { result } = renderHook(() => useDailyWordDelta('doc-1', 500));
@@ -46,7 +45,6 @@ describe('useDailyWordDelta', () => {
 
     expect(localStorage.getItem(key('doc-1', '2000-01-01'))).toBeNull();
     expect(localStorage.getItem(key('doc-2'))).toBe('20');
-    // The opened doc gets a fresh baseline for today.
     expect(localStorage.getItem(key('doc-1'))).toBe('50');
   });
 });

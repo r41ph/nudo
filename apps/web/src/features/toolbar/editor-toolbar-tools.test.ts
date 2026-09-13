@@ -10,15 +10,9 @@ import { setBlockType } from '@ui/components/editor/transforms';
 import { stripUnknownMarks } from '@ui/components/editor/sanitize-content';
 import { TOOLBAR_TOOLS } from '@web/features/toolbar/toolbar.constants';
 
-// The floating toolbar lives in packages/ui, which has no test runner, so this
-// suite exercises the same plugin kits and the *production* transforms each
-// toolbar button invokes, through apps/web's Vitest. It is the regression net
-// for "the toolbar tools keep working".
-//
-// It also locks the fix for the Paragraph (¶) button, which used to be a
-// `MarkToolbarButton nodeType="pilcrow"`: it toggled a mark no plugin
-// registers, so it wrote `pilcrow: true` onto the selected leaves and never
-// converted a block back to body text.
+// Lives here because packages/ui has no test runner. Exercises the production
+// transforms each toolbar button invokes; also locks the Paragraph (¶) fix,
+// which used to write a `pilcrow` mark no plugin registers.
 
 type Leaf = Record<string, unknown> & { text: string };
 type Block = { type: string; align?: string; children: Leaf[] };
@@ -28,8 +22,7 @@ const makeEditor = (value: Value) => {
     plugins: [...BasicNodesKit, ...AlignKit, ...FontKit],
     value,
   });
-  // Select the whole document so mark/block transforms have a range to act on,
-  // mirroring a user selecting text before pressing a toolbar button.
+  // Transforms need a range, as when a user selects text before pressing a button.
   editor.tf.select({
     anchor: editor.api.start([])!,
     focus: editor.api.end([])!,
@@ -195,16 +188,14 @@ describe('editor toolbar tools', () => {
     it('returns the original reference when there is nothing to strip', () => {
       const value = [{ type: KEYS.p, children: [{ text: 'Chapter One' }] }];
 
-      // Same reference, so loading a clean document does not churn identity or
-      // mark it dirty.
+      // Same reference, or loading a clean document would mark it dirty.
       expect(stripUnknownMarks(value)).toBe(value);
     });
   });
 
   describe('tool labels', () => {
     it('labels the inline-code tool "Inline Code" under its legacy key', () => {
-      // The key stays `codeBlock` so persisted toolbar settings keep resolving;
-      // only the label reflects that the button applies an inline code mark.
+      // The key stays `codeBlock` so persisted toolbar settings keep resolving.
       expect(TOOLBAR_TOOLS.codeBlock).toBe('Inline Code');
     });
   });

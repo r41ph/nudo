@@ -60,8 +60,8 @@ describe('useLogout', () => {
       result.current.logout();
     });
 
-    // If MSW had no handler for /auth/logout, setup.ts's onUnhandledRequest: 'error'
-    // would throw here. Passing confirms the fire-and-forget request was handled.
+    // Passing proves the fire-and-forget request hit a handler: setup.ts
+    // throws on unhandled requests.
     expect(mockNavigate).toHaveBeenCalledOnce();
   });
 });

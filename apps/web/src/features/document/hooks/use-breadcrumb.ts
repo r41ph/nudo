@@ -8,11 +8,7 @@ export interface Crumb {
   title: string;
 }
 
-/**
- * The ancestor chain for the open document, ordered root → current, built from
- * the outline tree (`parentId` links). Used by the editor top bar's breadcrumb.
- * Reuses the shared `['outline']` query so it stays in sync with the rail.
- */
+// Shares the `['outline']` query so the breadcrumb can't drift from the rail.
 export function useBreadcrumb(docId: string | null): Crumb[] {
   const { data } = useQuery({
     queryKey: ['outline'],

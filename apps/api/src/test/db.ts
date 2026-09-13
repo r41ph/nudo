@@ -1,16 +1,3 @@
-/**
- * Test database lifecycle helpers (integration tests only).
- *
- * One dedicated `nudo_test` database in the existing Docker Postgres. The flow:
- *   1. ensureTestDatabase() — CREATE DATABASE nudo_test if absent (the normal
- *      migrate flow never creates databases).
- *   2. migrateTestDatabase() — reuse the existing `pnpm migrate` step with
- *      DB_NAME=nudo_test in the child env. run-migrate.ts derives DATABASE_URL
- *      from DB_NAME, and dotenv won't override an already-set var, so the test
- *      DB wins — no change to run-migrate.ts.
- *   3. truncateAll() — reset data tables between tests (the pgmigrations table
- *      is preserved, so we migrate once, not per test).
- */
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import pg from 'pg';
@@ -18,13 +5,11 @@ import { requireEnv } from '../config/env.js';
 
 export const TEST_DB_NAME = 'nudo_test';
 
-/** node-pg-migrate's bookkeeping table — never truncated. */
+// node-pg-migrate's bookkeeping table; preserved so we migrate once, not per test.
 const MIGRATIONS_TABLE = 'pgmigrations';
 
-/** apps/api — cwd for the migrate script. */
 const apiRoot = path.resolve(import.meta.dirname, '..', '..');
 
-/** Connection params shared by the maintenance client and the test pool. */
 function baseConfig() {
   return {
     user: requireEnv('DB_USER'),
@@ -36,7 +21,6 @@ function baseConfig() {
 
 let pool: pg.Pool | undefined;
 
-/** Lazily-created pool connected to the test database. */
 export function getTestPool(): pg.Pool {
   if (!pool) {
     pool = new pg.Pool({ ...baseConfig(), database: TEST_DB_NAME });
@@ -44,7 +28,6 @@ export function getTestPool(): pg.Pool {
   return pool;
 }
 
-/** Close the test pool (call once after the whole suite). */
 export async function closeTestPool(): Promise<void> {
   if (pool) {
     await pool.end();
@@ -52,9 +35,8 @@ export async function closeTestPool(): Promise<void> {
   }
 }
 
-/** Create the test database if it does not already exist. */
 export async function ensureTestDatabase(): Promise<void> {
-  // CREATE DATABASE cannot run inside the target DB, so connect to `postgres`.
+  // CREATE DATABASE can't run inside the target DB.
   const client = new pg.Client({ ...baseConfig(), database: 'postgres' });
   await client.connect();
   try {
@@ -63,7 +45,7 @@ export async function ensureTestDatabase(): Promise<void> {
       [TEST_DB_NAME]
     );
     if (!rowCount) {
-      // Identifier can't be parameterized; TEST_DB_NAME is a fixed constant, so safe.
+      // Identifiers can't be parameterised; TEST_DB_NAME is a fixed constant.
       await client.query(`CREATE DATABASE ${TEST_DB_NAME}`);
     }
   } finally {
@@ -71,7 +53,7 @@ export async function ensureTestDatabase(): Promise<void> {
   }
 }
 
-/** Run all migrations against the test database via the existing migrate step. */
+// dotenv won't override an already-set var, so DB_NAME in the child env wins.
 export function migrateTestDatabase(): void {
   execSync('pnpm migrate', {
     cwd: apiRoot,
@@ -80,16 +62,11 @@ export function migrateTestDatabase(): void {
   });
 }
 
-/** Create (if needed) and migrate the test database. */
 export async function setupTestDatabase(): Promise<void> {
   await ensureTestDatabase();
   migrateTestDatabase();
 }
 
-/**
- * Empty every data table and reset identity sequences, leaving the schema and
- * the migrations bookkeeping table intact. Run before each test for isolation.
- */
 export async function truncateAll(): Promise<void> {
   const p = getTestPool();
   const { rows } = await p.query<{ tablename: string }>(

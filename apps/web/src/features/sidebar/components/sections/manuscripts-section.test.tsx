@@ -16,8 +16,8 @@ const { navigateSpy } = vi.hoisted(() => ({ navigateSpy: vi.fn() }));
 
 vi.mock('sonner', () => ({ toast: { error: vi.fn() } }));
 
-// OutlineTree has heavy DnD internals; mock it to render the `nodes` it receives
-// and expose buttons wired to the real callbacks so container logic is testable.
+// OutlineTree's DnD internals don't run in jsdom; the mock exposes its
+// callbacks as buttons.
 vi.mock('@web/features/outline/components/outline-tree', () => ({
   OutlineTree: ({
     nodes,
@@ -74,7 +74,6 @@ vi.mock('@web/features/outline/components/outline-tree', () => ({
   ),
 }));
 
-// useParams → the active doc; capture navigation.
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
@@ -105,7 +104,6 @@ const setOutline = (nodes: OutlineNode[]) =>
 beforeEach(() => {
   navigateSpy.mockClear();
   vi.mocked(toast.error).mockClear();
-  // Default: two root documents — the active one (MOCK_DOCUMENT) then a sibling.
   setOutline([
     onode(MOCK_DOCUMENT.id, { position: 0 }),
     onode(MOCK_DOCUMENT_2.id, { position: 1 }),

@@ -1,9 +1,3 @@
-/**
- * Outline SQL-function mutations exercised through GraphQL:
- * create_node (document / folder / separator, word count, document→folder
- * promotion, separator guard) and move_and_reorder_node (reparent + reorder,
- * promotion, cycle guard, separator guard).
- */
 import { describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';
 import { graphql } from './graphql.js';
@@ -238,10 +232,9 @@ describe('move_and_reorder_node', () => {
   });
 });
 
-// move_and_reorder_node enforces the parent invariants, but PostGraphile also
-// exposes the generic updateDocumentById, through which a client could patch
-// parent_id directly and bypass the function. The documents_check_parent
-// trigger must hold the line on every write path.
+// PostGraphile's generic updateDocumentById can patch parent_id around
+// move_and_reorder_node, so the documents_check_parent trigger must hold on
+// that path too.
 const PATCH_PARENT = `
   mutation ($id: UUID!, $parentId: UUID) {
     updateDocumentById(

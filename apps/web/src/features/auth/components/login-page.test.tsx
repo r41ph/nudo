@@ -64,7 +64,6 @@ describe('LoginPage', () => {
   });
 
   it('shows loading state while submitting', async () => {
-    // Delay the response to observe loading state
     server.use(
       http.post('*/auth/login', async () => {
         await new Promise((resolve) => setTimeout(resolve, 100));

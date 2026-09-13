@@ -12,10 +12,8 @@ export function useLogout() {
   const logout = () => {
     setToken(null);
     setUser(null);
-    // Synchronously clear localStorage as primary defence.
-    // Clear-Site-Data (sent by the server) is async and network-dependent —
-    // if the request fails or the browser doesn't support the directive,
-    // a stale token would persist and re-authenticate the user on next load.
+    // Cleared here, not left to the server's Clear-Site-Data: that header is
+    // async and network-dependent, so a failed request would leave a live token.
     clearAuth();
     void logoutUser(); // fire-and-forget for Clear-Site-Data header (cache + storage)
     navigate('/login');

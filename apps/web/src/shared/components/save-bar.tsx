@@ -7,18 +7,18 @@ import {
 } from '@web/shared/state/save-status.atom';
 
 const STATUS_CONFIG = {
-  unsaved: { text: 'Unsaved changes', color: 'text-orange-500' },
-  saving: { text: 'Saving...', color: 'text-yellow-600' },
-  saved: { text: 'Saved', color: 'text-muted-foreground' },
-  error: { text: 'Save failed', color: 'text-red-600' },
+  unsaved: { text: 'Unsaved changes', color: 'text-accent-foreground' },
+  saving: { text: 'Saving...', color: 'text-muted-foreground' },
+  saved: { text: 'Saved', color: 'text-status-done' },
+  error: { text: 'Save failed', color: 'text-destructive' },
 } as const;
 
-export function SaveBar() {
+// `showTimestamp={false}` keeps the state (including failures) without the
+// "Last saved" line, for focus mode.
+export function SaveBar({ showTimestamp = true }: { showTimestamp?: boolean }) {
   const saveStatus = useAtomValue(saveStatusAtom);
   const lastSaved = useAtomValue(lastSavedAtom);
 
-  // Tracks whether the auto-hide timer has fired for the current saveStatus.
-  // Reset to false whenever saveStatus changes (derived-state pattern below).
   const [autoHidden, setAutoHidden] = useState(false);
   const [prevStatus, setPrevStatus] = useState(saveStatus);
   if (prevStatus !== saveStatus) {
@@ -47,8 +47,8 @@ export function SaveBar() {
           <span>{status.text}</span>
         </div>
       )}
-      {lastSaved && (
-        <span className="text-green-800 text-sm">
+      {showTimestamp && lastSaved && (
+        <span className="text-sm text-muted-foreground">
           Last saved: {lastSaved.toLocaleTimeString()}
         </span>
       )}

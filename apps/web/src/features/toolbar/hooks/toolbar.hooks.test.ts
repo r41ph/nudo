@@ -15,7 +15,6 @@ describe('useUserPreferences', () => {
     const { result } = renderHookWithProviders(() => useUserPreferences(), {
       store,
     });
-    // Should not be loading since the query is disabled
     expect(result.current.isLoading).toBe(false);
   });
 
@@ -30,7 +29,6 @@ describe('useUserPreferences', () => {
 
     expect(result.current.isHydrated).toBe(false);
 
-    // Wait for the query to resolve and the effect to run
     await vi.waitFor(() => {
       const tools = store.get(enabledToolsAtom);
       expect(tools).toEqual(['bold', 'italic', 'underline']);
@@ -47,7 +45,6 @@ describe('useUserPreferences', () => {
       store,
     });
 
-    // On first render, isLoading should be true
     expect(result.current.isLoading).toBe(true);
   });
 });
@@ -107,10 +104,8 @@ describe('useToolbarSettingsSync', () => {
       })
     );
 
-    // StrictMode fires effects twice on mount. A ref-based "skip first render" guard
-    // fails because refs persist across the simulated unmount/remount, letting the
-    // second fire write the atom's default value to the database.
-    // isHydrated=false must block the sync no matter how many times the effect runs.
+    // A "skip first render" ref survives StrictMode's simulated remount and
+    // would let the second effect write the atom's default to the database.
     const { rerender } = renderHookWithProviders(() =>
       useToolbarSettingsSync('user-1', ['bold', 'italic'], false)
     );
@@ -140,7 +135,6 @@ describe('useToolbarSettingsSync', () => {
       })
     );
 
-    // Use a mutable ref to change tools on rerender
     let tools: ToolbarToolName[] = ['bold', 'italic'];
     const { rerender } = renderHookWithProviders(() =>
       useToolbarSettingsSync(null, tools, true)

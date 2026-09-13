@@ -40,9 +40,8 @@ export function useUserPreferences() {
     }
   }, [data, setEnabledTools]);
 
-  // Derived: server preferences have been received and pushed into the atom.
-  // useToolbarSettingsSync gates on this to avoid writing the atom's default
-  // value back to the database on mount (esp. under StrictMode).
+  // `useToolbarSettingsSync` gates on this so the atom's default is never
+  // written back to the database on mount.
   const isHydrated = !!data?.userById?.enabledTools;
 
   return { isLoading, isHydrated };
@@ -64,10 +63,8 @@ export function useToolbarSettingsSync(
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Only sync after server preferences have been loaded into the atom.
-    // Using a ref-based "skip first render" flag is not reliable in StrictMode
-    // because refs persist across the simulated unmount/remount, causing the
-    // atom's default value to be written to the database on mount.
+    // Not a "skip first render" ref: refs survive StrictMode's simulated
+    // remount, which would write the atom's default to the database.
     if (!isHydrated || !userId) return;
 
     if (timerRef.current) clearTimeout(timerRef.current);

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Icon } from '@ui/components/icon/icon';
+import { Button } from '@ui/components/ui/button';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -22,6 +23,7 @@ import {
   pickAdjacentDocumentId,
   pickDocumentAfterContainerDeletion,
 } from '@web/features/sidebar/lib/pick-adjacent-document';
+import { AddNodeMenu } from '@web/features/outline/components/add-node-menu';
 import {
   OutlineTree,
   type OutlineTreeHandle,
@@ -59,8 +61,7 @@ export function ManuscriptsSection() {
     queryClient.invalidateQueries({ queryKey: ['documents'] });
   }, []);
 
-  // children-by-parent index, built once per node list, so collecting a subtree
-  // is O(n) instead of rescanning every node per level (O(n²)).
+  // Indexed once so collecting a subtree is O(n), not O(n²).
   const childrenByParent = useMemo(() => {
     const index = new Map<string, string[]>();
     for (const n of nodes) {
@@ -72,8 +73,7 @@ export function ManuscriptsSection() {
     return index;
   }, [nodes]);
 
-  // All descendants of a node (inclusive), for delete adjacency / cascade. The
-  // `seen` set keeps this terminating even if the data ever contained a cycle.
+  // `seen` keeps this terminating if the data ever contained a cycle.
   const subtreeIds = useCallback(
     (rootId: string) => {
       const out: string[] = [];
@@ -94,7 +94,6 @@ export function ManuscriptsSection() {
     [childrenByParent]
   );
 
-  // ── Mutations ──────────────────────────────────────────────────────────────
   const { mutate: renameNode } = useMutation({
     mutationFn: (v: { id: string; title: string }) =>
       graphqlClient.request(RENAME_DOCUMENT, v),
@@ -129,7 +128,6 @@ export function ManuscriptsSection() {
     onSuccess: (res, v) => {
       invalidate();
       if (v.parentId) treeRef.current?.expandNode(v.parentId);
-      // Separators have no editor surface — don't navigate into one.
       if (v.kind !== 'separator') {
         navigate(`/document/${res.createNode.document.id}`);
       }
@@ -150,8 +148,7 @@ export function ManuscriptsSection() {
       }),
   });
 
-  // Move the editor somewhere valid when the open node (or an ancestor of it)
-  // is deleted — otherwise it keeps showing a dead document.
+  // Otherwise the editor keeps showing a dead document.
   const navigateAfterRemoval = useCallback(
     (removedIds: string[]) => {
       if (!activeDocId || !removedIds.includes(activeDocId)) return;
@@ -178,6 +175,11 @@ export function ManuscriptsSection() {
     [deleteNode, subtreeIds, navigateAfterRemoval]
   );
 
+  const handleAddRoot = useCallback(
+    (kind: NodeKind) => addChild({ kind, parentId: null }),
+    [addChild]
+  );
+
   const callbacks: OutlineTreeCallbacks = useMemo(
     () => ({
       onOpenNode: (id) => navigate(`/document/${id}`),
@@ -193,9 +195,24 @@ export function ManuscriptsSection() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="flex items-center gap-1.5 uppercase tracking-widest text-sm">
-        <Icon name="bookOpen" className="h-3.5 w-3.5 shrink-0" />
+      {/* `--muted-foreground` rather than the handoff's `--faint`: 3.24:1 on
+          the rail fails the 4.5:1 bar the same handoff sets. */}
+      <SidebarGroupLabel className="justify-between gap-2 pl-4 pr-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Story
+        <AddNodeMenu
+          onAdd={handleAddRoot}
+          align="end"
+          trigger={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Add to Story"
+              className="size-6.5 rounded-md text-muted-foreground hover:cursor-pointer hover:text-accent-foreground [&_svg]:size-3.5"
+            >
+              <Icon name="plus" />
+            </Button>
+          }
+        />
       </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>

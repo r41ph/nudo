@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-/**
- * Shared inline-rename behavior for outline rows (document / folder / separator).
- * Focuses + selects on edit, commits trimmed non-empty values on blur/Enter,
- * cancels on Escape.
- */
+// A blur commit is silent, so callers offer an undo for it.
+export interface RenameCommitMeta {
+  viaBlur: boolean;
+}
+
 export function useInlineRename(
   current: string,
-  onCommit: (value: string) => void
+  onCommit: (value: string, meta: RenameCommitMeta) => void
 ) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState('');
@@ -25,12 +25,27 @@ export function useInlineRename(
     setIsEditing(true);
   }, [current]);
 
-  const submit = useCallback(() => {
-    if (value.trim()) onCommit(value.trim());
-    setIsEditing(false);
-  }, [value, onCommit]);
+  const commit = useCallback(
+    (viaBlur: boolean) => {
+      if (value.trim()) onCommit(value.trim(), { viaBlur });
+      setIsEditing(false);
+    },
+    [value, onCommit]
+  );
+
+  const submit = useCallback(() => commit(false), [commit]);
+  const submitOnBlur = useCallback(() => commit(true), [commit]);
 
   const cancel = useCallback(() => setIsEditing(false), []);
 
-  return { isEditing, value, setValue, inputRef, start, submit, cancel };
+  return {
+    isEditing,
+    value,
+    setValue,
+    inputRef,
+    start,
+    submit,
+    submitOnBlur,
+    cancel,
+  };
 }

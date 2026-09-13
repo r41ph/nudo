@@ -6,6 +6,7 @@ import {
   BoldIcon,
   BookOpenIcon,
   CheckIcon,
+  ChevronDownIcon,
   ChevronRightIcon,
   CloudIcon,
   CodeIcon,
@@ -21,7 +22,10 @@ import {
   MessageSquareTextIcon,
   Minus,
   MoonIcon,
+  MoreVerticalIcon,
   PenIcon,
+  PencilIcon,
+  CircleDashedIcon,
   PencilLineIcon,
   PilcrowIcon,
   Plus,
@@ -52,7 +56,9 @@ const icons = {
   plus: Plus,
   bookOpen: BookOpenIcon,
   check: CheckIcon,
+  chevronDown: ChevronDownIcon,
   chevronRight: ChevronRightIcon,
+  circleDashed: CircleDashedIcon,
   cloud: CloudIcon,
   fileText: FileTextIcon,
   folder: FolderIcon,
@@ -62,7 +68,9 @@ const icons = {
   maximize: Maximize2Icon,
   minimize: Minimize2Icon,
   moon: MoonIcon,
+  moreVertical: MoreVerticalIcon,
   pen: PenIcon,
+  pencil: PencilIcon,
   settings: SettingsIcon,
   sun: SunIcon,
   trash: Trash2Icon,
@@ -73,12 +81,21 @@ export type IconName = keyof typeof icons;
 export function Icon({
   name,
   className,
+  decorative = false,
 }: {
   name: IconName;
   className?: string;
+  /**
+   * Set beside a text label or inside a labelled control, or the icon's name
+   * leaks into the accessible name ("pencil Rename").
+   */
+  decorative?: boolean;
 }) {
   const IconComponent = icons[name];
-  return IconComponent ? (
+  if (!IconComponent) return null;
+  return decorative ? (
+    <IconComponent className={className} aria-hidden focusable="false" />
+  ) : (
     <IconComponent className={className} aria-label={name} />
-  ) : null;
+  );
 }

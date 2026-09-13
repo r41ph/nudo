@@ -1,16 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
+import { Provider as JotaiProvider, createStore } from 'jotai';
 import { SidebarProvider } from '@ui/components/ui/sidebar';
+import { userAtom } from '@web/features/auth/state/auth.store';
 import { SidebarFooterActions } from '@web/features/sidebar/components/sidebar-footer-actions';
 
-function createStoryQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      mutations: { retry: false },
-      queries: { retry: false },
-    },
+function createStoryStore() {
+  const store = createStore();
+  store.set(userAtom, {
+    id: 'u1',
+    email: 'ralph@rgalan.es',
+    displayName: null,
   });
+  return store;
 }
 
 const meta = {
@@ -19,13 +21,15 @@ const meta = {
   parameters: { layout: 'centered' },
   decorators: [
     (Story) => (
-      <QueryClientProvider client={createStoryQueryClient()}>
+      <JotaiProvider store={createStoryStore()}>
         <MemoryRouter>
           <SidebarProvider>
-            <Story />
+            <div className="w-[244px] bg-sidebar">
+              <Story />
+            </div>
           </SidebarProvider>
         </MemoryRouter>
-      </QueryClientProvider>
+      </JotaiProvider>
     ),
   ],
 } satisfies Meta<typeof SidebarFooterActions>;
@@ -34,3 +38,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const AccountMenuOpen: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Account: ralph@rgalan.es' })
+    );
+  },
+};

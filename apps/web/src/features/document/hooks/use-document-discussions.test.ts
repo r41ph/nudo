@@ -45,8 +45,6 @@ describe('useDocumentDiscussions', () => {
     server.use(emptyDiscussionsHandler);
   });
 
-  // ── onResolveDiscussion ──────────────────────────────────────────────────
-
   describe('onResolveDiscussion', () => {
     it('calls DeleteDiscussion (not UpdateDiscussion)', async () => {
       const deleteCalled = false;
@@ -89,8 +87,6 @@ describe('useDocumentDiscussions', () => {
     });
   });
 
-  // ── onDeleteDiscussion ───────────────────────────────────────────────────
-
   describe('onDeleteDiscussion', () => {
     it('calls DeleteDiscussion', async () => {
       let deleteCalled = false;
@@ -127,8 +123,6 @@ describe('useDocumentDiscussions', () => {
       });
     });
   });
-
-  // ── onDeleteComment ──────────────────────────────────────────────────────
 
   describe('onDeleteComment', () => {
     it('calls DeleteDiscussionComment', async () => {
@@ -176,8 +170,6 @@ describe('useDocumentDiscussions', () => {
     });
   });
 
-  // ── onCreateDiscussion ───────────────────────────────────────────────────
-
   describe('onCreateDiscussion', () => {
     it('shows toast.error on failure (does not re-throw)', async () => {
       server.use(
@@ -189,7 +181,7 @@ describe('useDocumentDiscussions', () => {
       const { result } = renderHook();
 
       await act(async () => {
-        // should NOT throw — create is optimistic
+        // Create is optimistic, so it must not throw.
         await result.current.onCreateDiscussion({
           id: 'disc-1',
           comments: [],
@@ -204,8 +196,6 @@ describe('useDocumentDiscussions', () => {
       });
     });
   });
-
-  // ── onAddReply ───────────────────────────────────────────────────────────
 
   describe('onAddReply', () => {
     it('shows toast.error on failure', async () => {
@@ -233,8 +223,6 @@ describe('useDocumentDiscussions', () => {
       });
     });
   });
-
-  // ── onEditComment ────────────────────────────────────────────────────────
 
   describe('onEditComment', () => {
     it('calls UpdateDiscussionComment with the correct variables', async () => {
@@ -306,8 +294,6 @@ describe('useDocumentDiscussions', () => {
       });
     });
   });
-
-  // ── pruneOrphanedDiscussions ─────────────────────────────────────────────
 
   describe('pruneOrphanedDiscussions', () => {
     it('calls PruneOrphanedDiscussions with correct docId and activeIds', async () => {

@@ -21,7 +21,6 @@ type UpdateContentResponse = {
   };
 };
 
-// Shape of the GET_DOCUMENT query cache entry we patch on save.
 type DocumentQueryData = {
   documentById: {
     content: unknown[];
@@ -44,9 +43,8 @@ export function useAutoSave(documentId: string | null) {
         UPDATE_DOCUMENT_CONTENT,
         variables
       ),
-    // Write the saved content through to the document query cache. Without this
-    // the cache keeps the snapshot from initial load, and navigating away and
-    // back within staleTime re-seeds the editor with stale (pre-edit) content.
+    // Without this, navigating away and back within staleTime re-seeds the
+    // editor from the load-time snapshot.
     onSuccess: (data, variables) => {
       const updated = data.updateDocumentContent.document;
       if (!updated) return;

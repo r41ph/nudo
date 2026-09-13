@@ -3,7 +3,6 @@ import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { server } from '@web/test/mocks/server';
 
-// Start MSW server
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   server.resetHandlers();
@@ -12,7 +11,6 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-// Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
@@ -25,7 +23,6 @@ const localStorageMock = (() => {
     }),
     clear: vi.fn(() => {
       store = {};
-      // Reset the spy call counts too
       localStorageMock.getItem.mockClear();
       localStorageMock.setItem.mockClear();
       localStorageMock.removeItem.mockClear();
@@ -38,5 +35,27 @@ const localStorageMock = (() => {
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
-// Mock import.meta.env for API_URL
+// jsdom implements no Pointer Capture API; sonner's swipe-to-dismiss and Radix's
+// pointer handling both call into it on any real click.
+if (!Element.prototype.setPointerCapture) {
+  Element.prototype.setPointerCapture = vi.fn();
+  Element.prototype.releasePointerCapture = vi.fn();
+  Element.prototype.hasPointerCapture = vi.fn(() => false);
+}
+
+// jsdom has no matchMedia; ThemeToggle reads it to resolve the "system" theme.
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }),
+});
+
 vi.stubEnv('VITE_API_URL', 'http://localhost:3000');

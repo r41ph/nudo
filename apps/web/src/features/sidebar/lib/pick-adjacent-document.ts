@@ -4,17 +4,8 @@ export type DocumentForAdjacency = {
   position: number;
 };
 
-/**
- * Given all outline nodes and the id of the one being deleted, returns the id
- * of the node to open next — mirroring how note apps (Bear, Notion) keep you
- * oriented after a delete.
- *
- * Preference order:
- *   1. The next sibling under the same parent, by position.
- *   2. The previous sibling, if the deleted one was last.
- *   3. Any remaining node if that sibling group is now empty.
- *   4. `null` when no nodes remain — caller shows the empty state.
- */
+// Next sibling, else previous, else any remaining node — how Bear and Notion
+// keep you oriented after a delete.
 export function pickAdjacentDocumentId(
   documents: DocumentForAdjacency[],
   deletedId: string
@@ -34,15 +25,9 @@ export function pickAdjacentDocumentId(
     return (next ?? siblings[siblings.length - 1]).id;
   }
 
-  // The deleted node's sibling group is now empty — fall back to a remaining one.
   return firstRemainingDocumentId(remaining);
 }
 
-/**
- * Returns the node to open after a whole subtree (a node and every descendant)
- * is deleted. Sibling adjacency doesn't apply — pick any remaining node.
- * Returns `null` when none remain.
- */
 export function pickDocumentAfterContainerDeletion(
   documents: DocumentForAdjacency[],
   deletedIds: string[]

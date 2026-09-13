@@ -5,7 +5,6 @@ import { renderWithProviders, createStore } from '@web/test/test-utils';
 import { tokenAtom, userAtom } from '@web/features/auth/state/auth.store';
 import { MOCK_USER, MOCK_DOCUMENT } from '@web/test/mocks/fixtures';
 
-// Mock heavy layout and document components to isolate routing logic
 vi.mock('@web/layouts/app-layout', () => ({
   AppLayout: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="app-layout">{children}</div>

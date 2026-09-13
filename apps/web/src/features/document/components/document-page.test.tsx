@@ -8,7 +8,6 @@ import { currentDocumentAtom } from '@web/features/document/state/document.store
 import { MOCK_USER, MOCK_DOCUMENT } from '@web/test/mocks/fixtures';
 import { server } from '@web/test/mocks/server';
 
-// Mock heavy dependencies
 vi.mock('@web/layouts/document-layout', () => ({
   DocumentLayout: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="document-layout">{children}</div>
@@ -35,7 +34,6 @@ vi.mock('@web/features/toolbar/components/toolbar-dialog', () => ({
   ),
 }));
 
-// Mock react-router-dom's useParams
 const mockNavigate = vi.fn();
 let mockParams: Record<string, string> = {};
 
@@ -132,7 +130,6 @@ describe('DocumentPage', () => {
 
     renderWithProviders(<DocumentPage />, { store });
 
-    // Should show error/not found state since the query is disabled
     expect(screen.getByText('Document not found')).toBeInTheDocument();
   });
 
@@ -183,8 +180,7 @@ describe('DocumentPage', () => {
     await waitFor(() =>
       expect(mockNavigate).toHaveBeenCalledWith(`/document/${MOCK_DOCUMENT.id}`)
     );
-    // The placeholder must create a writable 'document' — not an invalid kind
-    // that the DB's `kind` CHECK constraint would reject.
+    // Any other kind would be rejected by the DB's `kind` CHECK constraint.
     expect(createKind).toBe('document');
   });
 

@@ -117,6 +117,20 @@ under `apps/web/src` or `apps/api/src`.
 - Conventional Commits format: `feat:`, `fix:`, `refactor:`, etc.
 - Do not include `Co-Authored-By:` lines in commits
 
+## Comments
+
+Comments explain **why**, never **what**. Write one only when a reader with the
+code in front of them would still be missing something: a constraint, a
+trade-off, a workaround, a non-obvious dependency, a regression being locked.
+
+- No restating the code, no layout or class-list narration, no section
+  banners (`// ── Mutations ──`), no describing what a story or test shows —
+  its name does that.
+- No commented-out code. Delete it; git has it.
+- Default to zero. If a comment reads as a summary, drop it. If it reads as
+  a reason, keep it short — one or two lines beats a doc block.
+- JSDoc on props/params only when the name genuinely can't carry the meaning.
+
 ## AI tool configuration
 
 Always query the official Claude Code documentation before creating or modifying any Claude configuration files. Do not rely on training data for this — conventions change between versions.

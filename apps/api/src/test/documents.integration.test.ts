@@ -1,14 +1,8 @@
-/**
- * Content SQL-function mutations for documents, exercised through GraphQL:
- * update_document_content (word count + version row) and
- * restore_document_version. (Node creation lives in outline.integration.test.)
- */
 import { describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';
 import { graphql } from './graphql.js';
 import { createDocument, createUser } from './seed.js';
 
-/** A minimal Plate/Slate-shaped value so extract_plain_text/count_words run. */
 function richText(text: string) {
   return [{ type: 'p', children: [{ text }] }];
 }
@@ -60,7 +54,6 @@ describe('restore_document_version', () => {
     const user = await createUser();
     const doc = await createDocument(user);
 
-    // Version 1 (2 words), then version 2 (4 words).
     await graphql(
       UPDATE_CONTENT,
       { docId: doc.id, newContent: richText('one two') },

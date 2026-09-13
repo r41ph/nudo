@@ -8,7 +8,7 @@ const meta = {
   title: 'Outline/NodeStatusControl',
   component: NodeStatusControl,
   parameters: { layout: 'centered' },
-  // The unset trigger only reveals on row hover, so host it inside a `group/row`.
+  // The control only reveals on row hover, so it needs a stand-in `group/row`.
   decorators: [
     (Story) => (
       <div className="group/row flex items-center gap-2 rounded-md bg-sidebar p-3">
@@ -23,11 +23,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Moon-phase dot: empty ring → left-half → solid. Opt-in on any node.
 export const Planned: Story = { args: { status: 'planned' } };
 export const Drafting: Story = { args: { status: 'drafting' } };
 export const Done: Story = { args: { status: 'done' } };
-// Unset: a faint dashed "add status" dot, revealed on hover.
 export const Unset: Story = { args: { status: null } };
 
 export const AllDots: StoryObj = {

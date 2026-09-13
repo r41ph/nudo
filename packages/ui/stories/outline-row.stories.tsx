@@ -33,7 +33,6 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// A leaf you write in — bullet marker. Hover to reveal grip + actions.
 export const Document: Story = {};
 
 export const ActiveDocument: Story = {
@@ -44,7 +43,6 @@ export const DocumentWithStatus: Story = {
   args: { title: 'Chapter Three', status: 'drafting' },
 };
 
-// A container — chevron marker; word count is the rolled-up total.
 export const FolderCollapsed: Story = {
   args: { title: 'Part One', kind: 'folder', wordCount: 18280 },
 };
@@ -62,7 +60,6 @@ export const FolderDone: Story = {
   },
 };
 
-// A flat scoping marker — rule + label + fold chevron. No prose, no status.
 export const Separator: Story = {
   args: { title: 'PART TWO', kind: 'separator', isOpen: true },
 };

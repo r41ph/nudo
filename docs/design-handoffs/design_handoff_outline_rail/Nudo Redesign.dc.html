@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/modernist-3365f1fc-ceef-4484-a59e-0ea940db335b/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #e9e7e4; }
+  a { color: #ec3013; text-decoration: none; border-bottom: 1px solid rgba(236,48,19,0.4); }
+  a:hover { border-bottom-color: #ec3013; }
+</style>
+</helmet>
+
+<section style="display: flex; flex-direction: column; gap: 40px; padding: 56px 64px 120px; font-family: 'Archivo', sans-serif; color: #201e1d;">
+
+  <div style="max-width: 900px; border-bottom: 2px solid #201e1d; padding-bottom: 28px;">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #ec3013; margin-bottom: 12px;">Step 02 — Redesign</div>
+    <h1 style="font-family: 'Archivo', sans-serif; font-size: 52px; line-height: 1; font-weight: 700; letter-spacing: -0.03em; margin: 0 0 18px;">Three directions</h1>
+    <p style="font-size: 17px; line-height: 1.55; margin: 0; max-width: 720px; text-wrap: pretty;">All three fix the contrast failures, the undersized targets and the hover-only destructive actions — those aren't strategy, they're defects. Where they differ is what they believe the outline is for. Each shows the same three screens: a document open, the outline's row menu open, and focus mode. Reference them in chat as <a href="#1a">1a</a>, <a href="#1b">1b</a>, <a href="#1c">1c</a>.</p>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 72px; align-items: flex-start;">
+
+    <!-- ══════════════════════════════ 1a CONSERVATIVE ══════════════════════════════ -->
+    <div id="1a" style="width: 1560px; display: flex; flex-direction: column; gap: 28px;">
+
+      <div style="display: flex; align-items: flex-start; gap: 24px; border-top: 2px solid #201e1d; padding-top: 20px;">
+        <span style="font-family: 'Archivo', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: #fff; background: #201e1d; padding: 7px 11px;">1a</span>
+        <div style="flex: 1;">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #ec3013; margin-bottom: 8px;">Conservative</div>
+          <h2 style="font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 10px; line-height: 1.05;">Same bones, repaired</h2>
+          <p style="margin: 0; font-size: 16px; line-height: 1.55; max-width: 900px;">Identical layout DNA — rail, top bar, page. Every change is a token value, a target size, or a component swap. The one structural move: the page loses its card and gains its own title, so the document stops being anonymous.</p>
+        </div>
+      </div>
+
+      <!-- S1 editor -->
+      <div style="display: flex; gap: 28px; align-items: flex-start;">
+        <div style="position: relative; width: 1180px; border: 2px solid #201e1d; background: #f7f3ec; flex-shrink: 0;">
+          <div style="display: flex; height: 680px;">
+            <!-- rail -->
+            <div style="width: 244px; flex-shrink: 0; background: #f1eadd; border-right: 1px solid #ded2bf; display: flex; flex-direction: column;">
+              <div style="padding: 18px 16px 16px; border-bottom: 1px solid #ded2bf;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+                  <span style="font-family: 'Newsreader', serif; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; color: #2a251f;">—nudo<span style="color: #a8502f;">.</span></span>
+                  <span style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: rgba(168,80,47,0.07); color: #6f665b; font-size: 15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg></span>
+                </div>
+                <div style="font-family: 'Newsreader', serif; font-size: 21px; font-weight: 600; color: #2a251f; line-height: 1.15;">Project Alpha</div>
+                <div style="margin-top: 7px; font-size: 12px; color: #6f665b; letter-spacing: 0.01em;">43 words · 2 chapters</div>
+              </div>
+              <div style="padding: 16px 10px 0; flex: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 8px 10px;">
+                  <span style="font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #8a8073;">Story</span>
+                  <span style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 7px; color: #6f665b; font-size: 15px; background: rgba(168,80,47,0.07);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg></span>
+                </div>
+                <!-- chapter one -->
+                <div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px;">
+                  <span style="color: #6f665b; font-size: 10px; width: 12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m6 9 6 6 6-6"/></svg></span>
+                  <span style="flex: 1; font-size: 14px; font-weight: 600; color: #2a251f;">Chapter One</span>
+                  <span style="font-size: 11.5px; color: #6f665b; font-variant-numeric: tabular-nums;">43</span>
+                  <span style="width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #4f7a63; background: linear-gradient(90deg,#4f7a63 0 50%, transparent 50%);"></span>
+                </div>
+                <div style="margin-left: 20px; border-left: 1px solid #ded2bf; padding-left: 6px;">
+                  <div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px; background: rgba(168,80,47,0.12);">
+                    <span style="flex: 1; font-size: 13.5px; font-weight: 600; color: #2a251f;">Welcome Document</span>
+                    <span style="font-size: 11.5px; color: #6f665b; font-variant-numeric: tabular-nums;">43</span>
+                    <span style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 7px; color: #6f665b; font-size: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px; background: rgba(42,37,31,0.035);">
+                    <span style="flex: 1; font-size: 13.5px; color: #3d372e;">Untitled</span>
+                    <span style="font-size: 11.5px; color: #8a8073; font-variant-numeric: tabular-nums;">0</span>
+                    <span style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 7px; color: #6f665b; font-size: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px; margin-top: 2px;">
+                  <span style="color: #6f665b; font-size: 10px; width: 12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m9 18 6-6-6-6"/></svg></span>
+                  <span style="flex: 1; font-size: 14px; font-weight: 600; color: #2a251f;">Chapter Two</span>
+                  <span style="font-size: 11.5px; color: #6f665b; font-variant-numeric: tabular-nums;">0</span>
+                  <span style="width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #b0a693;"></span>
+                </div>
+              </div>
+              <div style="padding: 12px 14px 14px; border-top: 1px solid #ded2bf; display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 9px; height: 36px; padding: 0 12px; border-radius: 8px; background: #a8502f; color: #fdf9f2; font-size: 13.5px; font-weight: 600;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg> New in Chapter One
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; padding: 2px 4px;">
+                  <span style="width: 26px; height: 26px; border-radius: 50%; background: #ded2bf; color: #3d372e; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center;">RG</span>
+                  <span style="flex: 1; font-size: 12.5px; color: #3d372e;">ralph@rgalan.es</span>
+                  <span style="font-size: 14px; color: #6f665b;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m18 15-6-6-6 6"/></svg></span>
+                </div>
+              </div>
+            </div>
+            <!-- main -->
+            <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+              <div style="height: 46px; flex-shrink: 0; border-bottom: 1px solid #ded2bf; display: flex; align-items: center; gap: 14px; padding: 0 20px;">
+                <span style="font-size: 12.5px; color: #6f665b;">Chapter One</span>
+                <span style="flex: 1;"></span>
+                <span style="display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #4f7a63;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #4f7a63;"></span>Saved 16:50</span>
+                <span style="font-size: 12.5px; color: #3d372e; font-variant-numeric: tabular-nums;">412 / 800 today</span>
+                <span style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6f665b; font-size: 14px; background: rgba(168,80,47,0.07);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></span>
+                <span style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6f665b; font-size: 14px; background: rgba(168,80,47,0.07);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
+              </div>
+              <div style="height: 42px; flex-shrink: 0; border-bottom: 1px solid #ded2bf; display: flex; align-items: center; gap: 4px; padding: 0 20px; background: #faf6ef;">
+                <span style="height: 28px; padding: 0 10px; display: flex; align-items: center; border-radius: 7px; font-size: 12.5px; color: #3d372e; gap: 6px;">Text <span style="font-size: 9px; color: #8a8073;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m6 9 6 6 6-6"/></svg></span></span>
+                <span style="width: 1px; height: 18px; background: #ded2bf; margin: 0 6px;"></span>
+                <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; font-weight: 700; color: #3d372e;">B</span>
+                <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; font-style: italic; color: #3d372e;">I</span>
+                <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; text-decoration: underline; color: #3d372e;">U</span>
+                <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; color: #3d372e;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2h-1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a5 5 0 0 0 5-5V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H4a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a5 5 0 0 0 5-5V5a2 2 0 0 0-2-2z"/></svg></span>
+                <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 13px; color: #3d372e;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M15 12H3"/><path d="M17 18H3"/><path d="M21 6H3"/></svg></span>
+                <span style="width: 1px; height: 18px; background: #ded2bf; margin: 0 6px;"></span>
+                <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 13px; color: #3d372e;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M21.2 6.8a1 1 0 0 0-4-4L3.8 16.2a2 2 0 0 0-.5.8l-1.3 4.4a.5.5 0 0 0 .6.6l4.4-1.3a2 2 0 0 0 .8-.5z"/><path d="m15 5 4 4"/></svg></span>
+                <span style="flex: 1;"></span>
+                <span style="height: 28px; padding: 0 10px; display: flex; align-items: center; border-radius: 7px; font-size: 12px; color: #6f665b; gap: 6px;">Customise</span>
+              </div>
+              <div style="flex: 1; padding: 48px 0 0; display: flex; justify-content: center; overflow: hidden;">
+                <div style="width: 640px;">
+                  <div style="font-family: 'Newsreader', serif; font-size: 38px; font-weight: 600; color: #2a251f; letter-spacing: -0.01em; line-height: 1.15;">Welcome Document</div>
+                  <div style="height: 1px; background: #ded2bf; margin: 22px 0 26px;"></div>
+                  <p style="font-family: 'Newsreader', serif; font-size: 20px; line-height: 1.72; color: #3d372e; margin: 0 0 20px;">Every great book begins with a single sentence. This is yours.</p>
+                  <p style="font-family: 'Newsreader', serif; font-size: 20px; line-height: 1.72; color: #3d372e; margin: 0;">Don't worry about getting it perfect — just start writing. Your words are saved automatically, so you can focus on what matters: telling your story.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <span style="position: absolute; left: 256px; top: 236px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(247,243,236,0.95);">1</span>
+          <span style="position: absolute; left: 256px; top: 598px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(247,243,236,0.95);">2</span>
+          <span style="position: absolute; left: 942px; top: 106px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(247,243,236,0.95);">3</span>
+          <span style="position: absolute; left: 524px; top: 66px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(247,243,236,0.95);">4</span>
+          <span style="position: absolute; left: 352px; top: 150px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(247,243,236,0.95);">5</span>
+          <span style="position: absolute; left: 256px; top: 162px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(247,243,236,0.95);">6</span>
+        </div>
+
+        <!-- notes 1a -->
+        <div style="width: 320px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; padding-bottom: 10px; border-bottom: 2px solid #201e1d;">Key decisions</div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">1</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Rows go to 34px and hover becomes a 3.5% ink wash, not a terracotta tint — the accent is now reserved for the one active row (fill plus a 2.5px left bar). Hovering four rows no longer looks like four selections.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">2</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">“New” states its scope in the label. The footer button reads <em>New in Chapter One</em> and follows selection, so the root-versus-child guess disappears.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">3</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">One save state at minute precision in a token colour, and the day's words shown against a target you can set. The cluster drops from three colours to one.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">4</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">The toolbar becomes a fixed row — <code style="font-family: 'Archivo', sans-serif;">FixedToolbar</code> is already vendored and commented out. Headings work on an empty line, and “Customise” is finally visible.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">5</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">No card, no shadow, no fixed bottom edge. The document's title is a real H1 in the page, so the breadcrumb only has to carry ancestors.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">6</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">“Story” drops to 10.5px and gains a 26px add button beside it. The group label stops outranking the chapters underneath it.</p>
+          </div>
+          <div style="margin-top: 18px; padding: 16px; background: #dedbd8; border-left: 3px solid #201e1d;">
+            <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">Trade-off</div>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Cheapest to ship and nothing to relearn — most of it is token values and two component swaps. But it does nothing for planning: this is still a file tree with a word count, and the questions “where am I in the book” and “what's unwritten” stay unanswered. <a href="#1b">1b</a> answers them.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2 + S3 1a -->
+      <div style="display: flex; gap: 28px; align-items: flex-start;">
+        <div style="width: 560px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; margin-bottom: 12px;">Row menu — enlarged 1.6×</div>
+          <div style="border: 2px solid #201e1d; background: #f1eadd; height: 400px; overflow: hidden; position: relative;">
+            <div style="transform: scale(1.6); transform-origin: top left; width: 348px; padding: 14px 10px;">
+              <div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px;">
+                <span style="color: #6f665b; font-size: 10px; width: 12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m6 9 6 6 6-6"/></svg></span>
+                <span style="flex: 1; font-size: 14px; font-weight: 600; color: #2a251f;">Chapter One</span>
+                <span style="font-size: 11.5px; color: #6f665b;">43</span>
+                <span style="width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #4f7a63; background: linear-gradient(90deg,#4f7a63 0 50%, transparent 50%);"></span>
+              </div>
+              <div style="margin-left: 20px; border-left: 1px solid #ded2bf; padding-left: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px; background: rgba(42,37,31,0.05);">
+                  <span style="flex: 1; font-size: 13.5px; color: #2a251f;">Welcome Document</span>
+                  <span style="font-size: 11.5px; color: #6f665b;">43</span>
+                  <span style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: rgba(168,80,47,0.13); color: #a8502f; font-size: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                </div>
+                <div style="margin: 5px 0 0 auto; width: 176px; background: #fffcf6; border: 1px solid #ded2bf; border-radius: 9px; padding: 5px; box-shadow: 0 6px 18px rgba(42,37,31,0.10);">
+                  <div style="display: flex; align-items: center; gap: 9px; height: 30px; padding: 0 9px; border-radius: 6px; font-size: 12.5px; color: #2a251f; background: rgba(168,80,47,0.10);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M21.2 6.8a1 1 0 0 0-4-4L3.8 16.2a2 2 0 0 0-.5.8l-1.3 4.4a.5.5 0 0 0 .6.6l4.4-1.3a2 2 0 0 0 .8-.5z"/><path d="m15 5 4 4"/></svg> Rename</div>
+                  <div style="display: flex; align-items: center; gap: 9px; height: 30px; padding: 0 9px; border-radius: 6px; font-size: 12.5px; color: #2a251f;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/></svg> Set status <span style="flex:1"></span><span style="color:#8a8073"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 0.85em; height: 0.85em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                  <div style="display: flex; align-items: center; gap: 9px; height: 30px; padding: 0 9px; border-radius: 6px; font-size: 12.5px; color: #2a251f;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg> New inside</div>
+                  <div style="display: flex; align-items: center; gap: 9px; height: 30px; padding: 0 9px; border-radius: 6px; font-size: 12.5px; color: #2a251f;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Duplicate</div>
+                  <div style="height: 1px; background: #ded2bf; margin: 4px 6px;"></div>
+                  <div style="display: flex; align-items: center; gap: 9px; height: 30px; padding: 0 9px; border-radius: 6px; font-size: 12.5px; color: #9e2b16;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> Delete…</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px; margin-top: 5px;">
+                  <span style="flex: 1; font-size: 13.5px; color: #3d372e;">Untitled</span>
+                  <span style="font-size: 11.5px; color: #8a8073;">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p style="margin: 12px 0 0; font-size: 13.5px; line-height: 1.5; max-width: 520px;">Three 20px hover icons become one 26px menu that lives in its own permanent slot. The word count no longer gets swapped out from under the cursor, the menu stays lit while it's open, and every item is a 30px row with a label. Delete gains an ellipsis and a confirm step.</p>
+        </div>
+
+        <div style="width: 560px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; margin-bottom: 12px;">Focus mode</div>
+          <div style="border: 2px solid #201e1d; background: #f7f3ec; height: 400px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 14px; right: 16px; display: flex; align-items: center; gap: 10px; font-size: 11.5px; color: #8a8073;">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: #4f7a63;"></span>412 words
+              <span style="width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: rgba(42,37,31,0.05); color: #6f665b; font-size: 12px;">esc</span>
+            </div>
+            <div style="padding: 74px 0 0; display: flex; justify-content: center;">
+              <div style="width: 400px;">
+                <div style="font-family: 'Newsreader', serif; font-size: 26px; font-weight: 600; color: #2a251f;">Welcome Document</div>
+                <p style="font-family: 'Newsreader', serif; font-size: 17px; line-height: 1.8; color: #3d372e; margin: 22px 0 16px;">Every great book begins with a single sentence. This is yours.</p>
+                <p style="font-family: 'Newsreader', serif; font-size: 17px; line-height: 1.8; color: #3d372e; margin: 0;">Don't worry about getting it perfect — just start writing.<span style="display: inline-block; width: 2px; height: 20px; background: #a8502f; vertical-align: -4px; margin-left: 2px;"></span></p>
+              </div>
+            </div>
+          </div>
+          <p style="margin: 12px 0 0; font-size: 13.5px; line-height: 1.5; max-width: 520px;">Escape exits, and the hint says so — today the only way out is an unlabelled 28px icon. The word count stays because it's the one number a drafting writer wants; the timestamp goes.</p>
+        </div>
+      </div>
+
+      <div style="border: 2px solid #201e1d; padding: 20px 24px; background: #dedbd8;">
+        <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 14px;">Token repairs — the whole of the accessibility fix</div>
+        <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 11.5px; color: #6b6866; margin-bottom: 8px;">Light</div>
+            <div style="display: flex; gap: 8px;">
+              <div style="width: 92px;"><div style="height: 44px; background: #f7f3ec; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">bg #f7f3ec</div></div>
+              <div style="width: 92px;"><div style="height: 44px; background: #f1eadd; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">rail #f1eadd</div></div>
+              <div style="width: 92px;"><div style="height: 44px; background: #6f665b; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">muted <s>#9a9286</s> → #6f665b</div></div>
+              <div style="width: 92px;"><div style="height: 44px; background: #8a8073; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">faint <s>#b8af9f</s> → #8a8073</div></div>
+              <div style="width: 92px;"><div style="height: 44px; background: #a8502f; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">accent <s>#b0573c</s> → #a8502f</div></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 11.5px; color: #6b6866; margin-bottom: 8px;">Dark — the ground lifts off pure black-brown and the accent desaturates</div>
+            <div style="display: flex; gap: 8px;">
+              <div style="width: 92px;"><div style="height: 44px; background: #1f1c18; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">bg #1f1c18</div></div>
+              <div style="width: 92px;"><div style="height: 44px; background: #171410; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">rail #171410</div></div>
+              <div style="width: 92px;"><div style="height: 44px; background: #e8dfd0; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">prose #e8dfd0</div></div>
+              <div style="width: 92px;"><div style="height: 44px; background: #a39a8c; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">muted <s>#8e867a</s> → #a39a8c</div></div>
+              <div style="width: 92px;"><div style="height: 44px; background: #d98f62; border: 1px solid #201e1d;"></div><div style="font-size: 10.5px; margin-top: 5px;">accent #d98f62</div></div>
+            </div>
+          </div>
+        </div>
+        <p style="margin: 16px 0 0; font-size: 13.5px; line-height: 1.5; max-width: 1000px;">Dark mode's real problem isn't the hues, it's that <code style="font-family: 'Archivo', sans-serif;">--muted-foreground</code> got <em>darker</em> in dark mode (#8e867a on #1a1610 ≈ 3.4:1) — the inverse of what inverting should do. Raising it and lifting the two grounds apart by a visible step fixes most of it without changing the palette's character.</p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ 1b RESTRUCTURED ══════════════════════════════ -->
+    <div id="1b" style="width: 1560px; display: flex; flex-direction: column; gap: 28px;">
+
+      <div style="display: flex; align-items: flex-start; gap: 24px; border-top: 2px solid #201e1d; padding-top: 20px;">
+        <span style="font-family: 'Archivo', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: #fff; background: #201e1d; padding: 7px 11px;">1b</span>
+        <div style="flex: 1;">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #ec3013; margin-bottom: 8px;">Restructured</div>
+          <h2 style="font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 10px; line-height: 1.05;">The manuscript spine</h2>
+          <p style="margin: 0; font-size: 16px; line-height: 1.55; max-width: 900px;">The tree stops being a file list and becomes a measure of the book. Each chapter is a band with its progress drawn against a target; documents are quiet rows inside it. Search, the daily goal and the comment margin — all built in the codebase, none surfaced — get real homes. Cooler ink on warmer paper, grotesque chrome against serif prose.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 28px; align-items: flex-start;">
+        <div style="position: relative; width: 1180px; border: 2px solid #201e1d; background: #fbf8f3; flex-shrink: 0;">
+          <div style="display: flex; height: 680px;">
+            <!-- icon rail -->
+            <div style="width: 56px; flex-shrink: 0; background: #ede8e0; border-right: 1px solid #ddd6ca; display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 6px;">
+              <span style="font-family: 'Newsreader', serif; font-size: 20px; font-weight: 700; color: #1a1815; margin-bottom: 14px;">n<span style="color: #16584a;">.</span></span>
+              <span style="width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #16584a; color: #fbf8f3; font-size: 16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></span>
+              <span style="width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #4a453d; font-size: 16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+              <span style="width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #4a453d; font-size: 16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg></span>
+              <span style="flex: 1;"></span>
+              <span style="width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #4a453d; font-size: 15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
+              <span style="width: 32px; height: 32px; border-radius: 50%; background: #ddd6ca; color: #1a1815; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center;">RG</span>
+            </div>
+            <!-- panel -->
+            <div style="width: 312px; flex-shrink: 0; background: #f4f0e9; border-right: 1px solid #ddd6ca; display: flex; flex-direction: column;">
+              <div style="padding: 16px 16px 14px; border-bottom: 1px solid #ddd6ca;">
+                <div style="font-family: 'Newsreader', serif; font-size: 22px; font-weight: 600; color: #1a1815; line-height: 1.1;">Project Alpha</div>
+                <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 12px;">
+                  <span style="font-size: 22px; font-weight: 600; color: #1a1815; font-variant-numeric: tabular-nums; letter-spacing: -0.02em;">412</span>
+                  <span style="font-size: 12px; color: #5c564e;">of 800 today</span>
+                </div>
+                <div style="height: 5px; background: #ddd6ca; margin-top: 8px; border-radius: 3px; overflow: hidden;"><span style="display: block; width: 51%; height: 5px; background: #16584a;"></span></div>
+                <div style="margin-top: 14px; height: 34px; border-radius: 9px; background: #fbf8f3; border: 1px solid #ddd6ca; display: flex; align-items: center; gap: 8px; padding: 0 11px;">
+                  <span style="color: #7d766c; font-size: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+                  <span style="font-size: 12.5px; color: #7d766c;">Search the manuscript</span>
+                  <span style="flex: 1;"></span>
+                  <span style="font-size: 10.5px; color: #7d766c; border: 1px solid #ddd6ca; border-radius: 4px; padding: 1px 5px;">⌘K</span>
+                </div>
+              </div>
+              <div style="flex: 1; padding: 6px 0 0;">
+                <!-- chapter band 1 -->
+                <div style="padding: 14px 16px 10px; background: #fbf8f3; border-bottom: 1px solid #ddd6ca;">
+                  <div style="display: flex; align-items: center; gap: 9px;">
+                    <span style="font-size: 10px; color: #5c564e; width: 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m6 9 6 6 6-6"/></svg></span>
+                    <span style="flex: 1; font-size: 14.5px; font-weight: 600; color: #1a1815; letter-spacing: -0.005em;">Chapter One</span>
+                    <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #16584a;">Drafting</span>
+                    <span style="width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #5c564e; font-size: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0 0 19px;">
+                    <span style="flex: 1; height: 4px; background: #ddd6ca; border-radius: 2px; overflow: hidden;"><span style="display: block; width: 22%; height: 4px; background: #16584a;"></span></span>
+                    <span style="font-size: 11px; color: #5c564e; font-variant-numeric: tabular-nums;">43 / 2,000</span>
+                  </div>
+                </div>
+                <div style="background: #fbf8f3; padding: 4px 0 10px; border-bottom: 1px solid #ddd6ca;">
+                  <div style="display: flex; align-items: center; gap: 10px; height: 38px; margin: 0 8px; padding: 0 11px 0 27px; border-radius: 9px; background: #e6efe9; box-shadow: inset 3px 0 0 #16584a;">
+                    <span style="flex: 1; font-size: 13.5px; font-weight: 500; color: #1a1815;">Welcome Document</span>
+                    <span style="font-size: 11.5px; color: #5c564e; font-variant-numeric: tabular-nums;">43</span>
+                    <span style="width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #5c564e; font-size: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; height: 38px; margin: 2px 8px 0; padding: 0 11px 0 27px; border-radius: 9px;">
+                    <span style="flex: 1; font-size: 13.5px; color: #4a453d;">Untitled</span>
+                    <span style="font-size: 11.5px; color: #7d766c; font-variant-numeric: tabular-nums;">—</span>
+                    <span style="width: 28px; height: 28px;"></span>
+                  </div>
+                </div>
+                <!-- chapter band 2 -->
+                <div style="padding: 14px 16px 12px; border-bottom: 1px solid #ddd6ca;">
+                  <div style="display: flex; align-items: center; gap: 9px;">
+                    <span style="font-size: 10px; color: #5c564e; width: 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m9 18 6-6-6-6"/></svg></span>
+                    <span style="flex: 1; font-size: 14.5px; font-weight: 600; color: #1a1815;">Chapter Two</span>
+                    <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7d766c;">Planned</span>
+                    <span style="width: 28px; height: 28px;"></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0 0 19px;">
+                    <span style="flex: 1; height: 4px; background: #ddd6ca; border-radius: 2px;"></span>
+                    <span style="font-size: 11px; color: #7d766c; font-variant-numeric: tabular-nums;">0 / 2,000</span>
+                  </div>
+                </div>
+                <div style="padding: 16px;">
+                  <div style="display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 13px; border-radius: 9px; border: 1px dashed #c9c1b4; color: #4a453d; font-size: 13px; font-weight: 500;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Add a chapter</div>
+                </div>
+              </div>
+            </div>
+            <!-- main -->
+            <div style="flex: 1; display: flex; min-width: 0;">
+              <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+                <div style="height: 44px; flex-shrink: 0; display: flex; align-items: center; gap: 4px; padding: 0 24px; border-bottom: 1px solid #ddd6ca;">
+                  <span style="height: 28px; padding: 0 10px; display: flex; align-items: center; border-radius: 7px; font-size: 12.5px; color: #1a1815; gap: 6px;">Text <span style="font-size: 9px; color: #7d766c;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m6 9 6 6 6-6"/></svg></span></span>
+                  <span style="width: 1px; height: 18px; background: #ddd6ca; margin: 0 8px;"></span>
+                  <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; font-weight: 700;">B</span>
+                  <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; font-style: italic;">I</span>
+                  <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; text-decoration: underline;">U</span>
+                  <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2h-1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a5 5 0 0 0 5-5V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H4a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a5 5 0 0 0 5-5V5a2 2 0 0 0-2-2z"/></svg></span>
+                  <span style="flex: 1;"></span>
+                  <span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #5c564e;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #16584a;"></span>Saved</span>
+                  <span style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 7px; font-size: 13px; color: #5c564e; margin-left: 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></span>
+                </div>
+                <div style="flex: 1; padding: 52px 0 0; display: flex; justify-content: center; overflow: hidden;">
+                  <div style="width: 600px;">
+                    <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #7d766c; margin-bottom: 14px;">Chapter One · Document 1 of 2</div>
+                    <div style="font-family: 'Newsreader', serif; font-size: 40px; font-weight: 600; color: #1a1815; letter-spacing: -0.015em; line-height: 1.12;">Welcome Document</div>
+                    <p style="font-family: 'Newsreader', serif; font-size: 20px; line-height: 1.75; color: #33302a; margin: 30px 0 20px;">Every great book begins with a single sentence. This is yours.</p>
+                    <p style="font-family: 'Newsreader', serif; font-size: 20px; line-height: 1.75; color: #33302a; margin: 0;">Don't worry about getting it perfect — just start writing. <span style="background: #f7e6b8; box-shadow: inset 0 -1px 0 #d9b65a;">Your words are saved automatically</span>, so you can focus on what matters: telling your story.</p>
+                  </div>
+                </div>
+              </div>
+              <!-- margin strip -->
+              <div style="width: 52px; flex-shrink: 0; border-left: 1px solid #ddd6ca; background: #f7f4ee; padding: 52px 0 0; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7d766c; writing-mode: vertical-rl; margin-bottom: 6px;">Margin</div>
+                <span style="width: 30px; height: 30px; border-radius: 8px; background: #f7e6b8; border: 1px solid #d9b65a; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #6b5620;">2</span>
+                <span style="width: 30px; height: 30px; border-radius: 8px; background: #e6efe9; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #16584a;">1</span>
+              </div>
+            </div>
+          </div>
+          <span style="position: absolute; left: 20px; top: 470px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(251,248,243,0.95);">1</span>
+          <span style="position: absolute; left: 378px; top: 100px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(251,248,243,0.95);">2</span>
+          <span style="position: absolute; left: 378px; top: 180px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(251,248,243,0.95);">3</span>
+          <span style="position: absolute; left: 378px; top: 212px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(251,248,243,0.95);">4</span>
+          <span style="position: absolute; left: 378px; top: 136px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(251,248,243,0.95);">5</span>
+          <span style="position: absolute; left: 1142px; top: 330px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(251,248,243,0.95);">6</span>
+        </div>
+
+        <div style="width: 320px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; padding-bottom: 10px; border-bottom: 2px solid #201e1d;">Key decisions</div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">1</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">A 56px icon rail takes the app-level controls — project, search, settings, theme, account — off the outline panel and out of the top bar. Both were carrying jobs that weren't theirs.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">2</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">“+0 today” becomes a real instrument: a daily target with a bar. The number the current top bar shows exists precisely so it can be measured against something.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">3</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Chapters are <em>bands</em>, not rows: a raised block with title, status word and a progress bar against a chapter target. The two-pixel type difference stops carrying the hierarchy — the surface does.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">4</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Status becomes a word, not a 9px moon dot. The dot was elegant and unreadable; “Drafting” costs 60px and needs no legend.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">5</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Search moves into the panel with ⌘K. There is no search in the product today, and it's the first thing a writer with 60,000 words wants.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">6</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">A 52px margin strip surfaces comments and suggestions. The whole discussion system is implemented and has no visible entry point — this gives it one without a full sidebar.</p>
+          </div>
+          <div style="margin-top: 18px; padding: 16px; background: #dedbd8; border-left: 3px solid #201e1d;">
+            <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;">Trade-off</div>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Answers questions <a href="#1a">1a</a> can't — where am I, what's unwritten, where is that scene — and surfaces three features already built. The cost is real: 368px of chrome instead of 244px, a rewritten rail, and targets set by a goal the writer now has to choose. If they don't want goals, the spine is decoration.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 28px; align-items: flex-start;">
+        <div style="width: 560px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; margin-bottom: 12px;">Row menu — enlarged 1.6×</div>
+          <div style="border: 2px solid #201e1d; background: #f4f0e9; height: 400px; overflow: hidden;">
+            <div style="transform: scale(1.6); transform-origin: top left; width: 348px; padding: 12px 0;">
+              <div style="padding: 12px 16px 10px; background: #fbf8f3; border-top: 1px solid #ddd6ca; border-bottom: 1px solid #ddd6ca;">
+                <div style="display: flex; align-items: center; gap: 9px;">
+                  <span style="font-size: 10px; color: #5c564e; width: 10px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="m6 9 6 6 6-6"/></svg></span>
+                  <span style="flex: 1; font-size: 14.5px; font-weight: 600; color: #1a1815;">Chapter One</span>
+                  <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #16584a;">Drafting</span>
+                  <span style="width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: #e6efe9; color: #16584a; font-size: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0 0 19px;">
+                  <span style="flex: 1; height: 4px; background: #ddd6ca; border-radius: 2px; overflow: hidden;"><span style="display: block; width: 22%; height: 4px; background: #16584a;"></span></span>
+                  <span style="font-size: 11px; color: #5c564e;">43 / 2,000</span>
+                </div>
+              </div>
+              <div style="margin: 6px 8px 0 auto; width: 196px; background: #fff; border: 1px solid #ddd6ca; border-radius: 10px; padding: 6px; box-shadow: 0 8px 22px rgba(26,24,21,0.12);">
+                <div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #7d766c; padding: 5px 9px 7px;">Chapter One</div>
+                <div style="display: flex; align-items: center; gap: 9px; height: 32px; padding: 0 9px; border-radius: 7px; font-size: 12.5px; color: #1a1815; background: #f0ece5;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M21.2 6.8a1 1 0 0 0-4-4L3.8 16.2a2 2 0 0 0-.5.8l-1.3 4.4a.5.5 0 0 0 .6.6l4.4-1.3a2 2 0 0 0 .8-.5z"/><path d="m15 5 4 4"/></svg> Rename</div>
+                <div style="display: flex; align-items: center; gap: 9px; height: 32px; padding: 0 9px; border-radius: 7px; font-size: 12.5px; color: #1a1815;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg> New document inside</div>
+                <div style="display: flex; align-items: center; gap: 9px; height: 32px; padding: 0 9px; border-radius: 7px; font-size: 12.5px; color: #1a1815;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Set word target…</div>
+                <div style="height: 1px; background: #e6e0d6; margin: 5px 6px;"></div>
+                <div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #7d766c; padding: 5px 9px 6px;">Status</div>
+                <div style="display: flex; gap: 4px; padding: 0 6px 4px;">
+                  <span style="flex: 1; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #4a453d; border: 1px solid #ddd6ca;">Planned</span>
+                  <span style="flex: 1; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fbf8f3; background: #16584a;">Drafting</span>
+                  <span style="flex: 1; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #4a453d; border: 1px solid #ddd6ca;">Done</span>
+                </div>
+                <div style="height: 1px; background: #e6e0d6; margin: 5px 6px;"></div>
+                <div style="display: flex; align-items: center; gap: 9px; height: 32px; padding: 0 9px; border-radius: 7px; font-size: 12.5px; color: #9e2b16;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> Delete chapter &amp; 2 documents…</div>
+              </div>
+            </div>
+          </div>
+          <p style="margin: 12px 0 0; font-size: 13.5px; line-height: 1.5; max-width: 520px;">The menu is titled with what it acts on, status is a segmented control rather than a submenu of dots, and delete names its own blast radius — “Chapter &amp; 2 documents” — before you commit to it.</p>
+        </div>
+
+        <div style="width: 560px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; margin-bottom: 12px;">Focus mode</div>
+          <div style="border: 2px solid #201e1d; background: #fbf8f3; height: 400px; position: relative; overflow: hidden;">
+            <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 40px; border-top: 1px solid #ddd6ca; background: #f4f0e9; display: flex; align-items: center; gap: 14px; padding: 0 18px;">
+              <span style="font-size: 11.5px; color: #4a453d; font-variant-numeric: tabular-nums;">412 / 800</span>
+              <span style="flex: 1; height: 4px; background: #ddd6ca; border-radius: 2px; overflow: hidden;"><span style="display: block; width: 51%; height: 4px; background: #16584a;"></span></span>
+              <span style="font-size: 11.5px; color: #7d766c;">Chapter One</span>
+              <span style="font-size: 10.5px; color: #4a453d; border: 1px solid #ddd6ca; border-radius: 4px; padding: 2px 6px;">esc</span>
+            </div>
+            <div style="padding: 62px 0 0; display: flex; justify-content: center;">
+              <div style="width: 420px;">
+                <div style="font-family: 'Newsreader', serif; font-size: 27px; font-weight: 600; color: #1a1815;">Welcome Document</div>
+                <p style="font-family: 'Newsreader', serif; font-size: 17px; line-height: 1.82; color: #33302a; margin: 22px 0 16px;">Every great book begins with a single sentence. This is yours.</p>
+                <p style="font-family: 'Newsreader', serif; font-size: 17px; line-height: 1.82; color: #33302a; margin: 0;">Don't worry about getting it perfect — just start writing.<span style="display: inline-block; width: 2px; height: 20px; background: #16584a; vertical-align: -4px; margin-left: 2px;"></span></p>
+              </div>
+            </div>
+          </div>
+          <p style="margin: 12px 0 0; font-size: 13.5px; line-height: 1.5; max-width: 520px;">Focus mode keeps one 40px strip: session progress against the target and where you are in the book. Everything the writer wanted the chrome for, in the one place it can't interrupt the page.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════ 1c BOLD ══════════════════════════════ -->
+    <div id="1c" style="width: 1560px; display: flex; flex-direction: column; gap: 28px;">
+
+      <div style="display: flex; align-items: flex-start; gap: 24px; border-top: 2px solid #201e1d; padding-top: 20px;">
+        <span style="font-family: 'Archivo', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: #fff; background: #ec3013; padding: 7px 11px;">1c</span>
+        <div style="flex: 1;">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #ec3013; margin-bottom: 8px;">Bold</div>
+          <h2 style="font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 10px; line-height: 1.05;">Corkboard</h2>
+          <p style="margin: 0; font-size: 16px; line-height: 1.55; max-width: 900px;">The tree is deleted. Chapters are columns on a board, scenes are cards you push around, and the editor is a zoom level rather than a pane — clicking a card expands it into the page, Escape pulls back out. Dark by default, because a board is furniture and furniture wants to recede. Nothing you disliked about the tree survives, because the tree doesn't.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 28px; align-items: flex-start;">
+        <div style="position: relative; width: 1180px; border: 2px solid #201e1d; background: #1b1a17; flex-shrink: 0;">
+          <div style="height: 680px; display: flex; flex-direction: column;">
+            <div style="height: 52px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 22px; border-bottom: 1px solid #302d28;">
+              <span style="font-family: 'Newsreader', serif; font-size: 19px; font-weight: 600; color: #f0ebe1;">—nudo<span style="color: #e0603a;">.</span></span>
+              <span style="width: 1px; height: 18px; background: #302d28;"></span>
+              <span style="font-family: 'Newsreader', serif; font-size: 17px; color: #cdc6b8;">Project Alpha</span>
+              <span style="flex: 1;"></span>
+              <span style="display: flex; align-items: center; gap: 3px; padding: 3px; border-radius: 9px; background: #262420;">
+                <span style="height: 30px; padding: 0 13px; display: flex; align-items: center; border-radius: 7px; font-size: 12.5px; font-weight: 600; background: #3a352e; color: #f0ebe1;">Board</span>
+                <span style="height: 30px; padding: 0 13px; display: flex; align-items: center; border-radius: 7px; font-size: 12.5px; color: #9c9485;">Write</span>
+              </span>
+              <span style="height: 34px; display: flex; align-items: center; gap: 9px; padding: 0 13px; border-radius: 9px; background: #262420; font-size: 12.5px; color: #b8b0a1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> <span style="color: #6f6a60;">Search</span> <span style="font-size: 10.5px; border: 1px solid #3a352e; border-radius: 4px; padding: 1px 5px;">⌘K</span></span>
+              <span style="font-size: 12.5px; color: #cdc6b8; font-variant-numeric: tabular-nums;">412 / 800</span>
+              <span style="width: 30px; height: 30px; border-radius: 50%; background: #3a352e; color: #f0ebe1; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center;">RG</span>
+            </div>
+            <div style="flex: 1; display: flex; gap: 18px; padding: 22px; overflow: hidden;">
+              <!-- column 1 -->
+              <div style="width: 268px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: baseline; gap: 10px; padding: 0 4px 12px; border-bottom: 1px solid #302d28;">
+                  <span style="font-family: 'Newsreader', serif; font-size: 20px; font-weight: 600; color: #f0ebe1;">Chapter One</span>
+                  <span style="flex: 1;"></span>
+                  <span style="font-size: 11px; color: #8f877a; font-variant-numeric: tabular-nums;">43 w</span>
+                  <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #7ba88f;">Drafting</span>
+                </div>
+                <div style="background: #f7f4ee; border-radius: 3px; padding: 15px 16px 14px; box-shadow: 0 0 0 2px #e0603a, 0 10px 26px rgba(0,0,0,0.4);">
+                  <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="font-family: 'Newsreader', serif; font-size: 16.5px; font-weight: 600; color: #221f1a; line-height: 1.25; flex: 1;">Welcome Document</span>
+                    <span style="width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(34,31,26,0.07); color: #4d473d; font-size: 13px; margin: -4px -6px 0 0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                  </div>
+                  <p style="font-family: 'Newsreader', serif; font-size: 13.5px; line-height: 1.55; color: #5a5348; margin: 9px 0 0;">Every great book begins with a single sentence. This is yours.</p>
+                  <div style="display: flex; align-items: center; gap: 9px; margin-top: 14px; padding-top: 11px; border-top: 1px solid #e3ddd1;">
+                    <span style="height: 3px; flex: 1; background: #e3ddd1; border-radius: 2px; overflow: hidden;"><span style="display: block; width: 8%; height: 3px; background: #e0603a;"></span></span>
+                    <span style="font-size: 11px; color: #6d6558; font-variant-numeric: tabular-nums;">43 / 500</span>
+                  </div>
+                </div>
+                <div style="background: #ebe7df; border-radius: 3px; padding: 15px 16px 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.28);">
+                  <span style="font-family: 'Newsreader', serif; font-size: 16.5px; font-weight: 600; color: #221f1a;">Untitled</span>
+                  <p style="font-family: 'Newsreader', serif; font-size: 13.5px; line-height: 1.55; color: #8a8275; margin: 9px 0 0; font-style: italic;">No synopsis yet</p>
+                  <div style="display: flex; align-items: center; gap: 9px; margin-top: 14px; padding-top: 11px; border-top: 1px solid #ddd7cb;">
+                    <span style="height: 3px; flex: 1; background: #ddd7cb; border-radius: 2px;"></span>
+                    <span style="font-size: 11px; color: #8a8275;">0 / 500</span>
+                  </div>
+                </div>
+                <div style="border: 1px dashed #3a352e; border-radius: 3px; height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #8f877a; font-size: 12.5px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Add a scene</div>
+              </div>
+              <!-- column 2 -->
+              <div style="width: 268px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: baseline; gap: 10px; padding: 0 4px 12px; border-bottom: 1px solid #302d28;">
+                  <span style="font-family: 'Newsreader', serif; font-size: 20px; font-weight: 600; color: #f0ebe1;">Chapter Two</span>
+                  <span style="flex: 1;"></span>
+                  <span style="font-size: 11px; color: #8f877a;">0 w</span>
+                  <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8f877a;">Planned</span>
+                </div>
+                <div style="background: #ebe7df; border-radius: 3px; padding: 15px 16px 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.28);">
+                  <span style="font-family: 'Newsreader', serif; font-size: 16.5px; font-weight: 600; color: #221f1a;">Untitled</span>
+                  <p style="font-family: 'Newsreader', serif; font-size: 13.5px; line-height: 1.55; color: #8a8275; margin: 9px 0 0; font-style: italic;">No synopsis yet</p>
+                  <div style="display: flex; align-items: center; gap: 9px; margin-top: 14px; padding-top: 11px; border-top: 1px solid #ddd7cb;">
+                    <span style="height: 3px; flex: 1; background: #ddd7cb; border-radius: 2px;"></span>
+                    <span style="font-size: 11px; color: #8a8275;">0 / 500</span>
+                  </div>
+                </div>
+                <div style="border: 1px dashed #3a352e; border-radius: 3px; height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #8f877a; font-size: 12.5px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Add a scene</div>
+              </div>
+              <!-- ghost column -->
+              <div style="width: 268px; flex-shrink: 0;">
+                <div style="border: 1px dashed #3a352e; border-radius: 3px; height: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; color: #6f6a60; font-size: 12.5px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Add a chapter</div>
+              </div>
+              <!-- zoom preview -->
+              <div style="flex: 1; min-width: 0; border-left: 1px solid #302d28; padding-left: 20px; display: flex; flex-direction: column;">
+                <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #6f6a60; margin-bottom: 12px;">Click a card → it becomes the page</div>
+                <div style="flex: 1; background: #f7f4ee; border-radius: 3px; padding: 26px 28px; box-shadow: 0 0 0 2px #e0603a, 0 14px 34px rgba(0,0,0,0.45); overflow: hidden;">
+                  <div style="font-family: 'Newsreader', serif; font-size: 24px; font-weight: 600; color: #221f1a; line-height: 1.2;">Welcome Document</div>
+                  <p style="font-family: 'Newsreader', serif; font-size: 15px; line-height: 1.78; color: #3a352d; margin: 20px 0 14px;">Every great book begins with a single sentence. This is yours.</p>
+                  <p style="font-family: 'Newsreader', serif; font-size: 15px; line-height: 1.78; color: #3a352d; margin: 0;">Don't worry about getting it perfect — just start writing. Your words are saved automatically.<span style="display: inline-block; width: 2px; height: 17px; background: #c2492a; vertical-align: -3px; margin-left: 2px;"></span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <span style="position: absolute; left: 668px; top: 66px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(27,26,23,0.95);">1</span>
+          <span style="position: absolute; left: 299px; top: 86px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(27,26,23,0.95);">2</span>
+          <span style="position: absolute; left: 299px; top: 186px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(27,26,23,0.95);">3</span>
+          <span style="position: absolute; left: 869px; top: 240px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(27,26,23,0.95);">4</span>
+          <span style="position: absolute; left: 299px; top: 420px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #ec3013; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 0 0 3px rgba(27,26,23,0.95);">5</span>
+        </div>
+
+        <div style="width: 320px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; padding-bottom: 10px; border-bottom: 2px solid #201e1d;">Key decisions</div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">1</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Board / Write is the only global mode switch, and it replaces focus mode, the rail toggle and the theme switch as separate concerns. Two states, one control.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">2</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">A chapter is a column heading, not a row you expand. Nothing collapses, nothing indents, nothing truncates at fourteen characters — the structure is the layout.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">3</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Cards carry a synopsis line. It's the one piece of planning data the current model has no room for, and it's what makes a board worth looking at instead of a list.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">4</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">The editor is the same card, enlarged — the terracotta ring travels with it. There is no separate editor surface to design, and no navigation to lose your place in.</p>
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #cfccca;">
+            <span style="font-size: 13px; font-weight: 700; color: #ec3013; width: 14px; flex-shrink: 0;">5</span>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">Paper cards on a dark board give dark mode a reason to exist: the prose is always ink on paper, so contrast never inverts. The board itself is the only thing that changes theme.</p>
+          </div>
+          <div style="margin-top: 18px; padding: 16px; background: #201e1d; border-left: 3px solid #ec3013; color: #f0ebe1;">
+            <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; color: #ec3013;">Trade-off</div>
+            <p style="margin: 0; font-size: 13.5px; line-height: 1.5;">This is the direction that actually solves what you don't like, by removing it. It's also the most expensive: a card model, a synopsis field, drag-between-columns, and a zoom transition — none of which exist. And a board beats a list at 40 scenes and loses badly at 300, where scrolling sideways through nine chapters is worse than a tree ever was. <a href="#1b">1b</a> is the safer version of the same ambition.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 28px; align-items: flex-start;">
+        <div style="width: 560px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; margin-bottom: 12px;">Card menu — enlarged 1.6×</div>
+          <div style="border: 2px solid #201e1d; background: #1b1a17; height: 400px; overflow: hidden;">
+            <div style="transform: scale(1.6); transform-origin: top left; width: 348px; padding: 14px;">
+              <div style="background: #f7f4ee; border-radius: 3px; padding: 14px 15px 13px; box-shadow: 0 0 0 2px #e0603a, 0 10px 26px rgba(0,0,0,0.4);">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                  <span style="font-family: 'Newsreader', serif; font-size: 16.5px; font-weight: 600; color: #221f1a; line-height: 1.25; flex: 1;">Welcome Document</span>
+                  <span style="width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(224,96,58,0.16); color: #b8492a; font-size: 13px; margin: -3px -5px 0 0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                </div>
+                <p style="font-family: 'Newsreader', serif; font-size: 13.5px; line-height: 1.55; color: #5a5348; margin: 8px 0 0;">Every great book begins with a single sentence.</p>
+              </div>
+              <div style="margin: 6px 0 0 92px; width: 212px; background: #f7f4ee; border-radius: 6px; padding: 6px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);">
+                <div style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 5px; font-size: 13px; color: #221f1a; background: rgba(224,96,58,0.14);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg> Open in Write</div>
+                <div style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 5px; font-size: 13px; color: #221f1a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M21.2 6.8a1 1 0 0 0-4-4L3.8 16.2a2 2 0 0 0-.5.8l-1.3 4.4a.5.5 0 0 0 .6.6l4.4-1.3a2 2 0 0 0 .8-.5z"/><path d="m15 5 4 4"/></svg> Rename</div>
+                <div style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 5px; font-size: 13px; color: #221f1a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M17 22h-1a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4h1"/><path d="M7 22h1a4 4 0 0 0 4-4v-1"/><path d="M7 2h1a4 4 0 0 1 4 4v1"/></svg> Edit synopsis</div>
+                <div style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 5px; font-size: 13px; color: #221f1a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg> Move to Chapter Two</div>
+                <div style="height: 1px; background: #e3ddd1; margin: 5px 7px;"></div>
+                <div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8a8275; padding: 5px 10px 6px;">Status</div>
+                <div style="display: flex; gap: 4px; padding: 0 7px 5px;">
+                  <span style="flex: 1; height: 30px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #5a5348; background: #ebe7df;">Planned</span>
+                  <span style="flex: 1; height: 30px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #f7f4ee; background: #4f7a63;">Drafting</span>
+                  <span style="flex: 1; height: 30px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #5a5348; background: #ebe7df;">Done</span>
+                </div>
+                <div style="height: 1px; background: #e3ddd1; margin: 5px 7px;"></div>
+                <div style="display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 5px; font-size: 13px; color: #9e2b16;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.1em; height: 1.1em; display: inline-block; vertical-align: -0.14em; flex-shrink: 0;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> Delete scene…</div>
+              </div>
+            </div>
+          </div>
+          <p style="margin: 12px 0 0; font-size: 13.5px; line-height: 1.5; max-width: 520px;">34px items with generous padding — the “not enough air” complaint answered directly. The card itself stays fully lit while the menu is open, and “Move to Chapter Two” gives keyboard users the reordering that only drag offers today.</p>
+        </div>
+
+        <div style="width: 560px; flex-shrink: 0;">
+          <div style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6866; margin-bottom: 12px;">Write mode — focus is the default, not a mode</div>
+          <div style="border: 2px solid #201e1d; background: #14130f; height: 400px; position: relative; overflow: hidden; display: flex; align-items: flex-start; justify-content: center;">
+            <div style="width: 430px; background: #f7f4ee; margin-top: 30px; padding: 34px 38px 40px; box-shadow: 0 18px 50px rgba(0,0,0,0.55);">
+              <div style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8a8275; margin-bottom: 12px;">Chapter One · Scene 1</div>
+              <div style="font-family: 'Newsreader', serif; font-size: 25px; font-weight: 600; color: #221f1a; line-height: 1.2;">Welcome Document</div>
+              <p style="font-family: 'Newsreader', serif; font-size: 16px; line-height: 1.8; color: #3a352d; margin: 22px 0 16px;">Every great book begins with a single sentence. This is yours.</p>
+              <p style="font-family: 'Newsreader', serif; font-size: 16px; line-height: 1.8; color: #3a352d; margin: 0;">Don't worry about getting it perfect — just start writing.<span style="display: inline-block; width: 2px; height: 19px; background: #c2492a; vertical-align: -4px; margin-left: 2px;"></span></p>
+            </div>
+            <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 38px; display: flex; align-items: center; gap: 14px; padding: 0 18px; border-top: 1px solid #2a2823;">
+              <span style="font-size: 11.5px; color: #b8b0a1; font-variant-numeric: tabular-nums;">412 / 800</span>
+              <span style="flex: 1; height: 3px; background: #2a2823; border-radius: 2px; overflow: hidden;"><span style="display: block; width: 51%; height: 3px; background: #e0603a;"></span></span>
+              <span style="font-size: 11.5px; color: #6f6a60;">Saved</span>
+              <span style="font-size: 10.5px; color: #b8b0a1; border: 1px solid #3a352e; border-radius: 4px; padding: 2px 6px;">esc → Board</span>
+            </div>
+          </div>
+          <p style="margin: 12px 0 0; font-size: 13.5px; line-height: 1.5; max-width: 520px;">Write mode <em>is</em> focus mode — the card on the dark board with nothing else. There's no separate distraction-free state to enter, exit, or get trapped in, and the prose is ink on paper whichever theme the board is wearing.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- comparison -->
+  <div style="border-top: 2px solid #201e1d; padding-top: 28px; max-width: 1560px;">
+    <h2 style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 24px;">Choosing between them</h2>
+    <div style="display: grid; grid-template-columns: 180px repeat(3, 1fr); gap: 0;">
+      <div style="padding: 10px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #6b6866; border-bottom: 2px solid #201e1d;"></div>
+      <div style="padding: 10px 14px; font-size: 13px; font-weight: 700; border-bottom: 2px solid #201e1d;">1a · Repaired</div>
+      <div style="padding: 10px 14px; font-size: 13px; font-weight: 700; border-bottom: 2px solid #201e1d;">1b · Spine</div>
+      <div style="padding: 10px 14px; font-size: 13px; font-weight: 700; border-bottom: 2px solid #201e1d; color: #ec3013;">1c · Corkboard</div>
+
+      <div style="padding: 14px; font-size: 12.5px; font-weight: 600; border-bottom: 1px solid #cfccca;">Build cost</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Days. Token values, one component swap, two vendored components wired up.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Weeks. New rail, word targets on the schema, search, comment margin.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">A quarter. Card model, synopsis field, drag between columns, zoom transition.</div>
+
+      <div style="padding: 14px; font-size: 12.5px; font-weight: 600; border-bottom: 1px solid #cfccca;">Fixes the tree styling</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Yes — hover, air, and the disappearing icons all go.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Yes, and gives rows a reason to be there.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">By deletion.</div>
+
+      <div style="padding: 14px; font-size: 12.5px; font-weight: 600; border-bottom: 1px solid #cfccca;">Answers “where am I in the book”</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">No.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Directly — that's the spine's whole job.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Spatially, at a glance.</div>
+
+      <div style="padding: 14px; font-size: 12.5px; font-weight: 600; border-bottom: 1px solid #cfccca;">Holds up at 300 scenes</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Yes, a tree always does.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Yes — bands collapse to their bars.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Poorly. This is its real weakness.</div>
+
+      <div style="padding: 14px; font-size: 12.5px; font-weight: 600; border-bottom: 1px solid #cfccca;">Dark mode</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Repaired: grounds lifted apart, muted raised.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Same repair, cooler ink.</div>
+      <div style="padding: 14px; font-size: 13.5px; line-height: 1.45; border-bottom: 1px solid #cfccca;">Native — the prose never inverts at all.</div>
+    </div>
+    <p style="margin: 26px 0 0; font-size: 16px; line-height: 1.55; max-width: 760px;">If it were mine: ship <a href="#1a">1a</a> next week, because the accessibility defects shouldn't wait on a strategy decision, and build toward <a href="#1b">1b</a> — it earns most of <a href="#1c">1c</a>'s planning value without betting the product on a spatial model. Keep the corkboard as a second view of the same data rather than a replacement for the tree.</p>
+  </div>
+
+</section>
+</x-dc>
+</body>
+</html>

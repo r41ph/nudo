@@ -11,7 +11,6 @@ import { saveStatusAtom } from '@web/shared/state/save-status.atom';
 const PART_ID = '00000000-0000-0000-0000-000000000001';
 const DOC_ID = '00000000-0000-0000-0000-000000000003';
 
-// Minimal outline so the breadcrumb hook resolves "Part I / The Tidewatch".
 const OUTLINE = {
   allDocuments: {
     nodes: [
@@ -37,8 +36,7 @@ const OUTLINE = {
   },
 };
 
-// Seeds the outline query cache and the document/save atoms the bar reads, so
-// the story renders the full bar (breadcrumb + Saved + delta) without a network.
+// Seeds the query cache and atoms so the bar renders without a network.
 const withEditorContext: Decorator = (Story) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
@@ -55,12 +53,11 @@ const withEditorContext: Decorator = (Story) => {
   store.set(liveWordCountAtom, { documentId: DOC_ID, count: 1820 });
   store.set(saveStatusAtom, 'saved');
 
-  // Seed today's baseline so "+N today" shows a positive delta.
   try {
     const day = new Date().toISOString().slice(0, 10);
     localStorage.setItem(`nudo:word-baseline:${DOC_ID}:${day}`, '1208');
   } catch {
-    // storage unavailable — the delta just renders as +0.
+    // Storage unavailable: the delta renders as +0, which is still a valid story.
   }
 
   return (
@@ -82,6 +79,4 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Breadcrumb on the left; Saved status, "+N today", focus toggle, and the theme
-// switch on the right.
 export const Default: Story = {};

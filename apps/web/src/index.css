@@ -9,14 +9,10 @@
 /* Note: @source uses Node's fs directly, not Vite's resolver, so aliases like '@ui/' don't work */
 @source '../../../packages/ui/src';
 
-/* Editor content typography */
+/* Editor content typography. Colour is deliberately absent: `--prose` (applied
+   by `.leaf-prose` in the token layer) owns it in both themes. */
 [data-slate-editor] {
   font-family: 'Newsreader', Georgia, serif !important;
   font-size: 1.25rem !important;
   line-height: 1.8 !important;
-  color: #4a5d5e !important;
-}
-
-.dark [data-slate-editor] {
-  color: var(--foreground) !important;
 }

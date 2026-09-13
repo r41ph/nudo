@@ -35,9 +35,8 @@ authRouter.post('/register', async (req: Request, res: Response) => {
     const user = result.rows[0];
     const token = signToken({ userId: user.id, email: user.email });
 
-    // Seed the new user's outline. Most books have no "parts", so seed the
-    // common case: one Chapter at the root holding the welcome Section. Both
-    // are just documents in the uniform tree, created atomically.
+    // Most books have no "parts", so the seed is one chapter holding the
+    // welcome section.
     const seed = await pool.connect();
     try {
       await seed.query('BEGIN');

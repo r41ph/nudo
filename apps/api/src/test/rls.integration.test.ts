@@ -1,16 +1,7 @@
-/**
- * Row-level security isolation: user B must never read, update, or delete data
- * owned by user A through the GraphQL API.
- *
- * These are the highest-risk tests in the suite — a regression here is a
- * cross-tenant data leak. Each assertion is written so that disabling the
- * relevant RLS policy (e.g. ALTER TABLE documents DISABLE ROW LEVEL SECURITY)
- * makes the test fail: reads would return the row, and writes would mutate it.
- *
- * Ground truth is read via the test pool (owner connection, bypasses RLS) so we
- * observe the real database state regardless of how PostGraphile reports a
- * blocked write (null payload vs. error).
- */
+// A regression here is a cross-tenant leak. Each assertion is written so that
+// disabling the relevant RLS policy makes it fail, and ground truth is read via
+// the owner pool (bypasses RLS) rather than trusting how PostGraphile reports a
+// blocked write.
 import { randomUUID } from 'node:crypto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';
@@ -96,7 +87,6 @@ describe('RLS: documents', () => {
 });
 
 describe('RLS: outline functions', () => {
-  // Seed an A-owned folder + a doc nested in it, via the owner pool.
   async function seedNestedDoc(owner: SeededUser) {
     const folder = await getTestPool().query<{ id: string }>(
       `INSERT INTO documents (user_id, title, kind)
@@ -114,7 +104,6 @@ describe('RLS: outline functions', () => {
   it('user B cannot move user A node', async () => {
     const { folderId, docId } = await seedNestedDoc(userA);
 
-    // B tries to pull A's doc out to the root via move_and_reorder_node.
     await graphql(
       `
         mutation (
@@ -141,7 +130,6 @@ describe('RLS: outline functions', () => {
       userB.token
     );
 
-    // The function's `user_id = current_uid` guard leaves A's node untouched.
     const { rows } = await getTestPool().query<{ parent_id: string | null }>(
       'SELECT parent_id FROM documents WHERE id = $1',
       [docId]
@@ -151,8 +139,6 @@ describe('RLS: outline functions', () => {
 });
 
 describe('RLS: discussions', () => {
-  // Discussions are scoped through the owning document, so seed A's document
-  // first, then attach a discussion to it.
   async function createDiscussion(owner: SeededUser) {
     const doc = await createDocument(owner);
     const id = randomUUID();
@@ -164,10 +150,8 @@ describe('RLS: discussions', () => {
   }
 
   it('user B cannot create a discussion on user A document', async () => {
-    // Discussions are created via a raw mutation where the client supplies the
-    // documentId, so B can attempt to attach one to A's document. The
-    // discussions_insert WITH CHECK (document_id must belong to the caller)
-    // is what blocks it.
+    // The client supplies documentId, so only the discussions_insert WITH CHECK
+    // stands between B and A's document.
     const doc = await createDocument(userA);
 
     await graphql(

@@ -1,11 +1,6 @@
 import type { OutlineNode } from '@web/shared/types/outline.types';
 import type { TreeMap } from '@web/features/outline/components/outline-tree.types';
 
-/**
- * Builds the headless-tree map from the flat outline node list. Children are
- * grouped by `parentId` (null = root) and ordered by position. Each node's
- * displayed word count is rolled up across its whole subtree.
- */
 export function buildTreeMap(nodes: OutlineNode[]): TreeMap {
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const childrenOf = new Map<string | null, OutlineNode[]>();
@@ -18,10 +13,8 @@ export function buildTreeMap(nodes: OutlineNode[]): TreeMap {
     group.sort((a, b) => a.position - b.position);
   }
 
-  // Own words + every descendant's, memoised. The `visiting` guard makes the
-  // recursion safe even if the data contains a cycle (it never should, but a
-  // direct parent_id patch could in theory create one) — a re-entered node
-  // contributes only its already-accumulated share instead of looping forever.
+  // `visiting` keeps this terminating if a direct parent_id patch ever
+  // introduced a cycle.
   const rolled = new Map<string, number>();
   const visiting = new Set<string>();
   const rolledWordCount = (id: string): number => {
@@ -63,6 +56,21 @@ export function buildTreeMap(nodes: OutlineNode[]): TreeMap {
   }
 
   return map;
+}
+
+// `seen` keeps this terminating if the map ever contained a cycle.
+export function countDescendants(map: TreeMap, id: string): number {
+  const seen = new Set([id]);
+  const stack = [...(map[id]?.children ?? [])];
+  let count = 0;
+  while (stack.length) {
+    const current = stack.pop() as string;
+    if (seen.has(current)) continue;
+    seen.add(current);
+    count++;
+    stack.push(...(map[current]?.children ?? []));
+  }
+  return count;
 }
 
 export type TreeStore = {

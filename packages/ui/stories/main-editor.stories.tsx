@@ -46,7 +46,6 @@ function MainEditorWithDialog({
   const setEnabledTools = useSetAtom(enabledToolsAtom);
   const isDialogOpen = dialogState.activeDialog === DIALOG.EDITOR_TOOLBAR;
 
-  // Sync story args into atom when they change
   useEffect(() => {
     setEnabledTools(initialEnabledTools);
   }, [initialEnabledTools, setEnabledTools]);
@@ -96,11 +95,8 @@ export const AllTools: Story = {
   },
 };
 
-/**
- * Block-type tools only. Select the heading and press ¶ to send it back to body
- * text — the button should light up while the caret sits in a paragraph, and
- * the toolbar should stay open with the caret intact after each press.
- */
+// Press ¶ on the heading: the button should light up while the caret is in a
+// paragraph, and the toolbar should stay open with the caret intact.
 export const BlockTypeTools: Story = {
   args: {
     enabledTools: ['paragraph', 'headings', 'blockquote'],

@@ -15,7 +15,7 @@ describe('useAutoSave', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    // onSuccess writes to the shared singleton cache; clear it between tests.
+    // onSuccess writes to the shared singleton cache.
     queryClient.removeQueries({ queryKey: ['document'] });
   });
 
@@ -50,7 +50,6 @@ describe('useAutoSave', () => {
       ]);
     });
 
-    // After 1 second, status is unsaved but save hasn't fired yet
     await act(async () => {
       vi.advanceTimersByTime(1000);
     });
@@ -70,7 +69,6 @@ describe('useAutoSave', () => {
       ]);
     });
 
-    // Wait for debounce + mutation to complete
     await vi.waitFor(
       () => {
         expect(store.get(saveStatusAtom)).toBe('saved');
@@ -104,7 +102,6 @@ describe('useAutoSave', () => {
   it('sets error status on failure', async () => {
     vi.useRealTimers();
 
-    // Import server and override to fail
     const { server } = await import('@web/test/mocks/server');
     const { graphql, HttpResponse } = await import('msw');
 
@@ -136,10 +133,8 @@ describe('useAutoSave', () => {
     });
   });
 
-  // Regression: a successful save must write the new content through to the
-  // GET_DOCUMENT cache. Otherwise the cached pre-edit snapshot survives, and
-  // navigating away and back within staleTime re-seeds the editor with stale
-  // content.
+  // Regression: without the cache write-through, navigating away and back
+  // within staleTime re-seeded the editor with pre-edit content.
   it('writes saved content through to the document query cache', async () => {
     vi.useRealTimers();
 
@@ -149,7 +144,6 @@ describe('useAutoSave', () => {
     const docId = '11111111-2222-3333-4444-555566667777';
     const newContent = [{ type: 'p', children: [{ text: 'edited body' }] }];
 
-    // Echo the saved content back, as the real resolver does.
     server.use(
       graphql.mutation('UpdateDocumentContent', ({ variables }) =>
         HttpResponse.json({
@@ -168,7 +162,6 @@ describe('useAutoSave', () => {
       )
     );
 
-    // Seed the cache with the pre-edit snapshot, as the initial load would.
     queryClient.setQueryData(['document', docId], {
       documentById: {
         id: docId,

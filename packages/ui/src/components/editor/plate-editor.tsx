@@ -3,7 +3,6 @@ import { Plate, usePlateEditor } from 'platejs/react';
 import { type ReactNode, useEffect } from 'react';
 
 import { AlignKit } from '@ui/components/editor/plugins/align-kit';
-// import { discussionPlugin } from '@ui/components/editor/plugins/discussion-kit';
 import type { DiscussionData } from '@ui/components/editor/plugins/discussion-kit.types';
 import { FontKit } from '@ui/components/editor/plugins/font-kit';
 import { AlignToolbarButton } from '@ui/components/ui/align-toolbar-button';
@@ -33,7 +32,6 @@ import {
   BaselineIcon,
   Settings2Icon,
 } from 'lucide-react';
-// import { FixedToolbar } from '../ui/fixed-toolbar';
 import { TurnIntoToolbarButton } from '@ui/components/ui/turn-into-toolbar-button';
 import { FontSizeToolbarButton } from '@ui/components/editor/font-size-toolbar-button';
 import { FontColorToolbarButton } from '@ui/components/editor/font-color-toolbar-button';
@@ -150,13 +148,11 @@ export function PlateEditor({
         }}
       >
         <FloatingToolbar
-          // placement="bottom"
           className="border-b border-gray-300 px-2"
           state={{
             isDialogOpen: !!isDialogOpen,
           }}
         >
-          {/* Toolbar tools */}
           <ToolbarGroup>
             {isEnabled('fontSize') && <FontSizeToolbarButton />}
             {isEnabled('paragraph') && (
@@ -228,7 +224,6 @@ export function PlateEditor({
             {isEnabled('comments') && <CommentToolbarButton />}
             {isEnabled('suggestions') && <SuggestionToolbarButton />}
           </ToolbarGroup>
-          {/* Toolbar edit */}
           <ToolbarGroup>
             <ToolbarCustomButton
               icon={Settings2Icon}
@@ -237,8 +232,6 @@ export function PlateEditor({
             />
           </ToolbarGroup>
         </FloatingToolbar>
-
-        {/* TO-DO: <FixedToolbar className="border-b border-gray-300 px-2"></FixedToolbar> */}
 
         <EditorContainer variant="default" className="leaf-prose">
           <Editor variant="default" placeholder="Type..." />
