@@ -97,9 +97,9 @@ interface NodeStatusControlProps {
 }
 
 /**
- * Status is opt-in on any node. When set, the moon dot is always visible. When
- * unset, a faint dashed "add status" dot appears on row hover (the parent row
- * owns the `group/row` hover). The menu can clear it back to none.
+ * Status is opt-in on any node: the moon dot when set, a faint dashed ring
+ * when not. Shown with the rest of the row's meta cluster on hover. The menu
+ * can clear it back to none.
  */
 export const NodeStatusControl = memo(function NodeStatusControl({
   status,
@@ -114,17 +114,7 @@ export const NodeStatusControl = memo(function NodeStatusControl({
             status ? `Status: ${STATUS_LABELS[status]}` : 'Set status'
           }
           onClick={(e) => e.stopPropagation()}
-          className={cn(
-            'flex size-6.5 shrink-0 items-center justify-center rounded-full hover:cursor-pointer',
-            // A status that is set is real state — always shown. The "add a
-            // status" placeholder is not, so it takes no width until hover.
-            !status &&
-              'h-6.5 w-0 overflow-hidden opacity-0 ' +
-                'group-hover/row:w-6.5 group-hover/row:opacity-100 ' +
-                'focus-visible:w-6.5 focus-visible:opacity-100 ' +
-                'group-focus-visible/item:w-6.5 group-focus-visible/item:opacity-100 ' +
-                'data-[state=open]:w-6.5 data-[state=open]:opacity-100'
-          )}
+          className="flex size-5 shrink-0 items-center justify-center rounded-full hover:cursor-pointer"
         >
           {status ? (
             <StatusDot status={status} />

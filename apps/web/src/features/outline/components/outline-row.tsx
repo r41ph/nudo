@@ -9,6 +9,7 @@ import { DeleteNodeDialog } from '@web/features/outline/components/delete-node-d
 import { RowMenu } from '@web/features/outline/components/row-menu';
 import { RowGrip } from '@web/features/outline/components/row-grip';
 import { useInlineRename } from '@web/features/outline/components/use-inline-rename';
+import { REVEAL } from '@web/features/outline/constants/row-chrome.constants';
 import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 
 interface OutlineRowProps {
@@ -33,26 +34,47 @@ interface OutlineRowProps {
 const stop = (e: React.MouseEvent) => e.stopPropagation();
 
 /**
- * Every row is 34px tall, 8px-padded and 8px-gapped, with an action slot that
- * reserves its width permanently — only the glyph inside it fades — so nothing
- * to its left reflows on hover. The row itself carries no focus style: the
- * focusable element is the tree wrapper (headless-tree owns a roving tabindex),
- * so the ring is driven from `group/item` in `outline-tree.tsx`.
+ * Row anatomy. Folders and separators lead with a chevron; documents don't,
+ * and hug the guide line of the group they sit in instead of reserving an
+ * empty toggle cell:
+ *
+ *   folder     [gutter 14][chevron 14]  title …  [count][status 20][menu 20]
+ *   document   [gutter 20]              title …  [count][status 20][menu 20]
+ *
+ * At rest a row is just its chevron and title, which runs the full width.
+ * Hover adds the grip in the gutter (no layout width) and the meta cluster on
+ * the right, which the title yields space to. The row itself carries no
+ * focus style: the focusable element is the tree wrapper (headless-tree owns
+ * a roving tabindex), so the ring is driven from `group/item` in
+ * `outline-tree.tsx`.
  */
 const ROW_BASE =
-  // `pl-4` holds the floating grip (12px at `left-0.5`) with 2px clear on each
-  // side, so the grip sits inside the row's hover fill and never touches what
-  // follows it. The chevron is left-aligned in its 24px hit area for the same
-  // reason — centred, its glyph would start 5px further right than a document's
-  // title and the grip would read as differently spaced on folder rows.
-  'group/row relative flex h-8.5 items-center gap-2 rounded-lg pl-4 pr-2 transition-colors ' +
+  // The gutter (left padding) is per kind, below. Hover is a neutral ink
+  // wash, never the accent — hovering down the tree must not read as four
+  // selections. The selected row takes `--sidebar-accent`, the rail's own
+  // token, so it doesn't ride on the app-wide `--accent`.
+  'group/row relative flex h-8.5 items-center gap-1.5 rounded-lg pr-2 transition-colors ' +
+  'hover:bg-row-hover ' +
   'group-focus-visible/item:outline-2 group-focus-visible/item:outline-ring group-focus-visible/item:outline-offset-2';
 
-/** Action-slot glyph: hidden at rest, lit on row hover, keyboard focus, or open menu. */
-const SLOT_ICON =
-  'size-6.5 rounded-md text-muted-foreground opacity-0 transition-opacity hover:cursor-pointer ' +
-  'hover:text-accent-foreground focus-visible:opacity-100 data-[state=open]:opacity-100 ' +
-  'group-hover/row:opacity-100 group-focus-visible/item:opacity-100 [&_svg]:size-3.5';
+/** Gutter for rows with a chevron: holds the grip at `left-0.5`, 2px clear of the chevron. */
+const CHEVRON_GUTTER = 'pl-3.5';
+/**
+ * Gutter for documents: 20px, with the grip at `left-1` so its dots sit
+ * ~12px from the group's guide line (which runs 4px outside the row) and
+ * ~8px from the title.
+ */
+const DOCUMENT_GUTTER = 'pl-5';
+const DOCUMENT_GRIP = 'left-1';
+
+/** The toggle cell: a 14px chevron, hit area widened to 22px without taking layout width. */
+const TOGGLE =
+  'box-content flex h-full w-3.5 shrink-0 items-center justify-center -mx-1 px-1 hover:cursor-pointer';
+const CHEVRON = 'h-3.5 w-3.5 text-muted-foreground transition-transform';
+
+/** Separator action; its wrapper owns the reveal. */
+const SEPARATOR_ACTION =
+  'size-6.5 rounded-md text-muted-foreground hover:cursor-pointer hover:text-accent-foreground [&_svg]:size-3.5';
 
 /**
  * The title, edited in place. The row keeps its chrome — count, status, indent
@@ -140,20 +162,17 @@ export const OutlineRow = memo(function OutlineRow({
   // ── Separator: a flat scoping marker (rule + label + fold chevron) ─────────
   if (kind === 'separator') {
     return (
-      <div className={ROW_BASE}>
+      <div className={cn(ROW_BASE, CHEVRON_GUTTER)}>
         <RowGrip />
         <button
           type="button"
           onClick={handleToggle}
           aria-label={isOpen ? 'Fold' : 'Unfold'}
-          className="flex size-6 shrink-0 items-center justify-start hover:cursor-pointer"
+          className={TOGGLE}
         >
           <Icon
             name="chevronRight"
-            className={cn(
-              'h-3.5 w-3.5 text-muted-foreground transition-transform',
-              isOpen && 'rotate-90'
-            )}
+            className={cn(CHEVRON, isOpen && 'rotate-90')}
           />
         </button>
         {rename.isEditing ? (
@@ -167,13 +186,13 @@ export const OutlineRow = memo(function OutlineRow({
           </span>
         )}
         <span className="h-px flex-1 bg-sidebar-border" aria-hidden />
-        <div className="flex shrink-0 items-center" onClick={stop}>
+        <div className={cn('shrink-0 items-center', REVEAL)} onClick={stop}>
           <Button
             variant="ghost"
             size="icon-sm"
             onClick={rename.start}
             aria-label={`Rename ${title}`}
-            className={SLOT_ICON}
+            className={SEPARATOR_ACTION}
           >
             <Icon name="pen" />
           </Button>
@@ -182,7 +201,7 @@ export const OutlineRow = memo(function OutlineRow({
             size="icon-sm"
             onClick={openDeleteDialog}
             aria-label={`Delete ${title}`}
-            className={SLOT_ICON}
+            className={SEPARATOR_ACTION}
           >
             <Icon name="trash" />
           </Button>
@@ -201,40 +220,32 @@ export const OutlineRow = memo(function OutlineRow({
   // ── Document / Folder ──────────────────────────────────────────────────────
   const isFolder = kind === 'folder';
 
-  // Chapters read a step above the documents under them; the selected row is
-  // carried by fill plus weight, with no left bar.
+  // Chapters read a step above the documents under them by size alone; the
+  // selected row is carried by fill and ink, never weight, with no left bar.
   const titleFont = isFolder
-    ? 'text-[14px] md:text-[14px] font-semibold'
-    : cn(
-        'text-[13.5px] md:text-[13.5px]',
-        isActive ? 'font-semibold' : 'font-normal'
-      );
+    ? 'text-[14px] md:text-[14px] font-normal'
+    : 'text-[13.5px] md:text-[13.5px] font-normal';
 
   return (
     <div
       className={cn(
         ROW_BASE,
-        // Hover is a neutral ink wash, never the accent — hovering down the tree
-        // must not read as four selections.
-        'hover:bg-row-hover',
-        isActive && 'bg-accent hover:bg-accent'
+        isFolder ? CHEVRON_GUTTER : DOCUMENT_GUTTER,
+        isActive && 'bg-sidebar-accent hover:bg-sidebar-accent'
       )}
     >
-      <RowGrip />
+      <RowGrip className={isFolder ? undefined : DOCUMENT_GRIP} />
 
       {isFolder && (
         <button
           type="button"
           onClick={handleToggle}
           aria-label={isOpen ? 'Collapse' : 'Expand'}
-          className="flex size-6 shrink-0 items-center justify-start hover:cursor-pointer"
+          className={TOGGLE}
         >
           <Icon
             name="chevronRight"
-            className={cn(
-              'h-3.5 w-3.5 text-muted-foreground transition-transform',
-              isOpen && 'rotate-90'
-            )}
+            className={cn(CHEVRON, isOpen && 'rotate-90')}
           />
         </button>
       )}
@@ -253,25 +264,27 @@ export const OutlineRow = memo(function OutlineRow({
         </span>
       )}
 
-      {/* Count sits in the flow at its natural width — no reserved column, so the
-          title gets the space instead of truncating at ~14 characters. */}
-      <span className="shrink-0 text-[11.5px] tabular-nums text-muted-foreground">
-        {wordCount.toLocaleString()}
-      </span>
-
-      <div className="flex shrink-0 items-center" onClick={stop}>
-        {/* On every row, not just folders as the handoff's anatomy has it — a
-            document's own status is the thing a writer tracks most, and hiding
-            it left nested documents with no visible state at all. */}
-        <NodeStatusControl status={status} onChange={handleSetStatus} />
-        <RowMenu
-          title={title}
-          status={status}
-          onRename={rename.start}
-          onSetStatus={handleSetStatus}
-          onAddChild={handleAdd}
-          onDelete={openDeleteDialog}
-        />
+      {/* Meta cluster — count, status, ⋮ — absent at rest so the title has the
+          whole row; on hover it takes its width from the title's end. */}
+      <div className={cn('shrink-0 items-center gap-1.5', REVEAL)}>
+        <span className="text-[11.5px] tabular-nums text-muted-foreground">
+          {wordCount.toLocaleString()}
+        </span>
+        {/* Status on every row, not just folders as the handoff's anatomy has
+            it: a document's own status is the thing a writer tracks most. */}
+        <div className="flex w-5 justify-center" onClick={stop}>
+          <NodeStatusControl status={status} onChange={handleSetStatus} />
+        </div>
+        <div className="flex w-5 justify-center" onClick={stop}>
+          <RowMenu
+            title={title}
+            status={status}
+            onRename={rename.start}
+            onSetStatus={handleSetStatus}
+            onAddChild={handleAdd}
+            onDelete={openDeleteDialog}
+          />
+        </div>
       </div>
 
       <DeleteNodeDialog

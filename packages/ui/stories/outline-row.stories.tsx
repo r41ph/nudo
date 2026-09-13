@@ -33,15 +33,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// A leaf you write in. Hover to reveal the grip and the `⋯` action slot.
+// A leaf you write in. Hover: grip in the gutter; count, status and ⋮ on the right.
 export const Document: Story = {};
 
 export const ActiveDocument: Story = {
   args: { isActive: true },
 };
 
-// The moon dot shows on any row that has a status; rows without one reveal a
-// dashed "add status" dot on hover.
+// Moon dot when a status is set, dashed ring when not — both only on hover.
 export const DocumentWithStatus: Story = {
   args: { title: 'Chapter Three', status: 'drafting' },
 };

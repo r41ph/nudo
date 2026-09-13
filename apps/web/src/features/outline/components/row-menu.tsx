@@ -18,23 +18,10 @@ import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 const ITEM =
   'h-[30px] gap-[9px] rounded-md px-[9px] py-0 text-[12.5px] [&_svg]:size-3.5';
 
-/**
- * Collapsed to zero width at rest so the title gets the whole row, then snapped
- * to 26px on hover, keyboard focus, or while the menu is open — no transition,
- * it appears at once. The button stays mounted and in the tab order throughout
- * (zero-width, not `hidden`), so it is still reachable without a pointer, and
- * opening the menu from an already hovered row shifts nothing further.
- */
+/** Last cell of the row's meta cluster (see `outline-row`), which owns the reveal. */
 const TRIGGER =
-  // `transition-none` is load-bearing: Button's base class is `transition-all`,
-  // which would otherwise animate the width open.
-  'h-6.5 w-0 shrink-0 overflow-hidden rounded-md p-0 text-muted-foreground opacity-0 ' +
-  'transition-none hover:cursor-pointer hover:text-accent-foreground ' +
-  'data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg]:size-3.5 ' +
-  'group-hover/row:w-6.5 group-hover/row:opacity-100 ' +
-  'focus-visible:w-6.5 focus-visible:opacity-100 ' +
-  'group-focus-visible/item:w-6.5 group-focus-visible/item:opacity-100 ' +
-  'data-[state=open]:w-6.5 data-[state=open]:opacity-100';
+  'h-6.5 w-5 shrink-0 rounded-md p-0 text-muted-foreground hover:cursor-pointer ' +
+  'hover:text-accent-foreground data-[state=open]:text-accent-foreground [&_svg]:size-3.5';
 
 const ADD_KINDS: { kind: NodeKind; label: string; icon: IconName }[] = [
   { kind: 'document', label: 'Document', icon: 'fileText' },
@@ -94,7 +81,7 @@ export const RowMenu = memo(function RowMenu({
           aria-label={`Actions for ${title}`}
           className={TRIGGER}
         >
-          <Icon name="moreHorizontal" decorative />
+          <Icon name="moreVertical" decorative />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

@@ -124,10 +124,15 @@ interface OutlineTreeProps {
   ref?: Ref<OutlineTreeHandle>;
 }
 
-/** One `ml-5` step per level, per the handoff's geometry table. */
-const INDENT = 20;
-/** How far left of a nested row its group's guide line sits. */
-const GUIDE_OFFSET = 6;
+/**
+ * One step per level. Sized so the group's guide line sits *outside* the
+ * nested rows rather than through them: the line is under the parent
+ * chevron's centre (a folder row's 14px gutter + half the 14px toggle cell = 21px),
+ * and a nested row starts 4px clear to its right.
+ */
+const INDENT = 26;
+/** How far left of a nested row's indent edge its group's guide line sits. */
+const GUIDE_INSET = 5;
 
 const itemStyleCache: Record<number, CSSProperties> = {};
 const getItemStyle = (level: number): CSSProperties => {
@@ -141,7 +146,7 @@ const guideStyleCache: Record<number, CSSProperties> = {};
 const getGuideStyle = (depth: number): CSSProperties => {
   if (!guideStyleCache[depth]) {
     guideStyleCache[depth] = {
-      left: `${depth * INDENT - GUIDE_OFFSET}px`,
+      left: `${depth * INDENT - GUIDE_INSET}px`,
     };
   }
   return guideStyleCache[depth];
