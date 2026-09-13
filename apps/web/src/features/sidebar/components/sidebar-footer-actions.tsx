@@ -1,9 +1,4 @@
-import { useCallback, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { toast } from 'sonner';
-import { Button } from '@ui/components/ui/button';
 import { Icon } from '@ui/components/icon/icon';
 import { Avatar, AvatarFallback } from '@ui/components/ui/avatar';
 import {
@@ -16,23 +11,6 @@ import {
 import { SidebarFooter } from '@ui/components/ui/sidebar';
 import { userAtom } from '@web/features/auth/state/auth.store';
 import { useLogout } from '@web/features/auth/hooks/use-logout';
-import { CREATE_NODE } from '@web/features/document/api/document.api';
-import { GET_OUTLINE } from '@web/shared/api/outline.api';
-import { pickCreateScope } from '@web/features/sidebar/lib/pick-create-scope';
-import type {
-  NodeKind,
-  OutlineQueryData,
-} from '@web/shared/types/outline.types';
-import { graphqlClient } from '@web/shared/lib/graphql-client';
-import { queryClient } from '@web/shared/lib/query-client';
-
-const EMPTY_CONTENT = [{ type: 'p', children: [{ text: '' }] }];
-
-const DEFAULT_TITLE: Record<NodeKind, string> = {
-  document: 'Untitled',
-  folder: 'Untitled Folder',
-  separator: 'Part',
-};
 
 /** Two initials for the avatar, from the display name or the email. */
 function initialsFor(displayName: string | null, email: string): string {
@@ -52,68 +30,10 @@ const UNWIRED = [
 
 export function SidebarFooterActions() {
   const { logout } = useLogout();
-  const navigate = useNavigate();
-  const { id: activeDocId } = useParams<{ id: string }>();
   const user = useAtomValue(userAtom);
-
-  // Same query key as the outline tree, so this shares one cached fetch.
-  const { data } = useQuery({
-    queryKey: ['outline'],
-    queryFn: () => graphqlClient.request<OutlineQueryData>(GET_OUTLINE),
-  });
-
-  const scope = useMemo(
-    () => pickCreateScope(data?.allDocuments.nodes ?? [], activeDocId),
-    [data, activeDocId]
-  );
-
-  const { mutate: createNode, isPending } = useMutation({
-    mutationFn: (v: { kind: NodeKind; parentId: string | null }) =>
-      graphqlClient.request<{ createNode: { document: { id: string } } }>(
-        CREATE_NODE,
-        {
-          kind: v.kind,
-          parentId: v.parentId,
-          title: DEFAULT_TITLE[v.kind],
-          content: EMPTY_CONTENT,
-        }
-      ),
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ['outline'] });
-      navigate(`/document/${res.createNode.document.id}`);
-    },
-    onError: () =>
-      toast.error('Could not create — try again.', {
-        id: 'footer-create-error',
-      }),
-  });
-
-  // Inside a chapter the useful thing to add is a document; at the root it is
-  // another chapter. The label says which, so the two entry points stop looking
-  // identical while doing different things.
-  const handleCreate = useCallback(
-    () =>
-      createNode(
-        scope.parentId
-          ? { kind: 'document', parentId: scope.parentId }
-          : { kind: 'folder', parentId: null }
-      ),
-    [createNode, scope.parentId]
-  );
 
   return (
     <SidebarFooter className="gap-2.5 p-3">
-      <Button
-        onClick={handleCreate}
-        disabled={isPending}
-        className="h-9 w-full justify-start gap-2.5 rounded-lg bg-sidebar-action px-3 text-[13.5px] font-semibold text-sidebar-action-foreground hover:cursor-pointer hover:bg-sidebar-action/90 [&_svg]:size-4"
-      >
-        <Icon name="plus" decorative />
-        <span className="truncate">
-          {scope.chapterTitle ? `New in ${scope.chapterTitle}` : 'New chapter'}
-        </span>
-      </Button>
-
       {user && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
