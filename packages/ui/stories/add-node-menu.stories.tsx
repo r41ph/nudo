@@ -20,7 +20,6 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Pick the kind to create: Document / Folder / Separator. Same menu everywhere.
 export const Default: Story = {
   args: {
     trigger: (

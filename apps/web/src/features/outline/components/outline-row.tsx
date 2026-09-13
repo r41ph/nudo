@@ -33,56 +33,33 @@ interface OutlineRowProps {
 
 const stop = (e: React.MouseEvent) => e.stopPropagation();
 
-/**
- * Row anatomy. Folders and separators lead with a chevron; documents don't,
- * and hug the guide line of the group they sit in instead of reserving an
- * empty toggle cell:
- *
- *   folder     [gutter 14][chevron 14]  title …  [count][status 20][menu 20]
- *   document   [gutter 20]              title …  [count][status 20][menu 20]
- *
- * At rest a row is just its chevron and title, which runs the full width.
- * Hover adds the grip in the gutter (no layout width) and the meta cluster on
- * the right, which the title yields space to. The row itself carries no
- * focus style: the focusable element is the tree wrapper (headless-tree owns
- * a roving tabindex), so the ring is driven from `group/item` in
- * `outline-tree.tsx`.
- */
+// The focus ring is driven from `group/item` because headless-tree puts the
+// roving tabindex on the row wrapper in `outline-tree.tsx`, not on this div.
+// Hover is a neutral wash, never the accent, so hovering down the tree doesn't
+// read as a run of selections.
 const ROW_BASE =
-  // The gutter (left padding) is per kind, below. Hover is a neutral ink
-  // wash, never the accent — hovering down the tree must not read as four
-  // selections. The selected row takes `--sidebar-accent`, the rail's own
-  // token, so it doesn't ride on the app-wide `--accent`.
   'group/row relative flex h-8.5 items-center gap-1.5 rounded-lg pr-2 transition-colors ' +
   'hover:bg-row-hover ' +
   'group-focus-visible/item:outline-2 group-focus-visible/item:outline-ring group-focus-visible/item:outline-offset-2';
 
-/** Gutter for rows with a chevron: holds the grip at `left-0.5`, 2px clear of the chevron. */
 const CHEVRON_GUTTER = 'pl-3.5';
-/**
- * Gutter for documents: 20px, with the grip at `left-1` so its dots sit
- * ~12px from the group's guide line (which runs 4px outside the row) and
- * ~8px from the title.
- */
+// Documents have no chevron, so they get a wider gutter and the grip sits
+// further in to stay clear of the guide line (4px outside the row, see
+// `GUIDE_INSET` in `outline-tree.tsx`).
 const DOCUMENT_GUTTER = 'pl-5';
 const DOCUMENT_GRIP = 'left-1';
 
-/** The toggle cell: a 14px chevron, hit area widened to 22px without taking layout width. */
+// `-mx-1 px-1` widens the hit area without taking layout width.
 const TOGGLE =
   'box-content flex h-full w-3.5 shrink-0 items-center justify-center -mx-1 px-1 hover:cursor-pointer';
 const CHEVRON = 'h-3.5 w-3.5 text-muted-foreground transition-transform';
 
-/** Separator action; its wrapper owns the reveal. */
 const SEPARATOR_ACTION =
   'size-6.5 rounded-md text-muted-foreground hover:cursor-pointer hover:text-accent-foreground [&_svg]:size-3.5';
 
-/**
- * The title, edited in place. The row keeps its chrome — count, status, indent
- * guides all stay put — so only the text swaps for a field. `md:` variants are
- * respecified because `Input`'s own `md:text-sm` would otherwise resize the
- * title mid-edit, and the outline is an arbitrary property so `Input`'s
- * `outline-none` can't win the cascade against it.
- */
+// `md:` variants are respecified because `Input`'s own `md:text-sm` would
+// resize the title mid-edit; the outline is an arbitrary property so `Input`'s
+// `outline-none` can't win the cascade against it.
 const RenameInput = ({
   inputRef,
   value,
@@ -159,7 +136,6 @@ export const OutlineRow = memo(function OutlineRow({
     [onToggle, id, kind]
   );
 
-  // ── Separator: a flat scoping marker (rule + label + fold chevron) ─────────
   if (kind === 'separator') {
     return (
       <div className={cn(ROW_BASE, CHEVRON_GUTTER)}>
@@ -217,11 +193,9 @@ export const OutlineRow = memo(function OutlineRow({
     );
   }
 
-  // ── Document / Folder ──────────────────────────────────────────────────────
   const isFolder = kind === 'folder';
 
-  // Chapters read a step above the documents under them by size alone; the
-  // selected row is carried by fill and ink, never weight, with no left bar.
+  // Selection is carried by fill and ink, never weight.
   const titleFont = isFolder
     ? 'text-[14px] md:text-[14px] font-normal'
     : 'text-[13.5px] md:text-[13.5px] font-normal';
@@ -264,14 +238,12 @@ export const OutlineRow = memo(function OutlineRow({
         </span>
       )}
 
-      {/* Meta cluster — count, status, ⋮ — absent at rest so the title has the
-          whole row; on hover it takes its width from the title's end. */}
       <div className={cn('shrink-0 items-center gap-1.5', REVEAL)}>
         <span className="text-[11.5px] tabular-nums text-muted-foreground">
           {wordCount.toLocaleString()}
         </span>
-        {/* Status on every row, not just folders as the handoff's anatomy has
-            it: a document's own status is the thing a writer tracks most. */}
+        {/* On every row, not just folders as the handoff has it — a document's
+            own status is what a writer tracks most. */}
         <div className="flex w-5 justify-center" onClick={stop}>
           <NodeStatusControl status={status} onChange={handleSetStatus} />
         </div>

@@ -33,19 +33,16 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// A leaf you write in. Hover: grip in the gutter; count, status and ⋮ on the right.
 export const Document: Story = {};
 
 export const ActiveDocument: Story = {
   args: { isActive: true },
 };
 
-// Moon dot when a status is set, dashed ring when not — both only on hover.
 export const DocumentWithStatus: Story = {
   args: { title: 'Chapter Three', status: 'drafting' },
 };
 
-// A container — chevron + status dot; word count is the rolled-up total.
 export const FolderCollapsed: Story = {
   args: { title: 'Part One', kind: 'folder', wordCount: 18280 },
 };
@@ -63,7 +60,6 @@ export const FolderDone: Story = {
   },
 };
 
-// A flat scoping marker — rule + label + fold chevron. No prose, no status.
 export const Separator: Story = {
   args: { title: 'PART TWO', kind: 'separator', isOpen: true },
 };

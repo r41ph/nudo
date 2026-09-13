@@ -18,8 +18,7 @@ const STATUS_LABELS: Record<NodeStatus, string> = {
 
 const STATUS_ORDER: NodeStatus[] = ['planned', 'drafting', 'done'];
 
-// Moon-phase dot: empty ring (planned), left-half filled (drafting), solid (done).
-// Colours come from the --status-* tokens, never hard-coded.
+// Moon-phase dot: empty ring (planned), half (drafting), full (done).
 function dotStyle(status: NodeStatus): CSSProperties {
   switch (status) {
     case 'planned':
@@ -54,10 +53,7 @@ export const StatusDot = memo(function StatusDot({
   );
 });
 
-/**
- * The status choices, as menu items. Shared by the row's own status dot and the
- * row menu's "Set status" submenu so the two can never drift apart.
- */
+// Shared by the status dot and the row menu's submenu so they can't drift.
 export const StatusMenuItems = memo(function StatusMenuItems({
   status,
   onChange,
@@ -96,11 +92,6 @@ interface NodeStatusControlProps {
   onChange: (status: NodeStatus | null) => void;
 }
 
-/**
- * Status is opt-in on any node: the moon dot when set, a faint dashed ring
- * when not. Shown with the rest of the row's meta cluster on hover. The menu
- * can clear it back to none.
- */
 export const NodeStatusControl = memo(function NodeStatusControl({
   status,
   onChange,

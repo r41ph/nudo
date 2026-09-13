@@ -14,11 +14,9 @@ import {
 import { StatusMenuItems } from '@web/features/outline/components/status-control';
 import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 
-/** 30px rows, 12.5px label, 9px between icon and label, 14px icons. */
 const ITEM =
   'h-[30px] gap-[9px] rounded-md px-[9px] py-0 text-[12.5px] [&_svg]:size-3.5';
 
-/** Last cell of the row's meta cluster (see `outline-row`), which owns the reveal. */
 const TRIGGER =
   'h-6.5 w-5 shrink-0 rounded-md p-0 text-muted-foreground hover:cursor-pointer ' +
   'hover:text-accent-foreground data-[state=open]:text-accent-foreground [&_svg]:size-3.5';
@@ -38,10 +36,8 @@ interface RowMenuProps {
   onDelete: () => void;
 }
 
-/**
- * One `⋯` menu per outline row, replacing the three hover-revealed icons that
- * were unreachable by keyboard and touch. Every entry carries a text label.
- */
+// Replaces the three hover-only icons that were unreachable by keyboard and
+// touch.
 export const RowMenu = memo(function RowMenu({
   title,
   status,
@@ -50,12 +46,10 @@ export const RowMenu = memo(function RowMenu({
   onAddChild,
   onDelete,
 }: RowMenuProps) {
-  // Rename mounts an input and focuses it, so it must not start while this menu
-  // is still closing: the open menu traps focus and would pull it straight back
-  // out of the new input, and the blur that follows commits an edit the user
-  // never made. Defer the start to the menu's own close-autofocus phase, and
-  // prevent the default focus restore so the input keeps what it takes. Every
-  // other item still returns focus to the row's action slot.
+  // Rename can't start while the menu is still closing: the menu's focus trap
+  // would pull focus back out of the new input and the resulting blur would
+  // commit an edit the user never made. So it's deferred to close-autofocus,
+  // with the default focus restore suppressed.
   const pendingRenameRef = useRef(false);
 
   const handleRename = useCallback(() => {
@@ -105,9 +99,7 @@ export const RowMenu = memo(function RowMenu({
           </DropdownMenuSubContent>
         </DropdownMenuSub>
 
-        {/* Offered on every row, not just folders: adding inside a document is
-            how a document becomes a container, and this is the only entry point
-            for it — the footer button only creates at the root. */}
+        {/* On every row: adding inside a document is how it becomes a container. */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className={ITEM}>
             <Icon name="plus" decorative />

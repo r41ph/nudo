@@ -8,24 +8,14 @@ export type NodeForScope = {
 };
 
 export interface CreateScope {
-  /** Where a new node should be created. `null` = the root. */
   parentId: string | null;
-  /** The chapter's title, or `null` when the scope is the root. */
   chapterTitle: string | null;
 }
 
 const ROOT: CreateScope = { parentId: null, chapterTitle: null };
 
-/**
- * Which chapter the footer's "New" button should create into, given whatever is
- * open in the editor. The open node's nearest enclosing chapter wins — itself,
- * if it is one — so the button can name its scope instead of leaving the user
- * to guess whether it adds at the root or under the selection.
- *
- * Separators can't contain anything, so they are never a scope; a node with no
- * chapter above it falls back to the root. The `seen` set keeps the walk
- * terminating even if the data ever contained a parent cycle.
- */
+// The open node's nearest enclosing chapter (itself, if it is one). Separators
+// can't contain anything, so they never scope; `seen` guards against a cycle.
 export function pickCreateScope(
   nodes: NodeForScope[],
   activeId: string | undefined

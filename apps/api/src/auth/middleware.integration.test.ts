@@ -1,8 +1,3 @@
-/**
- * authMiddleware gates every request reaching PostGraphile. These tests drive
- * the real /graphql endpoint (supertest) to prove the three credential cases
- * end-to-end against the test database.
- */
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
@@ -16,8 +11,7 @@ const ALL_DOCUMENTS = `{ allDocuments { nodes { id title } } }`;
 
 describe('authMiddleware on /graphql', () => {
   it('returns the authenticated user documents with a valid token', async () => {
-    // createUser registers through /auth/register, which seeds the outline:
-    // a "Chapter One" folder holding the "Welcome Document".
+    // Registration seeds "Chapter One" holding the "Welcome Document".
     const user = await createUser();
 
     const res = await request(app)
@@ -60,8 +54,7 @@ describe('authMiddleware on /graphql', () => {
   });
 
   it('treats a request with no token as anonymous (no rows, not an error)', async () => {
-    // No Authorization header: RLS yields no rows because app.current_user_id
-    // is unset. This must stay distinct from the 401 invalid-token case.
+    // Anonymous must stay distinct from the 401 invalid-token case.
     const res = await request(app)
       .post('/graphql')
       .send({ query: ALL_DOCUMENTS });

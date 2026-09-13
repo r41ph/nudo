@@ -12,12 +12,7 @@ import { useBreadcrumb } from '@web/features/document/hooks/use-breadcrumb';
 import { useDailyWordDelta } from '@web/features/document/hooks/use-daily-word-delta';
 import { EditorBreadcrumb } from '@web/features/document/components/editor-breadcrumb';
 
-/**
- * The editor view's single top bar (the Leaf "breadcrumb header"): the ancestor
- * breadcrumb on the left; save status, today's word delta, the focus-mode
- * toggle, and the theme switch on the right. Replaces the global app `TopBar`
- * while a document is open.
- */
+// Replaces the global `TopBar` while a document is open (see `AppLayout`).
 export function EditorTopBar() {
   const currentDocument = useAtomValue(currentDocumentAtom);
   const liveWordCount = useAtomValue(liveWordCountAtom);

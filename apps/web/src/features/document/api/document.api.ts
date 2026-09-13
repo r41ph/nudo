@@ -45,8 +45,6 @@ export const GET_DOCUMENT_VERSIONS = gql`
   }
 `;
 
-// Creates any node (document | folder | separator) in the uniform tree.
-// parentId null = root. Used for the "+ Add" affordances and first-document flows.
 export const CREATE_NODE = gql`
   mutation CreateNode(
     $kind: String!

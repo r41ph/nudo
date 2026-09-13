@@ -1,7 +1,3 @@
-/**
- * SQL-function mutations for user toolbar settings and discussion pruning,
- * exercised through GraphQL: update_user_toolbar and prune_orphaned_discussions.
- */
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';

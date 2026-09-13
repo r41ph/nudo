@@ -1,5 +1,3 @@
-// ── Discussion DB response types ───────────────────────────────────────────────
-
 export type DbDiscussionUser = { id: string; displayName: string };
 
 export type DbDiscussionComment = {
@@ -25,8 +23,6 @@ export type DbDiscussion = {
 export type GetDiscussionsResult = {
   allDiscussions: { nodes: DbDiscussion[] };
 };
-
-// ──────────────────────────────────────────────────────────────────────────────
 
 export interface DocumentData {
   id: string;

@@ -2,8 +2,6 @@
 
 import type { ExtendConfig, Path } from 'platejs';
 
-// import { commentPlugin } from './comment-kit';
-// import { discussionPlugin } from './discussion-kit';
 import {
   type BaseSuggestionConfig,
   BaseSuggestionPlugin,
@@ -30,14 +28,12 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
   () => ({
     options: {
       activeId: null,
-      // currentUserId: editor.getOption(discussionPlugin, 'currentUserId'),
       hoverId: null,
       uniquePathMap: new Map(),
     },
   })
 ).configure({
   handlers: {
-    // unset active suggestion when clicking outside of suggestion
     onClick: ({ api, event, setOption, type }) => {
       let leaf = event.target as HTMLElement;
       let isSet = false;

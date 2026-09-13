@@ -12,7 +12,6 @@ import { SidebarFooter } from '@ui/components/ui/sidebar';
 import { userAtom } from '@web/features/auth/state/auth.store';
 import { useLogout } from '@web/features/auth/hooks/use-logout';
 
-/** Two initials for the avatar, from the display name or the email. */
 function initialsFor(displayName: string | null, email: string): string {
   const source = displayName?.trim() || email.split('@')[0];
   const parts = source.split(/[\s._-]+/).filter(Boolean);
@@ -21,7 +20,7 @@ function initialsFor(displayName: string | null, email: string): string {
   return letters.toUpperCase();
 }
 
-/** Menu entries with nothing behind them yet — shown, but plainly unavailable. */
+// Nothing behind these yet; shown so the menu reads as complete.
 const UNWIRED = [
   { label: 'Settings', icon: 'settings' },
   { label: 'Trash', icon: 'trash' },

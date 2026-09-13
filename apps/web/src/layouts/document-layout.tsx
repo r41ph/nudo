@@ -8,11 +8,6 @@ import {
 } from '@web/features/document/state/document.store';
 import { EditorTopBar } from '@web/features/document/components/editor-top-bar';
 
-/**
- * Focus mode's only chrome: the running word count — the one number a drafting
- * writer wants — and the way out, labelled with the key that does it. Escape
- * exits; previously the sole exit was an unlabelled ghost icon.
- */
 function FocusModeBar() {
   const [, setFocusMode] = useAtom(isFocusModeAtom);
   const currentDocument = useAtomValue(currentDocumentAtom);
@@ -26,8 +21,7 @@ function FocusModeBar() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      // `defaultPrevented` leaves Escape to whatever already claimed it — a menu
-      // or dialog closing shouldn't also drop the writer out of focus mode.
+      // A menu or dialog closing on Escape shouldn't also exit focus mode.
       if (event.key !== 'Escape' || event.defaultPrevented) return;
       setFocusMode(false);
     };

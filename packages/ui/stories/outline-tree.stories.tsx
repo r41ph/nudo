@@ -30,8 +30,6 @@ const node = (
   ...overrides,
 });
 
-// Two parts, one nested two deep, a separator, and a loose root document —
-// enough to see guides, grips, counts and the action overlay side by side.
 const nodes: OutlineNode[] = [
   node('p1', 'Part One', null, 0, {
     kind: 'folder',
@@ -67,7 +65,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Nested: Story = {};
 
-// The path to the active node is expanded on mount.
 export const WithActiveDocument: Story = {
   args: { activeItemId: 'c3a' },
 };

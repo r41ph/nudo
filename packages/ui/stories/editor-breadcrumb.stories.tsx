@@ -18,12 +18,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// A root-level document: a single, emphasised crumb.
 export const Single: Story = {
   args: { crumbs: [{ id: '1', title: 'The Tidewatch' }] },
 };
 
-// A chapter nested under a part: ancestor muted, current emphasised.
 export const Nested: Story = {
   args: {
     crumbs: [
@@ -33,7 +31,6 @@ export const Nested: Story = {
   },
 };
 
-// A section three levels deep — the full ancestry chain.
 export const Deep: Story = {
   args: {
     crumbs: [

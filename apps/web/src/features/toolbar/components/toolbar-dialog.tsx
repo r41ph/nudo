@@ -23,8 +23,8 @@ export function EditorToolbarDialog() {
   const editor = useEditorRef();
   const savedSelection = useRef<typeof editor.selection>(null);
 
-  // Continuously track the latest selection so we always have a valid one
-  // saved before the dialog opens and focus leaves the editor
+  // The selection is gone by the time the dialog opens and takes focus, so it
+  // is tracked continuously.
   const currentSelection = useEditorSelector((editor) => editor.selection, []);
   const latestSelectionRef = useRef(currentSelection);
 
@@ -55,8 +55,7 @@ export function EditorToolbarDialog() {
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
-        // Save selection when opening/closing dialog — use the ref since
-        // currentSelection may already be null by the time this fires
+        // `currentSelection` may already be null by the time this fires.
         if (latestSelectionRef.current) {
           savedSelection.current = latestSelectionRef.current;
         }

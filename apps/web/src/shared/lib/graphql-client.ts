@@ -2,13 +2,9 @@ import { GraphQLClient, ClientError } from 'graphql-request';
 import { API_URL } from '@web/shared/lib/api';
 import { getToken, clearAuth } from '@web/shared/lib/auth';
 
-/**
- * When the API rejects our credential (401 — token expired, or signed with a
- * since-rotated secret), the stored token is useless. Clear it and bounce to
- * login rather than leaving the user on an authenticated-looking screen whose
- * queries silently return nothing. Guarded on getToken() so we never loop when
- * already logged out, and skipped if we're already on the login route.
- */
+// A 401 means the stored token is dead (expired or rotated secret); bouncing
+// to login beats an authenticated-looking screen whose queries return nothing.
+// Guarded on getToken() so it can't loop once logged out.
 function handleAuthFailure(response: unknown): void {
   const status =
     response instanceof ClientError ? response.response.status : undefined;

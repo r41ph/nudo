@@ -86,9 +86,8 @@ export function Icon({
   name: IconName;
   className?: string;
   /**
-   * Hide the glyph from assistive tech. Use whenever the icon sits beside a
-   * text label or inside an already-labelled control — otherwise the icon's
-   * own name leaks into the accessible name ("pencil Rename").
+   * Set beside a text label or inside a labelled control, or the icon's name
+   * leaks into the accessible name ("pencil Rename").
    */
   decorative?: boolean;
 }) {

@@ -1,6 +1,5 @@
 import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 
-/** Per-node data carried in the headless-tree map. */
 export type OutlineTreeData =
   | { type: 'root' }
   | {
@@ -9,7 +8,7 @@ export type OutlineTreeData =
       title: string;
       kind: NodeKind;
       status: NodeStatus | null;
-      /** Rolled-up subtree word count (own words + every descendant's). */
+      /** Rolled up across the subtree, not the node's own words. */
       wordCount: number;
       hasChildren: boolean;
     };
@@ -27,14 +26,11 @@ export interface Positions {
 }
 
 export interface OutlineTreeCallbacks {
-  /** Open a node in the editor (every node holds prose). */
   onOpenNode: (id: string) => void;
   onRenameNode: (id: string, title: string) => void;
   onDeleteNode: (id: string) => void;
-  /** Add a child of the chosen kind under `parentId`. */
   onAddChild: (parentId: string, kind: NodeKind) => void;
   onSetStatus: (id: string, status: NodeStatus | null) => void;
-  /** Reparent + reorder. `targetParentId` null = root. */
   onMoveNode: (
     nodeId: string,
     targetParentId: string | null,

@@ -3,10 +3,7 @@ import { createPlateEditor } from 'platejs/react';
 import { BasicNodesKit } from '@ui/components/editor/plugins/basic-nodes-kit';
 import { FontKit } from '@ui/components/editor/plugins/font-kit';
 
-// The editor is composed in packages/ui (which has no test runner yet), so this
-// regression test exercises the same plugin kits through apps/web's Vitest to
-// prove that pasting HTML from outside the app never injects a foreign
-// font-family mark — the app's own typography must win.
+// Lives here because packages/ui has no test runner yet.
 const deserialize = (html: string) => {
   const editor = createPlateEditor({ plugins: [...BasicNodesKit, ...FontKit] });
   return editor.api.html.deserialize({ element: html });

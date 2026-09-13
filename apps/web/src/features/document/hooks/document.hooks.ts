@@ -11,8 +11,7 @@ import { graphqlClient } from '@web/shared/lib/graphql-client';
 
 type DocumentNode = { id: string; wordCount: number };
 
-// Module-level derived atom: re-renders only when the active document ID changes,
-// not on title/content/wordCount changes.
+// Derived so subscribers re-render on ID changes only, not on every keystroke.
 const activeDocIdAtom = selectAtom(
   currentDocumentAtom,
   (doc) => doc?.id ?? null

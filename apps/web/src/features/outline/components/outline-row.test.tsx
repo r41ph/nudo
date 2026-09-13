@@ -31,7 +31,6 @@ function renderRow(over: Partial<typeof baseProps> = {}) {
   );
 }
 
-/** Open the row's `⋯` menu and click one of its items. */
 async function chooseMenuItem(
   user: ReturnType<typeof userEvent.setup>,
   rowTitle: string,
@@ -144,7 +143,7 @@ describe('OutlineRow — add inside', () => {
     await user.click(
       screen.getByRole('button', { name: 'Actions for Welcome Document' })
     );
-    // Driven by keyboard alone — the whole point of replacing hover-only icons.
+    // Keyboard only: the reason the hover-only icons were replaced.
     const sub = await screen.findByRole('menuitem', { name: 'New inside' });
     sub.focus();
     await user.keyboard('{ArrowRight}');
@@ -166,7 +165,7 @@ describe('OutlineRow — inline rename', () => {
     expect(await screen.findByRole('textbox', { name: 'Title' })).toHaveValue(
       'Welcome Document'
     );
-    // The count used to disappear with the rest of the row mid-edit.
+    // Regression: the count used to disappear mid-edit.
     expect(screen.getByText('43')).toBeInTheDocument();
   });
 

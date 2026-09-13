@@ -3,7 +3,6 @@ import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { server } from '@web/test/mocks/server';
 
-// Start MSW server
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   server.resetHandlers();
@@ -12,7 +11,6 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-// Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
@@ -25,7 +23,6 @@ const localStorageMock = (() => {
     }),
     clear: vi.fn(() => {
       store = {};
-      // Reset the spy call counts too
       localStorageMock.getItem.mockClear();
       localStorageMock.setItem.mockClear();
       localStorageMock.removeItem.mockClear();
@@ -61,5 +58,4 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 });
 
-// Mock import.meta.env for API_URL
 vi.stubEnv('VITE_API_URL', 'http://localhost:3000');

@@ -61,8 +61,7 @@ export function ManuscriptsSection() {
     queryClient.invalidateQueries({ queryKey: ['documents'] });
   }, []);
 
-  // children-by-parent index, built once per node list, so collecting a subtree
-  // is O(n) instead of rescanning every node per level (O(n²)).
+  // Indexed once so collecting a subtree is O(n), not O(n²).
   const childrenByParent = useMemo(() => {
     const index = new Map<string, string[]>();
     for (const n of nodes) {
@@ -74,8 +73,7 @@ export function ManuscriptsSection() {
     return index;
   }, [nodes]);
 
-  // All descendants of a node (inclusive), for delete adjacency / cascade. The
-  // `seen` set keeps this terminating even if the data ever contained a cycle.
+  // `seen` keeps this terminating if the data ever contained a cycle.
   const subtreeIds = useCallback(
     (rootId: string) => {
       const out: string[] = [];
@@ -96,7 +94,6 @@ export function ManuscriptsSection() {
     [childrenByParent]
   );
 
-  // ── Mutations ──────────────────────────────────────────────────────────────
   const { mutate: renameNode } = useMutation({
     mutationFn: (v: { id: string; title: string }) =>
       graphqlClient.request(RENAME_DOCUMENT, v),
@@ -131,7 +128,6 @@ export function ManuscriptsSection() {
     onSuccess: (res, v) => {
       invalidate();
       if (v.parentId) treeRef.current?.expandNode(v.parentId);
-      // Separators have no editor surface — don't navigate into one.
       if (v.kind !== 'separator') {
         navigate(`/document/${res.createNode.document.id}`);
       }
@@ -152,8 +148,7 @@ export function ManuscriptsSection() {
       }),
   });
 
-  // Move the editor somewhere valid when the open node (or an ancestor of it)
-  // is deleted — otherwise it keeps showing a dead document.
+  // Otherwise the editor keeps showing a dead document.
   const navigateAfterRemoval = useCallback(
     (removedIds: string[]) => {
       if (!activeDocId || !removedIds.includes(activeDocId)) return;
@@ -200,10 +195,8 @@ export function ManuscriptsSection() {
 
   return (
     <SidebarGroup>
-      {/* The group label sits under the chapter titles, not over them: 10.5px at
-          0.14em, with the root-add button on the same row. `--muted-foreground`
-          rather than the handoff's `--faint`, which is only 3.24:1 on the rail
-          and would put this label under the 4.5:1 bar the same doc sets. */}
+      {/* `--muted-foreground` rather than the handoff's `--faint`: 3.24:1 on
+          the rail fails the 4.5:1 bar the same handoff sets. */}
       <SidebarGroupLabel className="justify-between gap-2 pl-4 pr-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Story
         <AddNodeMenu

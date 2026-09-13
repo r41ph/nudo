@@ -211,6 +211,18 @@ Design-handoff workflow), which Claude Code reads automatically.
 - **Constants:** `<feature>.constants.ts` at the feature root (e.g., `toolbar.constants.ts`); export as `const` objects
 - **Commits:** Conventional Commits — `feat:`, `fix:`, `refactor:`, `chore:`, etc.
 
+### Comments
+
+Comments explain **why**, not **what**. A comment earns its place only when the
+code alone can't tell you something — a constraint, a trade-off, a workaround,
+a non-obvious dependency, a regression a test locks.
+
+- Don't restate the code, narrate layout, or add section banners.
+- Don't describe what a story or test shows; its name does that.
+- No commented-out code — delete it, git keeps it.
+- Keep the ones you write short. One or two lines that give the reason beat
+  a doc block that summarises the function.
+
 ---
 
 ## Database & Migrations

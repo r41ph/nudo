@@ -17,7 +17,6 @@ const node = (id: string, over: Partial<OutlineNode> = {}): OutlineNode => ({
   ...over,
 });
 
-/** Narrow a map entry to its node item (throws for root). */
 function nodeItem(map: TreeMap, id: string) {
   const item = map[id]?.item;
   if (!item || item.type !== 'node') throw new Error(`${id} is not a node`);
@@ -125,7 +124,6 @@ describe('countDescendants', () => {
       node('a', { kind: 'folder' }),
       node('b', { parentId: 'a' }),
     ]);
-    // Force a cycle the real data should never contain.
     map.b.children = ['a'];
     expect(countDescendants(map, 'a')).toBe(1);
   });

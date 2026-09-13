@@ -6,8 +6,6 @@ import {
   lastSavedAtom,
 } from '@web/shared/state/save-status.atom';
 
-// Tokens only — these were raw Tailwind colours (orange/yellow/red/green) with
-// no dark variant, the one place the chrome routed around the token layer.
 const STATUS_CONFIG = {
   unsaved: { text: 'Unsaved changes', color: 'text-accent-foreground' },
   saving: { text: 'Saving...', color: 'text-muted-foreground' },
@@ -15,17 +13,12 @@ const STATUS_CONFIG = {
   error: { text: 'Save failed', color: 'text-destructive' },
 } as const;
 
-/**
- * `showTimestamp={false}` keeps the save *state* (including failures) while
- * dropping the second-precision "Last saved" line — focus mode wants the one
- * without the other.
- */
+// `showTimestamp={false}` keeps the state (including failures) without the
+// "Last saved" line, for focus mode.
 export function SaveBar({ showTimestamp = true }: { showTimestamp?: boolean }) {
   const saveStatus = useAtomValue(saveStatusAtom);
   const lastSaved = useAtomValue(lastSavedAtom);
 
-  // Tracks whether the auto-hide timer has fired for the current saveStatus.
-  // Reset to false whenever saveStatus changes (derived-state pattern below).
   const [autoHidden, setAutoHidden] = useState(false);
   const [prevStatus, setPrevStatus] = useState(saveStatus);
   if (prevStatus !== saveStatus) {

@@ -1,11 +1,5 @@
-/**
- * Minimal GraphQL client for integration tests: POSTs to /graphql through the
- * in-process app (supertest), optionally authenticated as a seeded user.
- *
- * Unlike createDocument() in seed.ts, this goes through the real PostGraphile
- * stack — role `nudo_visitor` plus the app.current_user_id derived from
- * the JWT — so it exercises row-level security exactly as the app does.
- */
+// Unlike seed.ts's raw inserts, this goes through the real PostGraphile stack
+// and so exercises RLS exactly as the app does.
 import request from 'supertest';
 import { createApp } from '../app.js';
 
@@ -16,7 +10,6 @@ export interface GraphQLResponse<T> {
   errors?: Array<{ message: string }>;
 }
 
-/** Run a GraphQL operation; pass a token to authenticate as that user. */
 export async function graphql<T = unknown>(
   query: string,
   variables?: Record<string, unknown>,

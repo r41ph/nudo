@@ -14,17 +14,12 @@ interface DeleteNodeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  /** Nodes inside this one that the cascade would take with it. */
   descendantCount: number;
   onConfirm: () => void;
 }
 
-/**
- * Confirms a cascading delete. Deleting a container takes its whole subtree, so
- * the body names the blast radius exactly rather than saying "and its contents".
- * Radix moves focus to Cancel on open, so the destructive button is never the
- * default target.
- */
+// Names the exact blast radius rather than "and its contents". Radix focuses
+// Cancel on open, so the destructive button is never the default target.
 export const DeleteNodeDialog = memo(function DeleteNodeDialog({
   open,
   onOpenChange,

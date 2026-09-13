@@ -5,11 +5,8 @@ const todayKey = (): string => new Date().toISOString().slice(0, 10);
 const storageKey = (docId: string): string =>
   `${BASELINE_PREFIX}${docId}:${todayKey()}`;
 
-/**
- * Drops baseline entries from previous days so the key space stays bounded
- * (otherwise every doc opened on a distinct day would leave a key behind
- * forever). Iterates backwards because removeItem reindexes the store.
- */
+// Keeps the key space bounded. Iterates backwards because removeItem reindexes
+// the store.
 function pruneStaleBaselines(today: string): void {
   for (let i = localStorage.length - 1; i >= 0; i--) {
     const key = localStorage.key(i);
@@ -19,13 +16,8 @@ function pruneStaleBaselines(today: string): void {
   }
 }
 
-/**
- * The word count a document started today at. Recorded once per document per
- * calendar day in localStorage the first time the document is seen that day;
- * subsequent reads return that stored baseline so the "+N today" delta is
- * stable across reloads. Falls back to the current count if storage is
- * unavailable (private mode, quota) — the delta is a nicety, never load-blocking.
- */
+// Falls back to the current count if storage is unavailable (private mode,
+// quota): the delta is a nicety, never load-blocking.
 function readDailyBaseline(docId: string, currentCount: number): number {
   try {
     pruneStaleBaselines(todayKey());
@@ -41,12 +33,7 @@ function readDailyBaseline(docId: string, currentCount: number): number {
   }
 }
 
-/**
- * Words written in the open document since the start of today. Clamped at 0 so
- * deletions never show a negative delta. The baseline is captured once when the
- * document opens (not re-read as you type) so the count only ever grows with
- * new writing.
- */
+// Clamped at 0 so deletions never show a negative delta.
 export function useDailyWordDelta(
   docId: string | null,
   currentCount: number
@@ -59,7 +46,8 @@ export function useDailyWordDelta(
       return;
     }
     setBaseline(readDailyBaseline(docId, currentCount));
-    // Baseline is the first count seen today — intentionally not re-run on count.
+    // The baseline is the first count seen today, so `count` is deliberately
+    // not a dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docId]);
 

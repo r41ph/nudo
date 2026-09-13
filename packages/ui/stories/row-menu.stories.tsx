@@ -9,8 +9,7 @@ const meta = {
   parameters: { layout: 'padded' },
   decorators: [
     (Story) => (
-      // The trigger's glyph is hidden until the row is hovered, so the story
-      // sits inside a stand-in row to make the rest state reproducible.
+      // The trigger only reveals on row hover, so it needs a stand-in `group/row`.
       <div className="group/row flex w-[280px] items-center gap-2 rounded-lg bg-sidebar px-2 py-1">
         <span className="flex-1 text-[13.5px] text-prose">
           Welcome Document
@@ -35,7 +34,6 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Every row gets the same four actions, whatever its kind. */
 export const DocumentRow: Story = {};
 
 export const FolderRow: Story = {
@@ -46,7 +44,6 @@ export const WithStatusSet: Story = {
   args: { title: 'Chapter One', status: 'drafting' },
 };
 
-/** The trigger stays lit while the menu is open. */
 export const MenuOpen: Story = {
   args: { title: 'Chapter One' },
   play: async ({ canvas, userEvent }) => {

@@ -1,7 +1,3 @@
-/**
- * Auth route integration tests: register, login, refresh, logout driven through
- * the real Express routes (supertest) against the test database.
- */
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';

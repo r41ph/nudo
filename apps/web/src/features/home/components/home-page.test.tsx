@@ -25,7 +25,6 @@ function renderHome() {
 
 describe('HomePage', () => {
   it('redirects to the first document when documents exist', async () => {
-    // Default handler returns two documents.
     renderHome();
 
     await waitFor(() =>
@@ -60,7 +59,6 @@ describe('HomePage', () => {
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent(/couldn't load your documents/i);
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
-    // The misleading "no documents" empty state must NOT be shown on error.
     expect(screen.queryByText(/no documents yet/i)).not.toBeInTheDocument();
   });
 });

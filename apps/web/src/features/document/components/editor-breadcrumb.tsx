@@ -2,12 +2,6 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import type { Crumb } from '@web/features/document/hooks/use-breadcrumb';
 
-/**
- * Presentational ancestor breadcrumb for the editor top bar: ancestors are
- * muted links to their own document, the open document emphasised and inert,
- * faint `/` separators. Pure — the ancestry is computed by `useBreadcrumb` and
- * passed in.
- */
 export function EditorBreadcrumb({ crumbs }: { crumbs: Crumb[] }) {
   return (
     <nav

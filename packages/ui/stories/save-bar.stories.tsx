@@ -23,7 +23,6 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Each state renders in a token colour, so both themes are covered. */
 function withStatus(status: SaveStatus, lastSaved: Date | null = null): Story {
   return {
     decorators: [
@@ -39,10 +38,8 @@ function withStatus(status: SaveStatus, lastSaved: Date | null = null): Story {
 export const Unsaved: Story = withStatus('unsaved');
 export const Saving: Story = withStatus('saving');
 export const Saved: Story = withStatus('saved');
-/** The state that must never be silent. */
 export const Failed: Story = withStatus('error');
 export const WithTimestamp: Story = withStatus('saved', new Date());
-/** Focus mode: state without the second-precision timestamp. */
 export const NoTimestamp: Story = {
   ...withStatus('saved', new Date()),
   args: { showTimestamp: false },

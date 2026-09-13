@@ -15,16 +15,11 @@ const KIND_META: { kind: NodeKind; label: string; icon: IconName }[] = [
 ];
 
 interface AddNodeMenuProps {
-  /** Renders the dropdown trigger (a `+` button, a footer link, …). */
   trigger: ReactNode;
   onAdd: (kind: NodeKind) => void;
   align?: 'start' | 'end';
 }
 
-/**
- * The "+ Add" affordance. Same three choices everywhere — under a row (adds a
- * child; turns a document into a folder) and in the footer (adds at the root).
- */
 export const AddNodeMenu = memo(function AddNodeMenu({
   trigger,
   onAdd,

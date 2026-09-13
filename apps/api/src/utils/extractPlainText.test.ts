@@ -25,10 +25,8 @@ describe('extractPlainText', () => {
   });
 
   it('concatenates sibling paragraph nodes without inserting a separator', () => {
-    // NOTE: spaces only appear between sibling *text leaf* nodes (each leaf appends " ").
-    // Paragraph-level nodes rely on their children contributing trailing spaces; when a
-    // paragraph has a single leaf, the inner call trims that space, so paragraphs run
-    // together at the top level.
+    // Spaces come from text leaves, and a single-leaf paragraph trims its own,
+    // so paragraphs run together at the top level.
     const nodes = [
       { type: 'p', children: [{ text: 'First paragraph' }] },
       { type: 'p', children: [{ text: 'Second paragraph' }] },
@@ -53,7 +51,6 @@ describe('extractPlainText', () => {
 
   it('trims leading and trailing whitespace from the result', () => {
     const nodes = [{ text: '  ' }, { text: 'clean' }, { text: '  ' }];
-    // each leaf appends text + space; after trim the result should be clean
     expect(extractPlainText(nodes)).toBe('clean');
   });
 });

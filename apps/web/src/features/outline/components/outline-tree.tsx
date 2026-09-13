@@ -30,7 +30,6 @@ import {
 } from '@web/features/outline/components/outline-tree.utils';
 import type { OutlineNode } from '@web/shared/types/outline.types';
 
-/** Ancestors of the active node, so we can auto-expand the path to it. */
 function ancestorIds(
   nodes: OutlineNode[],
   activeId: string | undefined
@@ -46,7 +45,6 @@ function ancestorIds(
   return out;
 }
 
-/** True if `nodeId` lives somewhere inside `ancestorId`'s subtree. */
 function isDescendant(
   map: TreeMap,
   ancestorId: string,
@@ -61,10 +59,8 @@ function isDescendant(
   return false;
 }
 
-/**
- * A node may drop into any node or the root — except into a separator (which
- * can't contain anything) or into itself / its own descendants (a cycle).
- */
+// Separators can't contain anything; dropping into yourself or a descendant
+// would create a cycle.
 function canDropInto(
   map: TreeMap,
   draggedId: string,
@@ -77,10 +73,8 @@ function canDropInto(
   return !isDescendant(map, draggedId, targetId);
 }
 
-/**
- * IDs hidden because a folded separator scopes them: every same-level sibling
- * after the separator until the next separator, plus their descendants.
- */
+// A folded separator hides every same-level sibling after it up to the next
+// separator, plus their descendants.
 function hiddenByFolds(map: TreeMap, folded: ReadonlySet<string>): Set<string> {
   const hidden = new Set<string>();
   if (folded.size === 0) return hidden;
@@ -124,14 +118,9 @@ interface OutlineTreeProps {
   ref?: Ref<OutlineTreeHandle>;
 }
 
-/**
- * One step per level. Sized so the group's guide line sits *outside* the
- * nested rows rather than through them: the line is under the parent
- * chevron's centre (a folder row's 14px gutter + half the 14px toggle cell = 21px),
- * and a nested row starts 4px clear to its right.
- */
+// Sized so the guide line lands under the parent chevron's centre (21px into a
+// folder row) yet stays outside the nested rows, 4px clear of their edge.
 const INDENT = 26;
-/** How far left of a nested row's indent edge its group's guide line sits. */
 const GUIDE_INSET = 5;
 
 const itemStyleCache: Record<number, CSSProperties> = {};
@@ -152,12 +141,8 @@ const getGuideStyle = (depth: number): CSSProperties => {
   return guideStyleCache[depth];
 };
 
-/**
- * The 1px rules that mark a nested group. Rows render flat (headless-tree gives
- * us a flat list, not nested DOM), so each row draws one segment per ancestor
- * level; stacked over adjacent rows they read as continuous lines that stop
- * after a group's last child.
- */
+// headless-tree renders a flat list, not nested DOM, so each row draws its own
+// segment of every ancestor's guide line; stacked, they read as one line.
 function IndentGuides({ level }: { level: number }) {
   if (level < 1) return null;
   return (
@@ -195,7 +180,6 @@ export function OutlineTree({
     callbacksRef.current = callbacks;
   }, [callbacks]);
 
-  // Folded separators — client-side; folding hides the run after a separator.
   const [folded, setFolded] = useState<ReadonlySet<string>>(() => new Set());
   const toggleFold = useCallback((sepId: string) => {
     setFolded((prev) => {
@@ -206,9 +190,8 @@ export function OutlineTree({
     });
   }, []);
 
-  // Drop fold ids whose separator no longer exists (after deletes/refetches) so
-  // the set can't grow unbounded. Done during render — React's supported
-  // "adjust state when a prop changes" pattern — to avoid a setState-in-effect.
+  // Prune folds whose separator is gone, during render rather than in an
+  // effect (React's "adjust state when a prop changes" pattern).
   const [foldedFor, setFoldedFor] = useState(externalData);
   if (foldedFor !== externalData) {
     setFoldedFor(externalData);
@@ -230,7 +213,6 @@ export function OutlineTree({
         store.getSnapshot()[id]?.item ?? ({ type: 'root' } as OutlineTreeData),
       getChildren: (id) => store.getSnapshot()[id]?.children ?? [],
     },
-    // Separators can't contain anything; everything else is a drop container.
     isItemFolder: (item) => {
       const d = item.getItemData();
       return d.type !== 'node' || d.kind !== 'separator';
@@ -277,15 +259,13 @@ export function OutlineTree({
     features: [syncDataLoaderFeature, dragAndDropFeature],
   });
 
-  // Keep a live handle to the tree so the toggle callback below can stay stable
-  // (referencing `tree` directly would make it change every render and defeat
-  // OutlineRow's memo).
+  // A ref keeps `handleRowToggle` stable; closing over `tree` directly would
+  // defeat OutlineRow's memo.
   const treeInstRef = useRef(tree);
   useEffect(() => {
     treeInstRef.current = tree;
   });
 
-  // Stable per-row toggle: folds a separator, or expands/collapses anything else.
   const handleRowToggle = useCallback(
     (rowId: string, isSeparator: boolean) => {
       if (isSeparator) {
@@ -311,12 +291,9 @@ export function OutlineTree({
     expandNode: (id: string) => tree.getItemInstance(id)?.expand(),
   }));
 
-  // Re-renders are driven by the store subscription + `folded`, so a plain
-  // recompute is correct and cheap at sidebar sizes.
   const snapshot = store.getSnapshot();
   const hidden = hiddenByFolds(snapshot, folded);
 
-  // Only show the reorder indicator where the drop is actually allowed.
   const dragTarget = tree.getDragTarget();
   const draggedItems = tree.getState().dnd?.draggedItems;
   const showDragLine =

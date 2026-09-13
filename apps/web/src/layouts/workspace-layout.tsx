@@ -8,8 +8,6 @@ export function WorkspaceLayout({ children }: { children: ReactNode }) {
   const isFocusMode = useAtomValue(isFocusModeAtom);
   const isEditorRoute = useIsEditorRoute();
 
-  // On the editor route the global TopBar is hidden, so the rail starts at the
-  // very top; elsewhere it sits below the 3rem TopBar.
   const railSticky = isEditorRoute
     ? 'sticky top-0 self-start h-svh'
     : 'sticky top-12 self-start h-[calc(100svh-3rem)]';
