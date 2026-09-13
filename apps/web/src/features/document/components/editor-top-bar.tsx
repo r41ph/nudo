@@ -12,7 +12,6 @@ import { useBreadcrumb } from '@web/features/document/hooks/use-breadcrumb';
 import { useDailyWordDelta } from '@web/features/document/hooks/use-daily-word-delta';
 import { EditorBreadcrumb } from '@web/features/document/components/editor-breadcrumb';
 
-// Replaces the global `TopBar` while a document is open (see `AppLayout`).
 export function EditorTopBar() {
   const currentDocument = useAtomValue(currentDocumentAtom);
   const liveWordCount = useAtomValue(liveWordCountAtom);
