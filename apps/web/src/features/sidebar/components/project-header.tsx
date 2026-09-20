@@ -1,15 +1,12 @@
 import { SidebarHeader } from '@ui/components/ui/sidebar';
-import { WordCounter } from '@web/shared/components/word-counter';
-import { useWordCount } from '@web/features/document/hooks/document.hooks';
+import { ToolList } from '@web/features/sidebar/components/tool-list';
 import nudoLogo from '@web/assets/nudo-A-Editorial-Bold-transparent.svg';
 import nudoDarkLogo from '@web/assets/nudo-A-Editorial-Bold-dark-transparent.svg';
 
 export function ProjectHeader({ name }: { name: string }) {
-  const totalWordCount = useWordCount();
-
   return (
-    <SidebarHeader className="px-5 pt-6 pb-4">
-      <div className="flex items-center">
+    <SidebarHeader className="gap-0 p-0">
+      <div className="flex items-center px-2.5">
         <img src={nudoLogo} alt="nudo" className="h-6 w-auto dark:hidden" />
         <img
           src={nudoDarkLogo}
@@ -17,10 +14,10 @@ export function ProjectHeader({ name }: { name: string }) {
           className="h-5 w-auto hidden dark:block"
         />
       </div>
-      <h2 className="font-newsreader font-semibold text-xl text-foreground leading-tight mt-5">
+      <h2 className="mt-8 px-2.5 font-newsreader text-xl font-semibold leading-tight text-foreground">
         {name}
       </h2>
-      <WordCounter count={totalWordCount} label="total words" />
+      <ToolList />
     </SidebarHeader>
   );
 }

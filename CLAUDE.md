@@ -104,7 +104,7 @@ bring the test layers its type requires. The rule auto-loads when you read files
 under `apps/web/src` or `apps/api/src`.
 
 - Only run tests related to the files changed — never the full suite unless explicitly asked.
-- Filter by filename (no extension needed): `pnpm vitest run save-bar manuscripts-section`
+- Filter by filename (no extension needed): `pnpm vitest run save-bar draft-section`
 - Vitest matches the filter against the full file path, so a partial name is enough.
 - API integration tests (`*.integration.test.ts`) run via `pnpm test:api:int`
   and need Docker up + `pnpm test:db:setup` (they hit the `nudo_test` database,
