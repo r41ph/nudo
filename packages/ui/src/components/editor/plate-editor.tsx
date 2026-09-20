@@ -136,108 +136,103 @@ export function PlateEditor({
   }, [editor, discussionData]);
 
   return (
-    <div className="bg-background dark:bg-card shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(255,255,255,0.3)] rounded-sm overflow-hidden">
-      <Plate
-        editor={editor}
-        onValueChange={({ value }) => {
-          onContentChange?.(value);
-          if (onWordCountChange) {
-            const trimmed = editor.api.string([]).trim();
-            onWordCountChange(trimmed ? trimmed.split(/\s+/).length : 0);
-          }
+    <Plate
+      editor={editor}
+      onValueChange={({ value }) => {
+        onContentChange?.(value);
+        if (onWordCountChange) {
+          const trimmed = editor.api.string([]).trim();
+          onWordCountChange(trimmed ? trimmed.split(/\s+/).length : 0);
+        }
+      }}
+    >
+      <FloatingToolbar
+        className="border-b border-gray-300 px-2"
+        state={{
+          isDialogOpen: !!isDialogOpen,
         }}
       >
-        <FloatingToolbar
-          className="border-b border-gray-300 px-2"
-          state={{
-            isDialogOpen: !!isDialogOpen,
-          }}
-        >
-          <ToolbarGroup>
-            {isEnabled('fontSize') && <FontSizeToolbarButton />}
-            {isEnabled('paragraph') && (
-              <BlockToolbarButton
-                nodeType={KEYS.p}
-                onTransform={() => setBlockType(editor, KEYS.p)}
-                tooltip="Text (⌘+Alt+0)"
-              >
-                <PilcrowIcon />
-              </BlockToolbarButton>
-            )}
-            {isEnabled('bold') && (
-              <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
-                <BoldIcon />
-              </MarkToolbarButton>
-            )}
-            {isEnabled('italic') && (
-              <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
-                <ItalicIcon />
-              </MarkToolbarButton>
-            )}
-            {isEnabled('underline') && (
-              <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
-                <UnderlineIcon />
-              </MarkToolbarButton>
-            )}
-            {isEnabled('strikethrough') && (
-              <MarkToolbarButton
-                nodeType="strikethrough"
-                tooltip="Strikethrough (⌘+Shift+X)"
-              >
-                <StrikethroughIcon />
-              </MarkToolbarButton>
-            )}
-            {isEnabled('blockquote') && (
-              <BlockToolbarButton
-                nodeType={KEYS.blockquote}
-                onTransform={() => editor.tf.blockquote.toggle()}
-                tooltip="Blockquote (⌘+Shift+>)"
-              >
-                <Quote />
-              </BlockToolbarButton>
-            )}
-            {/* Keyed `codeBlock` for backwards-compat with persisted toolbar
+        <ToolbarGroup>
+          {isEnabled('fontSize') && <FontSizeToolbarButton />}
+          {isEnabled('paragraph') && (
+            <BlockToolbarButton
+              nodeType={KEYS.p}
+              onTransform={() => setBlockType(editor, KEYS.p)}
+              tooltip="Text (⌘+Alt+0)"
+            >
+              <PilcrowIcon />
+            </BlockToolbarButton>
+          )}
+          {isEnabled('bold') && (
+            <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
+              <BoldIcon />
+            </MarkToolbarButton>
+          )}
+          {isEnabled('italic') && (
+            <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
+              <ItalicIcon />
+            </MarkToolbarButton>
+          )}
+          {isEnabled('underline') && (
+            <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
+              <UnderlineIcon />
+            </MarkToolbarButton>
+          )}
+          {isEnabled('strikethrough') && (
+            <MarkToolbarButton
+              nodeType="strikethrough"
+              tooltip="Strikethrough (⌘+Shift+X)"
+            >
+              <StrikethroughIcon />
+            </MarkToolbarButton>
+          )}
+          {isEnabled('blockquote') && (
+            <BlockToolbarButton
+              nodeType={KEYS.blockquote}
+              onTransform={() => editor.tf.blockquote.toggle()}
+              tooltip="Blockquote (⌘+Shift+>)"
+            >
+              <Quote />
+            </BlockToolbarButton>
+          )}
+          {/* Keyed `codeBlock` for backwards-compat with persisted toolbar
                 settings, but this applies an inline code mark. */}
-            {isEnabled('codeBlock') && (
-              <MarkToolbarButton
-                nodeType={KEYS.code}
-                tooltip="Inline code (⌘+E)"
-              >
-                <CodeIcon />
-              </MarkToolbarButton>
-            )}
-            {isEnabled('highlightColor') && (
-              <MarkToolbarButton
-                nodeType={KEYS.highlight}
-                tooltip="Highlight (⌘+Shift+H)"
-              >
-                <HighlighterIcon />
-              </MarkToolbarButton>
-            )}
-            {isEnabled('headings') && <TurnIntoToolbarButton />}
-            {isEnabled('textAlignment') && <AlignToolbarButton />}
-            {isEnabled('fontColor') && (
-              <FontColorToolbarButton nodeType="color" tooltip="Font Color">
-                <BaselineIcon />
-              </FontColorToolbarButton>
-            )}
-            {isEnabled('comments') && <CommentToolbarButton />}
-            {isEnabled('suggestions') && <SuggestionToolbarButton />}
-          </ToolbarGroup>
-          <ToolbarGroup>
-            <ToolbarCustomButton
-              icon={Settings2Icon}
-              tooltip="Edit Toolbar"
-              onClick={handleEditToolbarDialog}
-            />
-          </ToolbarGroup>
-        </FloatingToolbar>
+          {isEnabled('codeBlock') && (
+            <MarkToolbarButton nodeType={KEYS.code} tooltip="Inline code (⌘+E)">
+              <CodeIcon />
+            </MarkToolbarButton>
+          )}
+          {isEnabled('highlightColor') && (
+            <MarkToolbarButton
+              nodeType={KEYS.highlight}
+              tooltip="Highlight (⌘+Shift+H)"
+            >
+              <HighlighterIcon />
+            </MarkToolbarButton>
+          )}
+          {isEnabled('headings') && <TurnIntoToolbarButton />}
+          {isEnabled('textAlignment') && <AlignToolbarButton />}
+          {isEnabled('fontColor') && (
+            <FontColorToolbarButton nodeType="color" tooltip="Font Color">
+              <BaselineIcon />
+            </FontColorToolbarButton>
+          )}
+          {isEnabled('comments') && <CommentToolbarButton />}
+          {isEnabled('suggestions') && <SuggestionToolbarButton />}
+        </ToolbarGroup>
+        <ToolbarGroup>
+          <ToolbarCustomButton
+            icon={Settings2Icon}
+            tooltip="Edit Toolbar"
+            onClick={handleEditToolbarDialog}
+          />
+        </ToolbarGroup>
+      </FloatingToolbar>
 
-        <EditorContainer variant="default" className="leaf-prose">
-          <Editor variant="default" placeholder="Type..." />
-        </EditorContainer>
-        {children}
-      </Plate>
-    </div>
+      <EditorContainer variant="default" className="leaf-prose">
+        <Editor variant="none" className="pb-72" placeholder="Type..." />
+      </EditorContainer>
+      {children}
+    </Plate>
   );
 }
