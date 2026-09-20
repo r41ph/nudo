@@ -5,47 +5,47 @@
 
 :root {
   /* Warm editorial ("Leaf") palette — light. Values from design handoff token table. */
-  --background: #fff; /* bg — editor surface */
-  --foreground: #2a251f; /* ink — primary text */
+  --background: #fdfcfa; /* bg — page ground, shared by editor and rail */
+  --foreground: #1a1917; /* ink — primary text */
   --card: #fffcf6; /* pill — raised surface */
-  --card-foreground: #2a251f;
+  --card-foreground: #1a1917;
   --popover: #fff; /* pill — floating toolbar / menus */
-  --popover-foreground: #2a251f;
-  --primary: #2a251f; /* ink */
+  --popover-foreground: #1a1917;
+  --primary: #1a1917; /* ink */
   --primary-foreground: #f7f3ec;
   --secondary: #f1eadd; /* side */
-  --secondary-foreground: #2a251f;
+  --secondary-foreground: #1a1917;
   --muted: #f1eadd;
-  --muted-foreground: #6f665b; /* muted — secondary text */
-  --accent: rgba(168, 80, 47, 0.12); /* accentSoft — selected row fill */
-  --accent-foreground: #a8502f; /* terracotta accent */
+  --muted-foreground: #6e6962; /* muted — secondary text */
+  --accent: rgba(192, 86, 47, 0.12); /* accentSoft — selected row fill */
+  --accent-foreground: #c0562f; /* terracotta accent */
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: #ded2bf; /* sideEdge */
-  --input: #ded2bf;
-  --ring: #a8502f; /* accent */
+  --border: #e8e3da; /* sideEdge */
+  --input: #e8e3da;
+  --ring: #c0562f; /* accent */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.5rem;
-  --sidebar: #fff; /* side — rail surface */
-  --sidebar-foreground: #2a251f;
-  --sidebar-primary: #a8502f; /* accent */
+  --sidebar: #fdfcfa; /* side — rail surface, same as the page */
+  --sidebar-foreground: #1a1917;
+  --sidebar-primary: #c0562f; /* accent */
   --sidebar-primary-foreground: #fffcf6;
-  --sidebar-accent: rgba(0, 0, 0, 0.1); /* selected row fill */
-  --sidebar-accent-foreground: #a8502f;
-  --sidebar-border: #ded2bf; /* sideEdge — rail border / nested rules */
-  --sidebar-ring: #a8502f;
-  --sidebar-action: #a8502f; /* accent */
+  --sidebar-accent: #f1ece4; /* selected row fill */
+  --sidebar-accent-foreground: #1a1917;
+  --sidebar-border: #e8e3da; /* sideEdge — nested indent guides */
+  --sidebar-ring: #c0562f;
+  --sidebar-action: #c0562f; /* accent */
   --sidebar-action-foreground: #fffcf6;
   --highlight: #f2d58a; /* comment — inline highlight */
-  --brand: #a8502f; /* terracotta accent (drives editor selection) */
+  --brand: #c0562f; /* terracotta accent (drives editor selection) */
   /* Leaf-specific semantic tokens (no shadcn equivalent) */
   --prose: #3d372e; /* body prose */
-  --faint: #8a8073; /* tertiary text / numbers */
-  --selection: rgba(168, 80, 47, 0.15); /* sel — text selection */
+  --faint: #9a958b; /* tertiary text / icons */
+  --selection: rgba(192, 86, 47, 0.15); /* sel — text selection */
   --comment: #f2d58a; /* comment fill */
   --comment-edge: #d9b65a; /* comment marker edge */
   --status-done: #6f9c82; /* done / saved dot */
@@ -55,51 +55,46 @@
 
 .dark {
   /* Warm editorial ("Leaf") palette — dark. Values from design handoff token table. */
-  --background: #1f1c18; /* bg */
-  --foreground: #efe6d6; /* ink */
+  --background: #121211; /* bg — page ground, shared by editor and rail */
+  --foreground: #edeae4; /* ink */
   --card: #2c261e; /* pill */
-  --card-foreground: #efe6d6;
+  --card-foreground: #edeae4;
   --popover: #2c261e; /* pill */
-  --popover-foreground: #efe6d6;
-  --primary: #efe6d6; /* ink */
-  --primary-foreground: #1f1c18;
+  --popover-foreground: #edeae4;
+  --primary: #edeae4; /* ink */
+  --primary-foreground: #121211;
   --secondary: #171410; /* side */
-  --secondary-foreground: #efe6d6;
+  --secondary-foreground: #edeae4;
   --muted: #171410;
-  --muted-foreground: #a39a8c; /* muted */
-  --accent: rgba(217, 143, 98, 0.16); /* accentSoft — selected row fill */
-  --accent-foreground: #d98f62; /* accent */
+  --muted-foreground: #9a948a; /* muted */
+  --accent: rgba(224, 118, 76, 0.16); /* accentSoft — selected row fill */
+  --accent-foreground: #e0764c; /* accent */
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: #302d28; /* sideEdge */
-  --input: #302d28;
-  --ring: #d98f62; /* accent */
+  --border: #292824; /* sideEdge */
+  --input: #292824;
+  --ring: #e0764c; /* accent */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: #171410; /* side */
-  --sidebar-foreground: #efe6d6;
-  --sidebar-primary: #d98f62; /* accent */
-  --sidebar-primary-foreground: #1f1c18;
-  --sidebar-accent: rgba(
-    217,
-    143,
-    98,
-    0.16
-  ); /* accentSoft — selected row fill */
-  --sidebar-accent-foreground: #d98f62;
-  --sidebar-border: #302d28; /* sideEdge */
-  --sidebar-ring: #d98f62;
-  --sidebar-action: #d98f62; /* accent */
-  --sidebar-action-foreground: #1f1c18;
+  --sidebar: #121211; /* side — same as the page */
+  --sidebar-foreground: #edeae4;
+  --sidebar-primary: #e0764c; /* accent */
+  --sidebar-primary-foreground: #121211;
+  --sidebar-accent: #1f1e1b; /* selected row fill */
+  --sidebar-accent-foreground: #edeae4;
+  --sidebar-border: #292824; /* sideEdge — nested indent guides */
+  --sidebar-ring: #e0764c;
+  --sidebar-action: #e0764c; /* accent */
+  --sidebar-action-foreground: #121211;
   --highlight: rgba(242, 213, 138, 0.26); /* comment */
-  --brand: #d98f62; /* terracotta accent */
+  --brand: #e0764c; /* terracotta accent */
   /* Leaf-specific semantic tokens (no shadcn equivalent) */
   --prose: #e8dfd0; /* body prose */
   --faint: #877e71; /* tertiary text / numbers */
-  --selection: rgba(217, 143, 98, 0.2); /* sel */
+  --selection: rgba(224, 118, 76, 0.2); /* sel */
   --comment: rgba(242, 213, 138, 0.26); /* comment fill */
   --comment-edge: rgba(217, 182, 90, 0.6); /* comment marker edge */
   --status-done: #7fae91; /* done */
