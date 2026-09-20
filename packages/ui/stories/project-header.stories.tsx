@@ -1,16 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { CSSProperties } from 'react';
 import { Sidebar, SidebarProvider } from '@ui/components/ui/sidebar';
 import { ProjectHeader } from '@web/features/sidebar/components/project-header';
+import { SIDEBAR_WIDTH } from '@web/features/sidebar/sidebar.constants';
 
-function createStoryQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      mutations: { retry: false },
-      queries: { retry: false },
-    },
-  });
-}
+const sidebarStyle = { '--sidebar-width': SIDEBAR_WIDTH } as CSSProperties;
 
 const meta = {
   title: 'Sidebar/ProjectHeader',
@@ -18,13 +12,11 @@ const meta = {
   parameters: { layout: 'centered' },
   decorators: [
     (Story) => (
-      <QueryClientProvider client={createStoryQueryClient()}>
-        <SidebarProvider>
-          <Sidebar collapsible="none">
-            <Story />
-          </Sidebar>
-        </SidebarProvider>
-      </QueryClientProvider>
+      <SidebarProvider style={sidebarStyle}>
+        <Sidebar collapsible="none" className="px-4 pt-6 pb-5">
+          <Story />
+        </Sidebar>
+      </SidebarProvider>
     ),
   ],
 } satisfies Meta<typeof ProjectHeader>;
@@ -34,4 +26,15 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: { name: 'Northwater' },
+};
+
+export const Dark: Story = {
+  args: { name: 'Northwater' },
+  decorators: [
+    (Story) => (
+      <div className="dark bg-background">
+        <Story />
+      </div>
+    ),
+  ],
 };

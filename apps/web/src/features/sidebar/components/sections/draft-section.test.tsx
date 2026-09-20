@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { graphql, HttpResponse } from 'msw';
 import { toast } from 'sonner';
-import { ManuscriptsSection } from '@web/features/sidebar/components/sections/manuscripts-section';
+import { DraftSection } from '@web/features/sidebar/components/sections/draft-section';
 import { renderWithProviders } from '@web/test/test-utils';
 import { server } from '@web/test/mocks/server';
 import { MOCK_DOCUMENT, MOCK_DOCUMENT_2 } from '@web/test/mocks/fixtures';
@@ -110,14 +110,14 @@ beforeEach(() => {
   ]);
 });
 
-describe('ManuscriptsSection', () => {
-  it('renders the Story label', () => {
-    renderWithProviders(<ManuscriptsSection />);
-    expect(screen.getByText('Story')).toBeInTheDocument();
+describe('DraftSection', () => {
+  it('renders the Draft label', () => {
+    renderWithProviders(<DraftSection />);
+    expect(screen.getByText('Draft')).toBeInTheDocument();
   });
 
   it('renders nodes from the outline query', async () => {
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(screen.getByTestId(`node-${MOCK_DOCUMENT.id}`)).toBeInTheDocument()
     );
@@ -127,7 +127,7 @@ describe('ManuscriptsSection', () => {
   });
 
   it('passes the active item id through', async () => {
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(screen.getByTestId('active-item')).toHaveTextContent(
         MOCK_DOCUMENT.id
@@ -136,7 +136,7 @@ describe('ManuscriptsSection', () => {
   });
 
   it('opens the adjacent node when the active node is deleted', async () => {
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(
         screen.getByTestId(`delete-${MOCK_DOCUMENT.id}`)
@@ -154,7 +154,7 @@ describe('ManuscriptsSection', () => {
 
   it('navigates home when the last node is deleted', async () => {
     setOutline([onode(MOCK_DOCUMENT.id, { position: 0 })]);
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(
         screen.getByTestId(`delete-${MOCK_DOCUMENT.id}`)
@@ -176,7 +176,7 @@ describe('ManuscriptsSection', () => {
         });
       })
     );
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(
         screen.getByTestId(`delete-${MOCK_DOCUMENT_2.id}`)
@@ -199,7 +199,7 @@ describe('ManuscriptsSection', () => {
         });
       })
     );
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(
         screen.getByTestId(`add-doc-${MOCK_DOCUMENT.id}`)
@@ -227,7 +227,7 @@ describe('ManuscriptsSection', () => {
         });
       })
     );
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(
         screen.getByTestId(`add-sep-${MOCK_DOCUMENT.id}`)
@@ -254,7 +254,7 @@ describe('ManuscriptsSection', () => {
         });
       })
     );
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(
         screen.getByTestId(`status-${MOCK_DOCUMENT.id}`)
@@ -273,7 +273,7 @@ describe('ManuscriptsSection', () => {
         HttpResponse.json({ errors: [{ message: 'boom' }] })
       )
     );
-    renderWithProviders(<ManuscriptsSection />);
+    renderWithProviders(<DraftSection />);
     await waitFor(() =>
       expect(
         screen.getByTestId(`delete-${MOCK_DOCUMENT.id}`)

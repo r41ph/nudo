@@ -43,7 +43,7 @@ const DEFAULT_TITLE: Record<NodeKind, string> = {
   separator: 'Part',
 };
 
-export function ManuscriptsSection() {
+export function DraftSection() {
   const { id: activeDocId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const treeRef = useRef<OutlineTreeHandle>(null);
@@ -194,11 +194,11 @@ export function ManuscriptsSection() {
   );
 
   return (
-    <SidebarGroup>
-      {/* `--muted-foreground` rather than the handoff's `--faint`: 3.24:1 on
-          the rail fails the 4.5:1 bar the same handoff sets. */}
-      <SidebarGroupLabel className="justify-between gap-2 pl-4 pr-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        Story
+    <SidebarGroup className="p-0">
+      {/* `--muted-foreground` rather than `--faint`: the latter fails the
+          4.5:1 bar at this size. */}
+      <SidebarGroupLabel className="mb-[13px] h-7 justify-between gap-2 pr-1.5 pl-2.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        Draft
         <AddNodeMenu
           onAdd={handleAddRoot}
           align="end"
@@ -206,7 +206,7 @@ export function ManuscriptsSection() {
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Add to Story"
+              aria-label="Add to Draft"
               className="size-6.5 rounded-md text-muted-foreground hover:cursor-pointer hover:text-accent-foreground [&_svg]:size-3.5"
             >
               <Icon name="plus" />
