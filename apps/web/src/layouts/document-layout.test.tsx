@@ -28,6 +28,18 @@ function renderLayout({ focus = true }: { focus?: boolean } = {}) {
 }
 
 describe('DocumentLayout — focus mode', () => {
+  it('enters focus mode from the top bar button', async () => {
+    const user = userEvent.setup();
+    const store = renderLayout({ focus: false });
+
+    await user.click(screen.getByRole('button', { name: 'Enter focus mode' }));
+
+    expect(store.get(isFocusModeAtom)).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'Leave focus mode' })
+    ).toBeInTheDocument();
+  });
+
   it('exits on Escape', async () => {
     const user = userEvent.setup();
     const store = renderLayout();
@@ -37,27 +49,23 @@ describe('DocumentLayout — focus mode', () => {
     expect(store.get(isFocusModeAtom)).toBe(false);
   });
 
-  it('exits when the esc hint is clicked', async () => {
+  it('exits when the same button is clicked again', async () => {
     const user = userEvent.setup();
     const store = renderLayout();
 
-    await user.click(screen.getByRole('button', { name: 'Exit focus mode' }));
+    await user.click(screen.getByRole('button', { name: 'Leave focus mode' }));
 
     expect(store.get(isFocusModeAtom)).toBe(false);
-  });
-
-  it('labels the exit affordance as the esc key', () => {
-    renderLayout();
-
     expect(
-      screen.getByRole('button', { name: 'Exit focus mode' })
-    ).toHaveTextContent('esc');
+      screen.getByRole('button', { name: 'Enter focus mode' })
+    ).toBeInTheDocument();
   });
 
-  it('keeps the word count and drops the timestamp', () => {
-    renderLayout();
+  it('shows no breadcrumb, word count or timestamp in the bar', () => {
+    renderLayout({ focus: false });
 
-    expect(screen.getByText('412 words')).toBeInTheDocument();
+    expect(screen.queryByRole('navigation')).toBeNull();
+    expect(screen.queryByText(/words/)).toBeNull();
     expect(screen.queryByText(/Last saved:/)).toBeNull();
   });
 
@@ -68,8 +76,5 @@ describe('DocumentLayout — focus mode', () => {
     await user.keyboard('{Escape}');
 
     expect(store.get(isFocusModeAtom)).toBe(false);
-    expect(
-      screen.queryByRole('button', { name: 'Exit focus mode' })
-    ).toBeNull();
   });
 });
