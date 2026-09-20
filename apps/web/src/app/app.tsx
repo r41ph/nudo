@@ -1,7 +1,10 @@
 import AppRoutes from '@web/app/routes/router';
 import { Toaster } from 'sonner';
+import { useApplyTheme } from '@web/shared/hooks/use-theme';
 
 function App() {
+  useApplyTheme();
+
   return (
     <>
       <AppRoutes />

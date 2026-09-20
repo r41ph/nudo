@@ -43,7 +43,7 @@ if (!Element.prototype.setPointerCapture) {
   Element.prototype.hasPointerCapture = vi.fn(() => false);
 }
 
-// jsdom has no matchMedia; ThemeToggle reads it to resolve the "system" theme.
+// jsdom has no matchMedia; the theme hook reads it to resolve the "system" theme.
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: (query: string) => ({
