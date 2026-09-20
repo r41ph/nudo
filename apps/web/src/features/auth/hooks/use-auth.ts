@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { tokenAtom, userAtom } from '@web/features/auth/state/auth.store';
 import { setToken, setStoredUser } from '@web/shared/lib/auth';
@@ -8,6 +8,7 @@ import type { AuthResponse } from '@web/features/auth/auth.types';
 
 export function useAuth() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const setTokenAtom = useSetAtom(tokenAtom);
   const setUserAtom = useSetAtom(userAtom);
 
@@ -16,6 +17,9 @@ export function useAuth() {
     setStoredUser(data.user);
     setTokenAtom(data.token);
     setUserAtom(data.user);
+    // Anything cached before this point belongs to no session (or a previous
+    // user's); it must not survive into the new one.
+    queryClient.clear();
     navigate('/');
   };
 

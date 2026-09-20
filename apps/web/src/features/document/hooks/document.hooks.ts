@@ -7,6 +7,7 @@ import {
   liveWordCountAtom,
 } from '@web/features/document/state/document.store';
 import { GET_DOCUMENTS } from '@web/features/document/api/document.api';
+import { isAuthenticatedAtom } from '@web/features/auth/state/auth.store';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 
 type DocumentNode = { id: string; wordCount: number };
@@ -19,6 +20,7 @@ const activeDocIdAtom = selectAtom(
 
 export function useWordCount(documentId?: string): number {
   const activeDocId = useAtomValue(activeDocIdAtom);
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   // liveWordCountAtom is written at most every 500ms (debounced at write side)
   const liveWordCount = useAtomValue(liveWordCountAtom);
 
@@ -28,6 +30,10 @@ export function useWordCount(documentId?: string): number {
       graphqlClient.request<{ allDocuments: { nodes: DocumentNode[] } }>(
         GET_DOCUMENTS
       ),
+    // The sidebar mounts before HomePage redirects to /login; an anonymous
+    // request succeeds with an empty list and would be served from cache
+    // after login.
+    enabled: isAuthenticated,
   });
 
   const activeLiveCount =

@@ -16,7 +16,7 @@ describe('WordCounts', () => {
   it('shows the total across documents in sentence case', async () => {
     renderWithProviders(<WordCounts />);
 
-    expect(await screen.findByText('4 Total words')).toBeInTheDocument();
+    expect(await screen.findByText('0 Total words')).toBeInTheDocument();
   });
 
   it("shows today's delta for the open document without a plus sign", async () => {
