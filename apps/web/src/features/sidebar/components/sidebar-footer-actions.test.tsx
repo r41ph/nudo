@@ -32,6 +32,18 @@ async function openMenu(user: ReturnType<typeof userEvent.setup>) {
   return screen.findByRole('menu');
 }
 
+describe('SidebarFooterActions', () => {
+  // The counts moved to the editor's bottom-right strip; nothing should pull
+  // them back into the sidebar.
+  it('shows no word counts', () => {
+    renderFooter();
+
+    expect(screen.queryByText(/words?$/i)).toBeNull();
+    expect(screen.queryByText('total')).toBeNull();
+    expect(screen.queryByText('today')).toBeNull();
+  });
+});
+
 describe('SidebarFooterActions — account menu', () => {
   it('lists the items in order with a single divider above Sign out', async () => {
     const user = userEvent.setup();

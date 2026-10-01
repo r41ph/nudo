@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useAtom } from 'jotai';
 import { isFocusModeAtom } from '@web/shared/state/focus-mode.atom';
 import { EditorTopBar } from '@web/features/document/components/editor-top-bar';
+import { WordCountStrip } from '@web/features/document/components/word-count-strip';
 
 export function DocumentLayout({ children }: { children: ReactNode }) {
   const [isFocusMode, setFocusMode] = useAtom(isFocusModeAtom);
@@ -23,6 +24,7 @@ export function DocumentLayout({ children }: { children: ReactNode }) {
       <main className="flex flex-1 justify-center px-8">
         <div className="w-full max-w-[692px] pt-[34px]">{children}</div>
       </main>
+      <WordCountStrip />
     </div>
   );
 }

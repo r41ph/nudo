@@ -27,6 +27,16 @@ function renderLayout({ focus = true }: { focus?: boolean } = {}) {
   return store;
 }
 
+describe('DocumentLayout — word counts', () => {
+  it('keeps the strip visible in focus mode', () => {
+    renderLayout();
+
+    expect(screen.getByText('document')).toHaveTextContent('412 document');
+    expect(screen.getByText('today')).toBeInTheDocument();
+    expect(screen.getByText('total')).toBeInTheDocument();
+  });
+});
+
 describe('DocumentLayout — focus mode', () => {
   it('enters focus mode from the top bar button', async () => {
     const user = userEvent.setup();
