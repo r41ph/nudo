@@ -12,6 +12,7 @@ export const GET_OUTLINE = gql`
         kind
         status
         wordCount
+        pov
       }
     }
   }

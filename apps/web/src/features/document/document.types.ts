@@ -1,3 +1,5 @@
+import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
+
 export type DbDiscussionUser = { id: string; displayName: string };
 
 export type DbDiscussionComment = {
@@ -23,6 +25,18 @@ export type DbDiscussion = {
 export type GetDiscussionsResult = {
   allDiscussions: { nodes: DbDiscussion[] };
 };
+
+// The inspector's view of a document: metadata only, no content.
+export interface DocumentDetails {
+  id: string;
+  title: string;
+  kind: NodeKind;
+  status: NodeStatus | null;
+  summary: string;
+  pov: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface DocumentData {
   id: string;

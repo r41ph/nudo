@@ -96,6 +96,25 @@ export const handlers = [
     });
   }),
 
+  graphql.mutation('UpdateDocumentDetails', ({ variables }) => {
+    const patch = (variables.patch ?? {}) as Record<string, unknown>;
+    return HttpResponse.json({
+      data: {
+        updateDocumentById: {
+          document: {
+            id: variables.id,
+            title: MOCK_DOCUMENT.title,
+            status: null,
+            summary: '',
+            pov: '',
+            ...patch,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      },
+    });
+  }),
+
   graphql.mutation('DeleteDocument', ({ variables }) => {
     return HttpResponse.json({
       data: {
