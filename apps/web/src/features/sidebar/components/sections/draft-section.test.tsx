@@ -3,7 +3,8 @@ import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { graphql, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { DraftSection } from '@web/features/sidebar/components/sections/draft-section';
-import { renderWithProviders } from '@web/test/test-utils';
+import { renderWithProviders, createStore } from '@web/test/test-utils';
+import { inspectorAtom } from '@web/shared/state/panels.atom';
 import { server } from '@web/test/mocks/server';
 import { MOCK_DOCUMENT, MOCK_DOCUMENT_2 } from '@web/test/mocks/fixtures';
 import type {
@@ -31,6 +32,7 @@ vi.mock('@web/features/outline/components/outline-tree', () => ({
       onDeleteNode: (id: string) => void;
       onAddChild: (parentId: string, kind: NodeKind) => void;
       onSetStatus: (id: string, status: NodeStatus | null) => void;
+      onOpenDetails: (id: string) => void;
     };
   }) => (
     <div data-testid="outline-tree">
@@ -66,6 +68,12 @@ vi.mock('@web/features/outline/components/outline-tree', () => ({
             onClick={() => callbacks.onSetStatus(n.id, 'done')}
           >
             status
+          </button>
+          <button
+            data-testid={`details-${n.id}`}
+            onClick={() => callbacks.onOpenDetails(n.id)}
+          >
+            details
           </button>
         </div>
       ))}
@@ -266,6 +274,26 @@ describe('DraftSection', () => {
 
     await waitFor(() => expect(captured).not.toBeNull());
     expect(captured).toEqual({ id: MOCK_DOCUMENT.id, status: 'done' });
+  });
+
+  it('opens details for the active document in place', async () => {
+    const store = createStore();
+    renderWithProviders(<DraftSection />, { store });
+
+    fireEvent.click(await screen.findByTestId(`details-${MOCK_DOCUMENT.id}`));
+
+    expect(store.get(inspectorAtom).isOpen).toBe(true);
+    expect(navigateSpy).not.toHaveBeenCalled();
+  });
+
+  it('opens another document before showing its details', async () => {
+    const store = createStore();
+    renderWithProviders(<DraftSection />, { store });
+
+    fireEvent.click(await screen.findByTestId(`details-${MOCK_DOCUMENT_2.id}`));
+
+    expect(navigateSpy).toHaveBeenCalledWith(`/document/${MOCK_DOCUMENT_2.id}`);
+    expect(store.get(inspectorAtom).isOpen).toBe(true);
   });
 
   it('surfaces a toast when a mutation fails', async () => {

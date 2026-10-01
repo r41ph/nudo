@@ -26,6 +26,7 @@ const meta = {
     onDelete: noop,
     onAddChild: noop,
     onSetStatus: noop,
+    onOpenDetails: noop,
     onToggle: noop,
   },
 } satisfies Meta<typeof OutlineRow>;

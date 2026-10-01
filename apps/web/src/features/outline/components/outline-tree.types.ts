@@ -31,6 +31,7 @@ export interface OutlineTreeCallbacks {
   onDeleteNode: (id: string) => void;
   onAddChild: (parentId: string, kind: NodeKind) => void;
   onSetStatus: (id: string, status: NodeStatus | null) => void;
+  onOpenDetails: (id: string) => void;
   onMoveNode: (
     nodeId: string,
     targetParentId: string | null,

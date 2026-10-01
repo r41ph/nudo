@@ -25,6 +25,7 @@ const meta = {
     title: 'Welcome Document',
     status: null,
     onRename: noop,
+    onOpenDetails: noop,
     onSetStatus: noop,
     onAddChild: noop,
     onDelete: noop,

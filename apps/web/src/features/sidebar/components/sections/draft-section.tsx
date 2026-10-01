@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import { toast } from 'sonner';
 import { Icon } from '@ui/components/icon/icon';
 import { Button } from '@ui/components/ui/button';
@@ -18,6 +19,7 @@ import {
 import { GET_OUTLINE, SET_NODE_STATUS } from '@web/shared/api/outline.api';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
+import { openInspectorAtom } from '@web/shared/state/panels.atom';
 import { useSidebarDnd } from '@web/features/sidebar/hooks/app-sidebar.hooks';
 import {
   pickAdjacentDocumentId,
@@ -48,6 +50,7 @@ export function DraftSection() {
   const navigate = useNavigate();
   const treeRef = useRef<OutlineTreeHandle>(null);
   const { moveNode } = useSidebarDnd();
+  const openInspector = useSetAtom(openInspectorAtom);
 
   const { data } = useQuery({
     queryKey: ['outline'],
@@ -187,10 +190,25 @@ export function DraftSection() {
       onDeleteNode: handleDelete,
       onAddChild: (parentId, kind) => addChild({ kind, parentId }),
       onSetStatus: (id, status) => setStatus({ id, status }),
+      // The inspector always shows the route's document, so another row's
+      // details means opening that document first.
+      onOpenDetails: (id) => {
+        if (id !== activeDocId) navigate(`/document/${id}`);
+        openInspector();
+      },
       onMoveNode: (nodeId, targetParentId, positions) =>
         moveNode({ nodeId, targetParentId, nodePositions: positions }),
     }),
-    [navigate, renameNode, handleDelete, addChild, setStatus, moveNode]
+    [
+      navigate,
+      renameNode,
+      handleDelete,
+      addChild,
+      setStatus,
+      moveNode,
+      activeDocId,
+      openInspector,
+    ]
   );
 
   return (

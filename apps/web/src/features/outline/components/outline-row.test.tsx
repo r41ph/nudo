@@ -19,6 +19,7 @@ const baseProps = {
   onDelete: () => {},
   onAddChild: () => {},
   onSetStatus: () => {},
+  onOpenDetails: () => {},
   onToggle: () => {},
 };
 
@@ -41,6 +42,67 @@ async function chooseMenuItem(
   );
   await user.click(await screen.findByRole('menuitem', { name: item }));
 }
+
+describe('OutlineRow — details', () => {
+  it('lists Details directly after Rename', async () => {
+    const user = userEvent.setup();
+    renderRow();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Welcome Document' })
+    );
+    const items = (await screen.findAllByRole('menuitem')).map((el) =>
+      el.textContent?.trim()
+    );
+
+    expect(items.slice(0, 2)).toEqual(['Rename', 'Details']);
+  });
+
+  it('opens details for this row once the menu has closed', async () => {
+    const user = userEvent.setup();
+    const onOpenDetails = vi.fn();
+    renderRow({ onOpenDetails });
+
+    await chooseMenuItem(user, 'Welcome Document', 'Details');
+
+    await waitFor(() => expect(onOpenDetails).toHaveBeenCalledWith('n1'));
+    expect(onOpenDetails).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('menu')).toBeNull();
+  });
+
+  // Unlike Rename, focus must go back to the trigger: the panel records it as
+  // where to return on close before moving focus into itself.
+  it('lets focus return to the actions button', async () => {
+    const user = userEvent.setup();
+    const onOpenDetails = vi.fn();
+    renderRow({ onOpenDetails });
+
+    await chooseMenuItem(user, 'Welcome Document', 'Details');
+
+    await waitFor(() => expect(onOpenDetails).toHaveBeenCalled());
+    expect(
+      screen.getByRole('button', { name: 'Actions for Welcome Document' })
+    ).toHaveFocus();
+  });
+
+  it('is offered on folders', async () => {
+    const user = userEvent.setup();
+    const onOpenDetails = vi.fn();
+    renderRow({ kind: 'folder', title: 'Chapter One', onOpenDetails });
+
+    await chooseMenuItem(user, 'Chapter One', 'Details');
+
+    await waitFor(() => expect(onOpenDetails).toHaveBeenCalledWith('n1'));
+  });
+
+  it('is not offered on separators, which have no actions menu', () => {
+    renderRow({ kind: 'separator', title: 'Part One' });
+
+    expect(
+      screen.queryByRole('button', { name: 'Actions for Part One' })
+    ).toBeNull();
+  });
+});
 
 describe('OutlineRow — delete confirmation', () => {
   it('does not delete until the dialog is confirmed', async () => {

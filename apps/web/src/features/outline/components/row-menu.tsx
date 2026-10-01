@@ -31,6 +31,7 @@ interface RowMenuProps {
   title: string;
   status: NodeStatus | null;
   onRename: () => void;
+  onOpenDetails: () => void;
   onSetStatus: (status: NodeStatus | null) => void;
   onAddChild: (kind: NodeKind) => void;
   onDelete: () => void;
@@ -42,28 +43,40 @@ export const RowMenu = memo(function RowMenu({
   title,
   status,
   onRename,
+  onOpenDetails,
   onSetStatus,
   onAddChild,
   onDelete,
 }: RowMenuProps) {
-  // Rename can't start while the menu is still closing: the menu's focus trap
-  // would pull focus back out of the new input and the resulting blur would
-  // commit an edit the user never made. So it's deferred to close-autofocus,
-  // with the default focus restore suppressed.
-  const pendingRenameRef = useRef(false);
+  // Both actions move focus somewhere else, and the menu's focus trap would
+  // pull it straight back if they ran while the menu is still closing. So they
+  // are deferred to close-autofocus.
+  //   - Rename suppresses the default restore: focus back on the trigger would
+  //     blur the new input and commit an edit the user never made.
+  //   - Details keeps it: the panel records the trigger as where to return
+  //     focus on close, then moves focus into itself.
+  const pendingRef = useRef<'rename' | 'details' | null>(null);
 
   const handleRename = useCallback(() => {
-    pendingRenameRef.current = true;
+    pendingRef.current = 'rename';
+  }, []);
+
+  const handleDetails = useCallback(() => {
+    pendingRef.current = 'details';
   }, []);
 
   const handleCloseAutoFocus = useCallback(
     (event: Event) => {
-      if (!pendingRenameRef.current) return;
-      pendingRenameRef.current = false;
-      event.preventDefault();
-      onRename();
+      const pending = pendingRef.current;
+      pendingRef.current = null;
+      if (pending === 'rename') {
+        event.preventDefault();
+        onRename();
+      } else if (pending === 'details') {
+        onOpenDetails();
+      }
     },
-    [onRename]
+    [onRename, onOpenDetails]
   );
 
   return (
@@ -87,6 +100,11 @@ export const RowMenu = memo(function RowMenu({
         <DropdownMenuItem onSelect={handleRename} className={ITEM}>
           <Icon name="pencil" decorative />
           Rename
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onSelect={handleDetails} className={ITEM}>
+          <Icon name="info" decorative />
+          Details
         </DropdownMenuItem>
 
         <DropdownMenuSub>

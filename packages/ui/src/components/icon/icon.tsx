@@ -15,6 +15,7 @@ import {
   GripVertical,
   HelpCircleIcon,
   HighlighterIcon,
+  InfoIcon,
   ItalicIcon,
   KeyboardIcon,
   LogOut,
@@ -36,6 +37,7 @@ import {
   SunIcon,
   Trash2Icon,
   UnderlineIcon,
+  XIcon,
 } from 'lucide-react';
 
 const icons = {
@@ -65,6 +67,7 @@ const icons = {
   folder: FolderIcon,
   gripVertical: GripVertical,
   help: HelpCircleIcon,
+  info: InfoIcon,
   keyboard: KeyboardIcon,
   logOut: LogOut,
   maximize: Maximize2Icon,
@@ -76,6 +79,7 @@ const icons = {
   settings: SettingsIcon,
   sun: SunIcon,
   trash: Trash2Icon,
+  x: XIcon,
 } as const;
 
 export type IconName = keyof typeof icons;

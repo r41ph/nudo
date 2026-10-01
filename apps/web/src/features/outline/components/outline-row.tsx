@@ -27,6 +27,7 @@ interface OutlineRowProps {
   onDelete: (id: string) => void;
   onAddChild: (parentId: string, kind: NodeKind) => void;
   onSetStatus: (id: string, status: NodeStatus | null) => void;
+  onOpenDetails: (id: string) => void;
   /** Folder: expand/collapse. Separator: fold/unfold the run. */
   onToggle: (id: string, isSeparator: boolean) => void;
 }
@@ -102,6 +103,7 @@ export const OutlineRow = memo(function OutlineRow({
   onDelete,
   onAddChild,
   onSetStatus,
+  onOpenDetails,
   onToggle,
 }: OutlineRowProps) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -127,6 +129,10 @@ export const OutlineRow = memo(function OutlineRow({
   const handleSetStatus = useCallback(
     (next: NodeStatus | null) => onSetStatus(id, next),
     [onSetStatus, id]
+  );
+  const handleOpenDetails = useCallback(
+    () => onOpenDetails(id),
+    [onOpenDetails, id]
   );
   const handleToggle = useCallback(
     (e: React.MouseEvent) => {
@@ -252,6 +258,7 @@ export const OutlineRow = memo(function OutlineRow({
             title={title}
             status={status}
             onRename={rename.start}
+            onOpenDetails={handleOpenDetails}
             onSetStatus={handleSetStatus}
             onAddChild={handleAdd}
             onDelete={openDeleteDialog}
