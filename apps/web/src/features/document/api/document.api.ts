@@ -8,6 +8,10 @@ export const GET_DOCUMENT = gql`
       content
       plainText
       wordCount
+      kind
+      status
+      summary
+      pov
       createdAt
       updatedAt
     }
@@ -96,6 +100,21 @@ export const RENAME_DOCUMENT = gql`
       document {
         id
         title
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const UPDATE_DOCUMENT_DETAILS = gql`
+  mutation UpdateDocumentDetails($id: UUID!, $patch: DocumentPatch!) {
+    updateDocumentById(input: { id: $id, documentPatch: $patch }) {
+      document {
+        id
+        title
+        status
+        summary
+        pov
         updatedAt
       }
     }

@@ -91,6 +91,7 @@ const onode = (id: string, over: Partial<OutlineNode> = {}): OutlineNode => ({
   kind: 'document',
   status: null,
   wordCount: 0,
+  pov: '',
   ...over,
 });
 

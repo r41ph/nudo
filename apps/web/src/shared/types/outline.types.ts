@@ -13,6 +13,9 @@ export interface OutlineNode {
   kind: NodeKind;
   status: NodeStatus | null;
   wordCount: number;
+  // Carried on the outline only to seed the inspector's POV suggestions; the
+  // tree itself never renders it.
+  pov: string;
 }
 
 export interface OutlineQueryData {

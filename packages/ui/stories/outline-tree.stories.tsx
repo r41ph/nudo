@@ -27,6 +27,7 @@ const node = (
   kind: 'document',
   status: null,
   wordCount: 0,
+  pov: '',
   ...overrides,
 });
 
