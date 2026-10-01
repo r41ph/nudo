@@ -151,14 +151,23 @@ alongside the component.
 - **Verify:** `pnpm test:web document-layout document-inspector`; eye at 1440px.
 - **Files:** `layouts/document-layout.tsx`,
   `features/document/components/inspector-host.tsx`.
+- **Status:** done. `InspectorHost` renders a sticky `<aside>` beside the
+  editor column (push mode at every width for now; phase 5 adds the off-canvas
+  branch below 1280px), and `DocumentPage` passes the loaded document through
+  `DocumentLayout`. The return-focus target moved inside `DocumentInspector`:
+  the host also remounts when `DocumentPage` shows its loading state, so a
+  host-owned ref would survive some switches and not others.
 
 ### Task 3.7 — Stories for the shell
 
 - **Acceptance:** `row-menu.stories.tsx` gains the Details item;
-  `document-inspector.stories.tsx` covers loading, ready, load error and
-  separator.
+  `document-inspector.stories.tsx` covers document, folder and separator (no
+  loading or load-error state exists to show).
 - **Verify:** `pnpm storybook`
 - **Files:** `packages/ui/stories/{row-menu,document-inspector}.stories.tsx`.
+- **Status:** done. RowMenu `MenuOpen` shows Details; `DocumentInspector`
+  covers document, folder and separator; checked in a real browser via
+  Playwright against the mockup header.
 
 ---
 

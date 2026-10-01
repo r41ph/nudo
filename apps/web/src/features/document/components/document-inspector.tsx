@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  type KeyboardEvent,
-  type MutableRefObject,
-} from 'react';
+import { useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Icon } from '@ui/components/icon/icon';
 import { Button } from '@ui/components/ui/button';
@@ -27,8 +21,6 @@ import {
 
 interface DocumentInspectorProps {
   details: DocumentDetails;
-  /** Owned by the host so it survives the remount on a document switch. */
-  returnFocusRef: MutableRefObject<HTMLElement | null>;
 }
 
 const HEADER =
@@ -40,7 +32,7 @@ const TAB =
   'disabled:opacity-100 after:bottom-[-1px]';
 
 const CLOSE =
-  'mb-1.5 size-7 rounded-lg text-faint hover:cursor-pointer hover:bg-row-hover hover:text-foreground';
+  'mb-2.5 size-7 rounded-lg text-faint hover:cursor-pointer hover:bg-row-hover hover:text-foreground';
 
 const formatTimestamp = (iso: string) =>
   new Date(iso).toLocaleString(undefined, {
@@ -63,11 +55,11 @@ function Timestamps({ createdAt, updatedAt }: DocumentDetails) {
   );
 }
 
-export function DocumentInspector({
-  details,
-  returnFocusRef,
-}: DocumentInspectorProps) {
+export function DocumentInspector({ details }: DocumentInspectorProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  // Recorded only on an explicit open. A document switch remounts the panel
+  // without one, and closing then lands in the editor, where the writer is.
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const focusRequested = useAtomValue(inspectorFocusRequestedAtom);
   const consumeFocus = useSetAtom(consumeInspectorFocusAtom);
   const closeInspector = useSetAtom(closeInspectorAtom);
@@ -85,7 +77,7 @@ export function DocumentInspector({
       panel.querySelector<HTMLElement>('button');
     target?.focus();
     consumeFocus();
-  }, [focusRequested, consumeFocus, returnFocusRef]);
+  }, [focusRequested, consumeFocus]);
 
   const close = useCallback(() => {
     const target = returnFocusRef.current;
@@ -93,7 +85,7 @@ export function DocumentInspector({
     closeInspector();
     const fallback = document.querySelector<HTMLElement>(EDITOR_SELECTOR);
     (target?.isConnected ? target : fallback)?.focus();
-  }, [closeInspector, returnFocusRef]);
+  }, [closeInspector]);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
