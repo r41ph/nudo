@@ -34,6 +34,7 @@ import {
 } from '@web/features/toolbar/hooks/toolbar.hooks';
 import { isValidUuid } from '@web/shared/lib/uuid';
 import type { Value } from 'platejs';
+import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 import { DIALOG } from '@web/shared/state/dialog.constants';
 
 type GetDocumentResponse = {
@@ -43,6 +44,10 @@ type GetDocumentResponse = {
     content: Value;
     plainText: string;
     wordCount: number;
+    kind: NodeKind;
+    status: NodeStatus | null;
+    summary: string;
+    pov: string;
     createdAt: string;
     updatedAt: string;
   } | null;
@@ -224,7 +229,7 @@ export function DocumentPage() {
   }
 
   return (
-    <DocumentLayout>
+    <DocumentLayout details={doc}>
       <MainEditor
         key={doc.id}
         handleEditToolbarDialog={handleEditToolbarDialog}

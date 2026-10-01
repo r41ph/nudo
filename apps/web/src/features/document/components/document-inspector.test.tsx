@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { MutableRefObject } from 'react';
 import { DocumentInspector } from '@web/features/document/components/document-inspector';
 import type { DocumentDetails } from '@web/features/document/document.types';
 import {
@@ -22,6 +21,35 @@ const DOC: DocumentDetails = {
   updatedAt: '2025-09-15T14:03:00Z',
 };
 
+function Harness({
+  details,
+  showTrigger = true,
+}: {
+  details: DocumentDetails;
+  showTrigger?: boolean;
+}) {
+  // autoFocus: focus is on the row menu before the panel mounts, as it is
+  // after the menu closes in the app.
+  return (
+    <>
+      {showTrigger && (
+        <button type="button" autoFocus>
+          Actions for The Arrival
+        </button>
+      )}
+      <div
+        data-slate-editor="true"
+        contentEditable
+        suppressContentEditableWarning
+        tabIndex={-1}
+      >
+        editor
+      </div>
+      <DocumentInspector details={details} />
+    </>
+  );
+}
+
 function setup({
   details = DOC,
   requestFocus = false,
@@ -30,25 +58,10 @@ function setup({
   store.set(openInspectorAtom);
   if (!requestFocus) store.set(inspectorFocusRequestedAtom, false);
 
-  const returnFocusRef: MutableRefObject<HTMLElement | null> = {
-    current: null,
-  };
-
-  // autoFocus: focus is on the row menu before the panel mounts, as it is
-  // after the menu closes in the app.
-  renderWithProviders(
-    <>
-      <button type="button" autoFocus>
-        Actions for The Arrival
-      </button>
-      <div data-slate-editor="true" contentEditable tabIndex={-1}>
-        editor
-      </div>
-      <DocumentInspector details={details} returnFocusRef={returnFocusRef} />
-    </>,
-    { store }
-  );
-  return { store, returnFocusRef };
+  const { rerender } = renderWithProviders(<Harness details={details} />, {
+    store,
+  });
+  return { store, rerender };
 }
 
 const trigger = () =>
@@ -102,24 +115,10 @@ describe('DocumentInspector — separators', () => {
 });
 
 describe('DocumentInspector — focus on open', () => {
-  it('moves focus into the panel and remembers where it came from', () => {
-    const store = createStore();
-    store.set(openInspectorAtom);
-    const returnFocusRef: MutableRefObject<HTMLElement | null> = {
-      current: null,
-    };
-    renderWithProviders(
-      <>
-        <button type="button" autoFocus>
-          Actions for The Arrival
-        </button>
-        <DocumentInspector details={DOC} returnFocusRef={returnFocusRef} />
-      </>,
-      { store }
-    );
+  it('moves focus into the panel on an explicit open', () => {
+    const { store } = setup({ requestFocus: true });
 
     expect(screen.getByRole('tab', { name: 'Details' })).toHaveFocus();
-    expect(returnFocusRef.current).toBe(trigger());
     expect(store.get(inspectorFocusRequestedAtom)).toBe(false);
   });
 
@@ -144,8 +143,7 @@ describe('DocumentInspector — focus on open', () => {
 describe('DocumentInspector — closing', () => {
   it('closes from the close button and returns focus to the row menu', async () => {
     const user = userEvent.setup();
-    const { store, returnFocusRef } = setup();
-    returnFocusRef.current = trigger();
+    const { store } = setup({ requestFocus: true });
 
     await user.click(screen.getByRole('button', { name: 'Close details' }));
 
@@ -160,7 +158,7 @@ describe('DocumentInspector — closing', () => {
     const onDocumentKeyDown = (e: KeyboardEvent) => seen(e.defaultPrevented);
     document.addEventListener('keydown', onDocumentKeyDown);
 
-    screen.getByRole('tab', { name: 'Details' }).focus();
+    act(() => screen.getByRole('tab', { name: 'Details' }).focus());
     await user.keyboard('{Escape}');
 
     document.removeEventListener('keydown', onDocumentKeyDown);
@@ -180,8 +178,19 @@ describe('DocumentInspector — closing', () => {
 
   it('falls back to the editor when the row menu is gone', async () => {
     const user = userEvent.setup();
-    const { returnFocusRef } = setup();
-    returnFocusRef.current = document.createElement('button'); // detached
+    const { rerender } = setup({ requestFocus: true });
+    rerender(<Harness details={DOC} showTrigger={false} />);
+
+    await user.click(screen.getByRole('button', { name: 'Close details' }));
+
+    expect(screen.getByText('editor')).toHaveFocus();
+  });
+
+  // After a plain document switch nothing was recorded: the old row's menu is
+  // not where the writer was, so the editor is the sensible place to land.
+  it('returns to the editor when the panel was reached by switching documents', async () => {
+    const user = userEvent.setup();
+    setup();
 
     await user.click(screen.getByRole('button', { name: 'Close details' }));
 

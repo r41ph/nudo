@@ -7,10 +7,30 @@ import { DocumentLayout } from '@web/layouts/document-layout';
 import { isFocusModeAtom } from '@web/shared/state/focus-mode.atom';
 import { currentDocumentAtom } from '@web/features/document/state/document.store';
 import { lastSavedAtom } from '@web/shared/state/save-status.atom';
+import {
+  inspectorAtom,
+  openInspectorAtom,
+} from '@web/shared/state/panels.atom';
+import type { DocumentDetails } from '@web/features/document/document.types';
 
-function renderLayout({ focus = true }: { focus?: boolean } = {}) {
+const DETAILS: DocumentDetails = {
+  id: 'd1',
+  title: 'Welcome Document',
+  kind: 'document',
+  status: null,
+  summary: '',
+  pov: '',
+  createdAt: '2026-09-01T09:00:00Z',
+  updatedAt: '2026-09-06T10:25:00Z',
+};
+
+function renderLayout({
+  focus = true,
+  inspectorOpen = false,
+}: { focus?: boolean; inspectorOpen?: boolean } = {}) {
   const store = createStore();
   store.set(isFocusModeAtom, focus);
+  if (inspectorOpen) store.set(openInspectorAtom);
   store.set(lastSavedAtom, new Date('2026-09-06T10:25:00'));
   store.set(currentDocumentAtom, {
     id: 'd1',
@@ -18,14 +38,57 @@ function renderLayout({ focus = true }: { focus?: boolean } = {}) {
     content: [],
     wordCount: 412,
   });
-  renderWithProviders(
-    <DocumentLayout>
+  const view = renderWithProviders(
+    <DocumentLayout details={DETAILS}>
       <p>editor</p>
     </DocumentLayout>,
     { store }
   );
-  return store;
+  return Object.assign(store, { rerender: view.rerender });
 }
+
+const inspector = () =>
+  screen.queryByRole('complementary', { name: 'Document details' });
+
+describe('DocumentLayout — inspector', () => {
+  it('renders nothing for the inspector until it is opened', () => {
+    renderLayout({ focus: false });
+
+    expect(inspector()).toBeNull();
+  });
+
+  it('shows the inspector beside the text, not over it', () => {
+    renderLayout({ focus: false, inspectorOpen: true });
+
+    expect(inspector()).toBeInTheDocument();
+    expect(screen.getByText('editor')).toBeVisible();
+    expect(inspector()?.contains(screen.getByText('editor'))).toBe(false);
+  });
+
+  it('hides it in focus mode but remembers it was open', () => {
+    const store = renderLayout({ focus: true, inspectorOpen: true });
+
+    expect(inspector()).toBeNull();
+    expect(store.get(inspectorAtom).isOpen).toBe(true);
+  });
+
+  it('shows the new document in place after a switch', () => {
+    const store = renderLayout({ focus: false, inspectorOpen: true });
+
+    store.rerender(
+      <DocumentLayout
+        details={{ ...DETAILS, id: 'd2', updatedAt: '2026-09-07T08:00:00Z' }}
+      >
+        <p>editor</p>
+      </DocumentLayout>
+    );
+
+    expect(inspector()).toBeInTheDocument();
+    expect(
+      screen.getByText('Updated').nextElementSibling?.querySelector('time')
+    ).toHaveAttribute('dateTime', '2026-09-07T08:00:00Z');
+  });
+});
 
 describe('DocumentLayout — word counts', () => {
   it('keeps the strip visible in focus mode', () => {
