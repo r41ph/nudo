@@ -1,7 +1,7 @@
 import type { Meta, StoryObj, Decorator } from '@storybook/react-vite';
 import { Provider, createStore } from 'jotai';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WordCounts } from '@web/features/sidebar/components/word-counts';
+import { WordCountStrip } from '@web/features/document/components/word-count-strip';
 import {
   currentDocumentAtom,
   liveWordCountAtom,
@@ -49,7 +49,7 @@ function withCounts(baseline: number | null): Decorator {
     return (
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>
-          <div className="w-[263px] bg-sidebar p-4">
+          <div className="w-[860px] bg-background pt-10">
             <Story />
           </div>
         </Provider>
@@ -59,10 +59,10 @@ function withCounts(baseline: number | null): Decorator {
 }
 
 const meta = {
-  title: 'Sidebar/WordCounts',
-  component: WordCounts,
+  title: 'Document/WordCountStrip',
+  component: WordCountStrip,
   parameters: { layout: 'centered' },
-} satisfies Meta<typeof WordCounts>;
+} satisfies Meta<typeof WordCountStrip>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

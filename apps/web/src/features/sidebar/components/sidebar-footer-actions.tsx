@@ -12,7 +12,6 @@ import {
 import { SidebarFooter } from '@ui/components/ui/sidebar';
 import { userAtom } from '@web/features/auth/state/auth.store';
 import { useLogout } from '@web/features/auth/hooks/use-logout';
-import { WordCounts } from '@web/features/sidebar/components/word-counts';
 import { useDarkMode } from '@web/shared/hooks/use-theme';
 
 function initialsFor(displayName: string | null, email: string): string {
@@ -70,7 +69,6 @@ export function SidebarFooterActions() {
 
   return (
     <SidebarFooter className="gap-3 p-0">
-      <WordCounts />
       {user && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
