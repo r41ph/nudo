@@ -1,7 +1,8 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
-import { afterAll, afterEach, beforeAll, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { server } from '@web/test/mocks/server';
+import { installMatchMedia } from '@web/test/media';
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
@@ -10,6 +11,10 @@ afterEach(() => {
   localStorage.clear();
 });
 afterAll(() => server.close());
+
+// Reinstalled per test: some tests assign window.matchMedia directly, and a
+// viewport change must not leak into the next test.
+beforeEach(() => installMatchMedia());
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -42,20 +47,5 @@ if (!Element.prototype.setPointerCapture) {
   Element.prototype.releasePointerCapture = vi.fn();
   Element.prototype.hasPointerCapture = vi.fn(() => false);
 }
-
-// jsdom has no matchMedia; the theme hook reads it to resolve the "system" theme.
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: (query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }),
-});
 
 vi.stubEnv('VITE_API_URL', 'http://localhost:3000');
