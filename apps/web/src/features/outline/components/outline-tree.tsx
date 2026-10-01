@@ -347,6 +347,7 @@ export function OutlineTree({
               onDelete={callbacks.onDeleteNode}
               onAddChild={callbacks.onAddChild}
               onSetStatus={callbacks.onSetStatus}
+              onOpenDetails={callbacks.onOpenDetails}
               onToggle={handleRowToggle}
             />
           </div>

@@ -10,6 +10,7 @@ const callbacks = {
   onDeleteNode: noop,
   onAddChild: noop,
   onSetStatus: noop,
+  onOpenDetails: noop,
   onMoveNode: noop,
 };
 
