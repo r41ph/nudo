@@ -182,6 +182,7 @@ alongside the component.
   (AC 9–12, 14)
 - **Verify:** `pnpm test:web use-document-details-save` — red.
 - **Files:** `features/document/hooks/use-document-details-save.test.ts`.
+- **Status:** done (red first: 15 tests failed on the missing module).
 
 ### Task 4.2 — Save hook
 
@@ -193,6 +194,11 @@ alongside the component.
   (AC 13, 14)
 - **Verify:** `pnpm test:web use-document-details-save`
 - **Files:** `features/document/hooks/use-document-details-save.ts`.
+- **Status:** done. The save is a plain function rather than `useMutation`,
+  so the unmount flush completes after the panel is gone (its failure toast
+  lives there too). Saves are chained so they reach the server in order, and
+  only the newest one settles `saveState`. Two tests cover those, each checked
+  to fail when its mechanism is removed.
 
 ### Task 4.3 — POV suggestions hook
 
@@ -202,6 +208,10 @@ alongside the component.
   returns `[]` on a cold cache. (AC 13, 14 of the POV group)
 - **Verify:** `pnpm test:web use-pov-suggestions`
 - **Files:** `features/document/hooks/use-pov-suggestions.ts` (+ `.test.ts`).
+- **Status:** done. `povSuggestions` is a pure function (7 unit tests);
+  `usePovSuggestions` subscribes to the shared `['outline']` query with a
+  module-level `select`, so it costs no extra request and refreshes when a
+  save invalidates the outline.
 
 ### Task 4.4 — The form
 
