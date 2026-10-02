@@ -342,6 +342,12 @@ alongside the component.
   `AppSidebar` keeps `collapsible="none"` and is otherwise untouched.
 - **Verify:** `pnpm test:web workspace-layout`; eye at 1440 / 1280 / 1024.
 - **Files:** `layouts/workspace-layout.tsx`.
+- **Status:** done. The panel is labelled "Outline" with id `OUTLINE_PANEL_ID`
+  (`sidebar.constants.ts`), ready for 5.5's `aria-controls`. Its width is
+  `SIDEBAR_WIDTH`. The layout root gained `flex-1`, because the h-svh sidebar
+  column had been the only thing holding the page at full height. Without it,
+  below 1280px the word-count strip rose to the end of the text. Checked in the real app at 1440 / 1280 / 1024, since no
+  story covers this layout.
 
 ### Task 5.5 — Toggles
 
