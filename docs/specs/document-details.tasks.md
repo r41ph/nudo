@@ -395,6 +395,11 @@ alongside the component.
   focus mode. (AC 3, 19–23)
 - **Verify:** `pnpm test:web document-layout`
 - **Files:** `layouts/document-layout.test.tsx`.
+- **Status:** done. The narrow-layout tests render `DocumentLayout` inside
+  `AppLayout` + `WorkspaceLayout`, since the outline panel lives there and
+  mutual exclusion can only be seen with both panels on screen. Toggle queries
+  match exact labels: the inspector's own "Close details" button would
+  otherwise match `/details/`. Focus mode is checked at 1440 and 1024.
 
 ---
 
