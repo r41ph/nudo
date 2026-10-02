@@ -8,6 +8,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@ui/components/ui/tabs';
+import { DocumentInspectorDetails } from '@web/features/document/components/document-inspector-details';
 import {
   EDITOR_SELECTOR,
   INSPECTOR_AUTOFOCUS_ATTR,
@@ -152,6 +153,7 @@ export function DocumentInspector({ details }: DocumentInspectorProps) {
           value="details"
           className="flex flex-col gap-5 overflow-y-auto px-6 pt-5 pb-6"
         >
+          <DocumentInspectorDetails details={details} />
           <Timestamps {...details} />
         </TabsContent>
       </Tabs>
