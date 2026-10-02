@@ -488,7 +488,7 @@ depends on that answer.
 | State                | Trigger                                         | UI                                                                                                             |
 | -------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | Closed               | default                                         | Nothing rendered; no persistent button anywhere                                                                |
-| Ready / empty fields | document loaded, `summary`/`pov` are `''`       | Placeholders "What happens in this scene?" / "Whose eyes?"; nothing else differs                               |
+| Ready / empty fields | document loaded, `summary`/`pov` are `''`       | Placeholders "What's this about?" / "Whose eyes?"; nothing else differs                               |
 | Saving               | a write in flight                               | Status line `Saving…`; fields stay editable                                                                    |
 | Saved                | last write succeeded                            | `Saved`, auto-hides after 4s (SaveBar's timing); Updated timestamp refreshes                                   |
 | Error                | write failed                                    | `Couldn't save` + **Retry**; field keeps the dirty value; toast                                                |
