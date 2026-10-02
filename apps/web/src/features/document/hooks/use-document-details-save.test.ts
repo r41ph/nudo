@@ -122,6 +122,66 @@ describe('useDocumentDetailsSave — status', () => {
   });
 });
 
+// The outline row menu can rename or set status while the panel is open.
+describe('useDocumentDetailsSave — server changes', () => {
+  function setupWithProps() {
+    let details = DETAILS;
+    const hook = renderHookWithProviders(() => useDocumentDetailsSave(details));
+    const receive = (next: Partial<DocumentDetails>) => {
+      details = { ...details, ...next };
+      hook.rerender();
+    };
+    return { ...hook, receive };
+  }
+
+  it('takes a new server title when the field has no unsaved edits', () => {
+    const { result, receive } = setupWithProps();
+
+    receive({ title: 'Renamed' });
+
+    expect(result.current.title).toBe('Renamed');
+  });
+
+  it('keeps a title being edited', () => {
+    const { result, receive } = setupWithProps();
+
+    act(() => result.current.setTitle('Half typed'));
+    receive({ title: 'Renamed' });
+
+    expect(result.current.title).toBe('Half typed');
+  });
+
+  it('restores the server title, not the original, when emptied after a rename', () => {
+    const { result, receive } = setupWithProps();
+
+    receive({ title: 'Renamed' });
+    act(() => result.current.setTitle('  '));
+    act(() => result.current.commitTitle());
+
+    expect(result.current.title).toBe('Renamed');
+  });
+
+  it('takes a new server status', () => {
+    const { result, receive } = setupWithProps();
+
+    receive({ status: 'done' });
+
+    expect(result.current.status).toBe('done');
+  });
+
+  it('keeps a newer status when an earlier save lands', async () => {
+    captureSaves();
+    const { result, receive } = setupWithProps();
+
+    act(() => result.current.setStatus('drafting'));
+    act(() => result.current.setStatus('done'));
+    receive({ status: 'drafting' });
+
+    expect(result.current.status).toBe('done');
+    await settle();
+  });
+});
+
 describe('useDocumentDetailsSave — summary and pov', () => {
   it('waits for a 1s pause, then sends only the final text', async () => {
     const patches = captureSaves();

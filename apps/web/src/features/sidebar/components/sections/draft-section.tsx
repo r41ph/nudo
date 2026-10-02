@@ -64,6 +64,15 @@ export function DraftSection() {
     queryClient.invalidateQueries({ queryKey: ['documents'] });
   }, []);
 
+  // An open inspector shows this node's title and status from its own query.
+  const invalidateWithDocument = useCallback(
+    (_: unknown, { id }: { id: string }) => {
+      invalidate();
+      queryClient.invalidateQueries({ queryKey: ['document', id] });
+    },
+    [invalidate]
+  );
+
   // Indexed once so collecting a subtree is O(n), not O(n²).
   const childrenByParent = useMemo(() => {
     const index = new Map<string, string[]>();
@@ -100,7 +109,7 @@ export function DraftSection() {
   const { mutate: renameNode } = useMutation({
     mutationFn: (v: { id: string; title: string }) =>
       graphqlClient.request(RENAME_DOCUMENT, v),
-    onSuccess: invalidate,
+    onSuccess: invalidateWithDocument,
     onError: () =>
       toast.error('Could not rename — try again.', {
         id: 'outline-rename-error',
@@ -110,7 +119,7 @@ export function DraftSection() {
   const { mutate: setStatus } = useMutation({
     mutationFn: (v: { id: string; status: NodeStatus | null }) =>
       graphqlClient.request(SET_NODE_STATUS, v),
-    onSuccess: invalidate,
+    onSuccess: invalidateWithDocument,
     onError: () =>
       toast.error('Could not update status — try again.', {
         id: 'outline-status-error',

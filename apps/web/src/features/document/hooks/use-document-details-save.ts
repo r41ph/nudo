@@ -71,8 +71,22 @@ export function useDocumentDetailsSave(details: DocumentDetails) {
   const [summary, setSummaryValue] = useState(details.summary);
   const [pov, setPovValue] = useState(details.pov);
   const [saveState, setSaveState] = useState<DetailsSaveState>('idle');
+  const [savedTitle, setSavedTitle] = useState(details.title);
+  const [serverTitle, setServerTitle] = useState(details.title);
+  const [serverStatus, setServerStatus] = useState(details.status);
 
-  const savedTitleRef = useRef(details.title);
+  // The outline can rename or set status while the panel is open. A local
+  // change the server hasn't confirmed yet wins over the incoming value.
+  if (serverTitle !== details.title) {
+    setServerTitle(details.title);
+    setSavedTitle(details.title);
+    if (title === savedTitle) setTitle(details.title);
+  }
+  if (serverStatus !== details.status) {
+    setServerStatus(details.status);
+    if (status === serverStatus) setStatusValue(details.status);
+  }
+
   const pendingRef = useRef<DetailsPatch>({});
   const lastPatchRef = useRef<DetailsPatch>({});
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -127,14 +141,14 @@ export function useDocumentDetailsSave(details: DocumentDetails) {
   const commitTitle = useCallback(() => {
     const trimmed = title.trim();
     if (!trimmed) {
-      setTitle(savedTitleRef.current);
+      setTitle(savedTitle);
       return;
     }
     setTitle(trimmed);
-    if (trimmed === savedTitleRef.current) return;
-    savedTitleRef.current = trimmed;
+    if (trimmed === savedTitle) return;
+    setSavedTitle(trimmed);
     send({ title: trimmed });
-  }, [title, send]);
+  }, [title, savedTitle, send]);
 
   const setStatus = useCallback(
     (next: NodeStatus | null) => {
