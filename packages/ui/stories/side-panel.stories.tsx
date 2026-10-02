@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { fn } from 'storybook/test';
 import { SidePanel } from '@web/shared/components/side-panel';
 
 const meta = {
@@ -22,6 +23,7 @@ const meta = {
     width: '336px',
     label: 'Document details',
     collapsed: false,
+    onCollapse: fn(),
     children: (
       <div className="p-5 text-[12.5px] text-muted-foreground">
         Panel content

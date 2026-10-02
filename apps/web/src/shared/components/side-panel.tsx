@@ -10,6 +10,7 @@ interface SidePanelProps {
   width: string;
   label: string;
   collapsed: boolean;
+  onCollapse: () => void;
   children: ReactNode;
 }
 
@@ -22,32 +23,47 @@ export function SidePanel({
   width,
   label,
   collapsed,
+  onCollapse,
   children,
 }: SidePanelProps) {
   return (
-    <aside
-      id={id}
-      aria-label={label}
-      inert={collapsed}
-      data-side={side}
-      data-state={collapsed ? 'collapsed' : 'expanded'}
-      style={
-        {
-          '--panel-width': width,
-          transitionDuration: `${PANEL_MOTION_MS}ms`,
-        } as CSSProperties
-      }
-      className={cn(
-        'fixed inset-y-0 z-30 flex w-[min(var(--panel-width),85vw)] flex-col bg-background',
-        'motion-safe:transition-transform motion-safe:ease-out',
-        side === 'left'
-          ? 'left-0 border-r border-border'
-          : 'right-0 border-l border-border',
-        collapsed &&
-          (side === 'left' ? '-translate-x-full' : 'translate-x-full')
+    <>
+      {/* Collapses rather than closes: the panel's own ✕ is the way to close.
+          Hidden from assistive tech, which reaches the same action through
+          the top-bar toggle. */}
+      {!collapsed && (
+        <div
+          aria-hidden="true"
+          data-testid="side-panel-scrim"
+          onClick={onCollapse}
+          style={{ animationDuration: `${PANEL_MOTION_MS}ms` }}
+          className="fixed inset-0 z-20 bg-black/30 motion-safe:animate-in motion-safe:fade-in"
+        />
       )}
-    >
-      {children}
-    </aside>
+      <aside
+        id={id}
+        aria-label={label}
+        inert={collapsed}
+        data-side={side}
+        data-state={collapsed ? 'collapsed' : 'expanded'}
+        style={
+          {
+            '--panel-width': width,
+            transitionDuration: `${PANEL_MOTION_MS}ms`,
+          } as CSSProperties
+        }
+        className={cn(
+          'fixed inset-y-0 z-30 flex w-[min(var(--panel-width),85vw)] flex-col bg-background',
+          'motion-safe:transition-transform motion-safe:ease-out',
+          side === 'left'
+            ? 'left-0 border-r border-border'
+            : 'right-0 border-l border-border',
+          collapsed &&
+            (side === 'left' ? '-translate-x-full' : 'translate-x-full')
+        )}
+      >
+        {children}
+      </aside>
+    </>
   );
 }
