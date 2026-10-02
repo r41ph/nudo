@@ -272,6 +272,14 @@ alongside the component.
 - **Verify:** `pnpm test:web document-inspector use-document-details-save`
 - **Files:** `features/document/hooks/use-document-details-save.ts`,
   `features/document/components/document-inspector.tsx`.
+- **Status:** done, with tests only. Tasks 4.3 and 4.4 had already built
+  every exit path: closing (Close or Escape) and focus mode unmount the panel
+  through `InspectorHost`, a document switch remounts it because it is keyed
+  by id, and the hook flushes on unmount and on `pagehide`. New
+  `inspector-host.test.tsx` covers close and switch end to end, using a wait
+  shorter than the debounce so only a flush can pass. A hook test covers a
+  failed flush after unmount still toasting. Collapsing below 1280px keeps the
+  panel mounted, so it needs its own flush in phase 5.
 
 ### Task 4.6 — Integration tests and stories
 
@@ -338,6 +346,8 @@ alongside the component.
 - **Acceptance:** below 1280px an open panel gets a scrim whose click
   **collapses** (never closes); `InspectorHost` switches between push and
   off-canvas on the breakpoint; nothing above 1280px changes. (AC 21, 23)
+  Collapsing flushes pending text: the panel stays mounted, so the unmount
+  flush doesn't run (added during 4.5).
 - **Verify:** `pnpm test:web document-layout inspector-host`
 - **Files:** `features/document/components/inspector-host.tsx`,
   `shared/components/side-panel.tsx`.
