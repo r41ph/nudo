@@ -6,6 +6,7 @@ import { DraftSection } from '@web/features/sidebar/components/sections/draft-se
 import { renderWithProviders, createStore } from '@web/test/test-utils';
 import { inspectorAtom } from '@web/shared/state/panels.atom';
 import { server } from '@web/test/mocks/server';
+import { queryClient } from '@web/shared/lib/query-client';
 import { MOCK_DOCUMENT, MOCK_DOCUMENT_2 } from '@web/test/mocks/fixtures';
 import type {
   NodeKind,
@@ -31,6 +32,7 @@ vi.mock('@web/features/outline/components/outline-tree', () => ({
       onOpenNode: (id: string) => void;
       onDeleteNode: (id: string) => void;
       onAddChild: (parentId: string, kind: NodeKind) => void;
+      onRenameNode: (id: string, title: string) => void;
       onSetStatus: (id: string, status: NodeStatus | null) => void;
       onOpenDetails: (id: string) => void;
     };
@@ -62,6 +64,12 @@ vi.mock('@web/features/outline/components/outline-tree', () => ({
             onClick={() => callbacks.onAddChild(n.id, 'separator')}
           >
             add sep
+          </button>
+          <button
+            data-testid={`rename-${n.id}`}
+            onClick={() => callbacks.onRenameNode(n.id, 'Renamed')}
+          >
+            rename
           </button>
           <button
             data-testid={`status-${n.id}`}
@@ -274,6 +282,36 @@ describe('DraftSection', () => {
 
     await waitFor(() => expect(captured).not.toBeNull());
     expect(captured).toEqual({ id: MOCK_DOCUMENT.id, status: 'done' });
+  });
+
+  // An open inspector reads ['document', id]; without this it keeps the old
+  // title and status.
+  it.each([
+    ['renaming', 'rename'],
+    ['setting the status of', 'status'],
+  ])('refetches the document after %s a node', async (_, action) => {
+    server.use(
+      graphql.mutation('SetNodeStatus', ({ variables }) =>
+        HttpResponse.json({
+          data: {
+            updateDocumentById: {
+              document: { id: variables.id, status: variables.status },
+            },
+          },
+        })
+      )
+    );
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    renderWithProviders(<DraftSection />);
+
+    fireEvent.click(await screen.findByTestId(`${action}-${MOCK_DOCUMENT.id}`));
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: ['document', MOCK_DOCUMENT.id],
+      })
+    );
+    invalidate.mockRestore();
   });
 
   it('opens details for the active document in place', async () => {

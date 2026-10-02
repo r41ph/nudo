@@ -258,6 +258,11 @@ alongside the component.
   3. Tests first: hook test for adopting a server title when not dirty and
      keeping a dirty one; `draft-section` test that a rename invalidates
      the document query.
+- **Status:** done, as planned, with two changes. `savedTitleRef` became
+  state, because the render-time check reads it and the react-hooks `refs`
+  rule forbids reading refs during render. Status has the same guard as Title:
+  a save landing while a newer local status is pending would otherwise flip
+  the select back for a moment.
 
 ### Task 4.5 — Flush on exit paths
 
