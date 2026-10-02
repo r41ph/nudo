@@ -115,10 +115,10 @@ describe('DocumentInspector — separators', () => {
 });
 
 describe('DocumentInspector — focus on open', () => {
-  it('moves focus into the panel on an explicit open', () => {
+  it('moves focus to Title on an explicit open', () => {
     const { store } = setup({ requestFocus: true });
 
-    expect(screen.getByRole('tab', { name: 'Details' })).toHaveFocus();
+    expect(screen.getByLabelText('Title')).toHaveFocus();
     expect(store.get(inspectorFocusRequestedAtom)).toBe(false);
   });
 
@@ -136,7 +136,7 @@ describe('DocumentInspector — focus on open', () => {
 
     act(() => store.set(openInspectorAtom));
 
-    expect(screen.getByRole('tab', { name: 'Details' })).toHaveFocus();
+    expect(screen.getByLabelText('Title')).toHaveFocus();
   });
 });
 

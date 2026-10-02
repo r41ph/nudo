@@ -19,6 +19,25 @@ export const handlers = [
     });
   }),
 
+  graphql.query('GetOutline', () => {
+    return HttpResponse.json({
+      data: {
+        allDocuments: {
+          nodes: [MOCK_DOCUMENT, MOCK_DOCUMENT_2].map((doc) => ({
+            id: doc.id,
+            title: doc.title,
+            parentId: null,
+            position: doc.position,
+            kind: doc.kind,
+            status: doc.status,
+            wordCount: doc.wordCount,
+            pov: doc.pov,
+          })),
+        },
+      },
+    });
+  }),
+
   graphql.query('GetDocument', ({ variables }) => {
     if (variables.id === MOCK_DOCUMENT.id) {
       return HttpResponse.json({

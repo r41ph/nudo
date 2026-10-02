@@ -11,7 +11,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@ui/components/ui/dropdown-menu';
-import { StatusMenuItems } from '@web/features/outline/components/status-control';
+import { StatusMenuItems } from '@web/shared/components/status-menu';
 import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 
 const ITEM =

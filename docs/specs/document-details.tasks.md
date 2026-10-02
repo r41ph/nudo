@@ -224,6 +224,40 @@ alongside the component.
   Labels field, no word count. (AC 8)
 - **Verify:** `pnpm test:web document-inspector`
 - **Files:** `features/document/components/document-inspector-details.tsx`.
+- **Status:** done. `StatusDot` / `StatusMenuItems` / `STATUS_LABELS` (plus a
+  new `EmptyStatusDot`) moved from `features/outline` to
+  `shared/components/status-menu.tsx` first, so the document feature doesn't
+  import another feature's internals. The save line is its own component
+  (`DetailsSaveStatus`) so its states have a story. A default `GetOutline` MSW
+  handler was added, since the panel now subscribes to the outline. Checked in
+  a browser via Playwright against the mockup.
+
+### Task 4.4b — Reflect outline edits in an open panel (found during 4.4)
+
+- **Gap:** renaming or setting status from the row menu while the panel is
+  open leaves the panel (and `DocumentPage`'s `['document', id]` cache)
+  stale: `DraftSection` invalidates only `['outline']` and `['documents']`.
+  The spec's Conflicts section expects the Title field to take the server
+  value when it isn't dirty.
+- **Acceptance:** an outline rename or status change shows up in an open
+  panel within one refetch; a Title field being edited is not overwritten.
+- **Files:** `features/sidebar/components/sections/draft-section.tsx`,
+  `features/document/hooks/use-document-details-save.ts` (+ tests).
+- **Approach (planned, not started):**
+  1. In `DraftSection`, make the rename and set-status mutations also
+     invalidate `['document', id]` for the node they touched, so
+     `DocumentPage` refetches and passes fresh `details` down. A refetch
+     doesn't re-seed the editor (`MainEditor` only reads `initialContent` on
+     mount), and window-focus refetches already do the same.
+  2. In `useDocumentDetailsSave`, when `details.title` / `details.status`
+     change, adopt them unless that field has unsaved local edits (Title:
+     local value differs from `savedTitleRef`). Prefer React's
+     "adjust state when a prop changes" pattern over an effect, as
+     `SaveBar` / `DetailsSaveStatus` already do; check the repo's
+     react-hooks lint rules before choosing.
+  3. Tests first: hook test for adopting a server title when not dirty and
+     keeping a dirty one; `draft-section` test that a rename invalidates
+     the document query.
 
 ### Task 4.5 — Flush on exit paths
 

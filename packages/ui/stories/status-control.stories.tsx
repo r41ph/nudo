@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import {
-  NodeStatusControl,
-  StatusDot,
-} from '@web/features/outline/components/status-control';
+import { NodeStatusControl } from '@web/features/outline/components/status-control';
+import { StatusDot } from '@web/shared/components/status-menu';
 
 const meta = {
   title: 'Outline/NodeStatusControl',
