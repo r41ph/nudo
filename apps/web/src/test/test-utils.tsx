@@ -16,6 +16,9 @@ function createTestQueryClient() {
 interface WrapperOptions {
   initialRoute?: string;
   store?: ReturnType<typeof createStore>;
+  // Code that writes to the app's singleton client outside React (the details
+  // save) needs the tree to read from that same client.
+  queryClient?: QueryClient;
 }
 
 export function renderWithProviders(
@@ -25,9 +28,9 @@ export function renderWithProviders(
   const {
     initialRoute = '/',
     store = createStore(),
+    queryClient = createTestQueryClient(),
     ...renderOptions
   } = options ?? {};
-  const queryClient = createTestQueryClient();
 
   function Wrapper({ children }: { children: ReactNode }) {
     return (

@@ -31,6 +31,15 @@ const config = {
       '@web': resolve(__dirname, '../../../apps/web/src'),
     };
 
+    // Stories have no API. A valid but unroutable URL lets the web client build
+    // requests that a story can answer by stubbing fetch, and fail otherwise.
+    config.define = {
+      ...config.define,
+      'import.meta.env.VITE_API_URL': JSON.stringify(
+        'http://api.storybook.invalid'
+      ),
+    };
+
     return config;
   },
 };

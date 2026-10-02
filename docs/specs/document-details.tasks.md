@@ -289,6 +289,17 @@ alongside the component.
 - **Verify:** `pnpm test:web document-inspector`; `pnpm storybook`
 - **Files:** `features/document/components/document-inspector.test.tsx`,
   `packages/ui/stories/document-inspector.stories.tsx`.
+- **Status:** done. The field tests live in `document-inspector-details.test.tsx`
+  (where 4.4 put them), not `document-inspector.test.tsx`. Added AC 10, a
+  first status (11), a picked suggestion (13), first POV offered once saved
+  (14), Updated from the server (15), and the toast with kept text (16); AC 17
+  and 18 were already covered by 4.3 and 4.5. The save hook writes to the
+  app's singleton `queryClient`, so `renderWithProviders` now takes an
+  optional `queryClient` and these tests pass that one. Stories: Saving, Saved
+  and SaveFailed answer the save by stubbing `fetch` in a story `beforeEach`;
+  Storybook now defines a placeholder `VITE_API_URL`, since an undefined one
+  made the client throw before any request. PovWithSuggestions and
+  PovWithNoSuggestions join the existing Folder story.
 
 ---
 
