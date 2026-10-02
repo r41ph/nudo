@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within } from 'storybook/test';
 import { Provider, createStore } from 'jotai';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DocumentInspector } from '@web/features/document/components/document-inspector';
@@ -20,12 +21,50 @@ const DOC: DocumentDetails = {
   updatedAt: '2025-09-15T14:03:00Z',
 };
 
+type SaveOutcome = 'pending' | 'success' | 'failure';
+
+// Storybook has no API, so the save's request is answered here. The client
+// reads globalThis.fetch per request, which makes a swap enough.
+const answerSaves = (outcome: SaveOutcome) => () => {
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (_input, init) => {
+    if (outcome === 'pending') return new Promise<Response>(() => {});
+    if (outcome === 'failure') {
+      return Response.json(
+        { errors: [{ message: 'Save failed' }] },
+        { status: 500 }
+      );
+    }
+    const { variables } = JSON.parse(String(init?.body));
+    return Response.json({
+      data: {
+        updateDocumentById: {
+          document: { ...DOC, ...variables.patch, updatedAt: new Date() },
+        },
+      },
+    });
+  };
+  return () => {
+    globalThis.fetch = realFetch;
+  };
+};
+
+const pickStatus: Story['play'] = async ({ canvas, userEvent }) => {
+  await userEvent.click(
+    canvas.getByRole('button', { name: 'Status: Drafting' })
+  );
+  // The menu portals to <body>, outside the canvas.
+  await userEvent.click(
+    await within(document.body).findByRole('menuitem', { name: 'Done' })
+  );
+};
+
 const meta = {
   title: 'Document/DocumentInspector',
   component: DocumentInspector,
-  parameters: { layout: 'fullscreen' },
+  parameters: { layout: 'fullscreen', povs: ['Mara', 'Mara', 'Teo', 'Inès'] },
   decorators: [
-    (Story) => {
+    (Story, { parameters }) => {
       const store = createStore();
       store.set(openInspectorAtom);
       // Resting state: without this the panel focuses its tab on load.
@@ -36,7 +75,7 @@ const meta = {
       });
       queryClient.setQueryData(['outline'], {
         allDocuments: {
-          nodes: ['Mara', 'Mara', 'Teo', 'Inès'].map((pov, i) => ({
+          nodes: (parameters.povs as string[]).map((pov, i) => ({
             id: `n${i}`,
             title: 'Scene',
             parentId: null,
@@ -77,4 +116,34 @@ export const Folder: Story = {
 
 export const Separator: Story = {
   args: { details: { ...DOC, kind: 'separator', title: 'Part One' } },
+};
+
+export const Saving: Story = {
+  beforeEach: answerSaves('pending'),
+  play: pickStatus,
+};
+
+export const Saved: Story = {
+  beforeEach: answerSaves('success'),
+  play: pickStatus,
+};
+
+export const SaveFailed: Story = {
+  beforeEach: answerSaves('failure'),
+  play: pickStatus,
+};
+
+export const PovWithSuggestions: Story = {
+  args: { details: { ...DOC, pov: '' } },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByLabelText('POV'));
+  },
+};
+
+export const PovWithNoSuggestions: Story = {
+  args: { details: { ...DOC, pov: '' } },
+  parameters: { povs: ['', ''] },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByLabelText('POV'));
+  },
 };

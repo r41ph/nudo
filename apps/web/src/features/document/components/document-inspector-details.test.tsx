@@ -1,9 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { act, screen, waitFor, within } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { graphql, HttpResponse } from 'msw';
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { GET_DOCUMENT } from '@web/features/document/api/document.api';
 import { DocumentInspector } from '@web/features/document/components/document-inspector';
 import type { DocumentDetails } from '@web/features/document/document.types';
+import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
 import {
   inspectorAtom,
@@ -26,23 +37,33 @@ const DOC: DocumentDetails = {
   updatedAt: '2025-09-15T14:03:00Z',
 };
 
+const SAVED_AT = '2025-09-16T08:30:00Z';
+
 type Patch = Record<string, unknown>;
 
-function captureSaves(failures = 0) {
+// Saves answer with a fresh updatedAt and add their POV to the outline, as
+// the server would, so the panel's refetches see the change.
+function captureSaves({
+  failures = 0,
+  povs = ['Mara', 'Teo', 'Mara', ''],
+}: { failures?: number; povs?: string[] } = {}) {
   const patches: Patch[] = [];
+  const outlinePovs = [...povs];
   server.use(
     graphql.mutation('UpdateDocumentDetails', ({ variables }) => {
-      patches.push(variables.patch as Patch);
+      const patch = variables.patch as Patch;
+      patches.push(patch);
       if (patches.length <= failures) {
         return HttpResponse.json(
           { errors: [{ message: 'Save failed' }] },
           { status: 500 }
         );
       }
+      if (typeof patch.pov === 'string') outlinePovs.push(patch.pov);
       return HttpResponse.json({
         data: {
           updateDocumentById: {
-            document: { ...DOC, ...(variables.patch as Patch) },
+            document: { ...DOC, ...patch, updatedAt: SAVED_AT },
           },
         },
       });
@@ -51,7 +72,7 @@ function captureSaves(failures = 0) {
       HttpResponse.json({
         data: {
           allDocuments: {
-            nodes: ['Mara', 'Teo', 'Mara', ''].map((pov, i) => ({
+            nodes: outlinePovs.map((pov, i) => ({
               id: `n${i}`,
               title: 'Scene',
               parentId: null,
@@ -64,6 +85,9 @@ function captureSaves(failures = 0) {
           },
         },
       })
+    ),
+    graphql.query('GetDocument', () =>
+      HttpResponse.json({ data: { documentById: DOC } })
     )
   );
   return patches;
@@ -72,16 +96,40 @@ function captureSaves(failures = 0) {
 function setup({
   details = DOC,
   requestFocus = false,
-}: { details?: DocumentDetails; requestFocus?: boolean } = {}) {
+  ui = <DocumentInspector details={details} />,
+}: {
+  details?: DocumentDetails;
+  requestFocus?: boolean;
+  ui?: ReactElement;
+} = {}) {
   const store = createStore();
   store.set(openInspectorAtom);
   if (!requestFocus) store.set(inspectorFocusRequestedAtom, false);
   const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-  renderWithProviders(<DocumentInspector details={details} />, { store });
+  renderWithProviders(ui, { store, queryClient });
   return { store, user };
 }
 
+// Mirrors DocumentPage: the panel's details come from the document query, so a
+// save that writes the cache is what moves Updated.
+function LiveInspector() {
+  const { data } = useQuery({
+    queryKey: ['document', DOC.id],
+    queryFn: () =>
+      graphqlClient.request<{ documentById: DocumentDetails }>(GET_DOCUMENT, {
+        id: DOC.id,
+      }),
+  });
+  return data ? <DocumentInspector details={data.documentById} /> : null;
+}
+
 const field = (name: string) => screen.getByLabelText(name);
+
+const povOptions = () => {
+  const listId = field('POV').getAttribute('list');
+  const datalist = document.getElementById(listId ?? '');
+  return [...(datalist?.querySelectorAll('option') ?? [])].map((o) => o.value);
+};
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -89,7 +137,9 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.mocked(toast.error).mockClear();
   queryClient.removeQueries({ queryKey: ['document'] });
+  queryClient.removeQueries({ queryKey: ['outline'] });
 });
 
 describe('DocumentInspector — details fields', () => {
@@ -142,6 +192,28 @@ describe('DocumentInspector — editing', () => {
     await waitFor(() => expect(patches).toEqual([{ title: 'Dinner' }]));
   });
 
+  it('puts the title back instead of saving an empty one', async () => {
+    const patches = captureSaves();
+    const { user } = setup();
+
+    await user.clear(field('Title'));
+    await user.tab();
+
+    expect(field('Title')).toHaveValue('The Arrival');
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+    expect(patches).toEqual([]);
+  });
+
+  it('saves a first status straight away', async () => {
+    const patches = captureSaves();
+    const { user } = setup({ details: { ...DOC, status: null } });
+
+    await user.click(screen.getByRole('button', { name: 'Set status' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Drafting' }));
+
+    await waitFor(() => expect(patches).toEqual([{ status: 'drafting' }]));
+  });
+
   it('saves a status picked from the menu', async () => {
     const patches = captureSaves();
     const { user } = setup();
@@ -188,15 +260,35 @@ describe('DocumentInspector — editing', () => {
     captureSaves();
     setup();
 
-    const listId = field('POV').getAttribute('list');
-    expect(listId).toBeTruthy();
-    const datalist = document.getElementById(listId as string);
+    await waitFor(() => expect(povOptions()).toEqual(['Mara', 'Teo']));
+  });
 
-    await waitFor(() =>
-      expect(
-        [...(datalist?.querySelectorAll('option') ?? [])].map((o) => o.value)
-      ).toEqual(['Mara', 'Teo'])
-    );
+  // Picking from a datalist arrives as one change with the whole value, not
+  // keystrokes, and must still wait for the pause like typed text.
+  it('saves a picked POV suggestion after the same pause as typing', async () => {
+    const patches = captureSaves();
+    setup({ details: { ...DOC, pov: '' } });
+    await waitFor(() => expect(povOptions()).toContain('Teo'));
+
+    fireEvent.change(field('POV'), { target: { value: 'Teo' } });
+    await act(() => vi.advanceTimersByTimeAsync(500));
+    expect(patches).toEqual([]);
+
+    await act(() => vi.advanceTimersByTimeAsync(500));
+    await waitFor(() => expect(patches).toEqual([{ pov: 'Teo' }]));
+  });
+
+  it('takes a new POV when none exist yet, and offers it once saved', async () => {
+    const patches = captureSaves({ povs: ['', ''] });
+    const { user } = setup({ details: { ...DOC, pov: '' } });
+    await act(() => vi.advanceTimersByTimeAsync(0));
+    expect(povOptions()).toEqual([]);
+
+    await user.type(field('POV'), 'Inès');
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+
+    await waitFor(() => expect(patches).toEqual([{ pov: 'Inès' }]));
+    await waitFor(() => expect(povOptions()).toEqual(['Inès']));
   });
 });
 
@@ -211,8 +303,39 @@ describe('DocumentInspector — save status', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('Saved');
   });
 
+  it("shows the server's new Updated time once a change lands", async () => {
+    captureSaves();
+    const { user } = setup({ ui: <LiveInspector /> });
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Status: Drafting' })
+    );
+    await user.click(await screen.findByRole('menuitem', { name: 'Done' }));
+
+    const updated = () =>
+      screen.getByText('Updated').nextElementSibling?.querySelector('time');
+    await waitFor(() =>
+      expect(updated()).toHaveAttribute('dateTime', SAVED_AT)
+    );
+  });
+
+  it('keeps the typed text and raises a toast when a save fails', async () => {
+    captureSaves({ failures: 1 });
+    const { user } = setup();
+
+    await user.clear(field('Summary'));
+    await user.type(field('Summary'), 'She finds the door open.');
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+
+    await waitFor(() =>
+      expect(screen.getByRole('status')).toHaveTextContent("Couldn't save")
+    );
+    expect(field('Summary')).toHaveValue('She finds the door open.');
+    expect(toast.error).toHaveBeenCalledTimes(1);
+  });
+
   it('offers a retry when a save fails, and recovers', async () => {
-    const patches = captureSaves(1);
+    const patches = captureSaves({ failures: 1 });
     const { user } = setup();
 
     await user.click(screen.getByRole('button', { name: 'Status: Drafting' }));
