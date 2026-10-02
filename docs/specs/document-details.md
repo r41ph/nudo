@@ -1,6 +1,6 @@
 # Spec: Document Details Inspector
 
-> Status: Draft — awaiting review
+> Status: Implemented (PR #41 — https://github.com/r41ph/nudo/pull/41)
 > Branch: `feat/document-details`
 
 ## Objective

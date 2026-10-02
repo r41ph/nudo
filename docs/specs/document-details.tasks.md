@@ -1,6 +1,6 @@
 # Tasks: Document Details Inspector
 
-> Status: Draft — awaiting review
+> Status: Implemented (PR #41 — https://github.com/r41ph/nudo/pull/41)
 > Spec: [`document-details.md`](./document-details.md)
 > Plan: [`document-details.plan.md`](./document-details.plan.md)
 > Branch: `feat/document-details`
@@ -433,3 +433,5 @@ alongside the component.
 - **Verify:** read-through; `pnpm typecheck` and the full changed-file test
   filters green.
 - **Files:** `docs/specs/document-details{,.plan,.tasks}.md`.
+- **Status:** done. PR #41. The first commit was reworded to pass commitlint
+  before the first push. No `CLAUDE.md` change was needed.
