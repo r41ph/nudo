@@ -250,6 +250,21 @@ describe('useDocumentDetailsSave — flushing', () => {
     expect(patches).toEqual([{ summary: 'Half a thought' }]);
   });
 
+  // The toast is global, so the writer still hears about it with the panel gone.
+  it('still reports a failed send after the panel unmounts', async () => {
+    captureSaves(1);
+    const { result, unmount } = setup();
+
+    act(() => result.current.setSummary('Half a thought'));
+    unmount();
+    await settle();
+
+    expect(toast.error).toHaveBeenCalledWith(
+      'Could not save details — try again.',
+      { id: 'inspector-save-error' }
+    );
+  });
+
   it('sends pending text when the page is hidden', async () => {
     const patches = captureSaves();
     const { result } = setup();
