@@ -120,7 +120,7 @@ export const DocumentInspectorDetails = memo(function DocumentInspectorDetails({
         <Textarea
           id={ids.summary}
           value={save.summary}
-          placeholder="What happens in this scene?"
+          placeholder="What's this about?"
           onChange={(e) => save.setSummary(e.target.value)}
           className={`min-h-24 leading-5 ${CONTROL}`}
         />
