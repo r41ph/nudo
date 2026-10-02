@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react';
 import { useAtomValue } from 'jotai';
 import { AppSidebar } from '@web/features/sidebar/components/app-sidebar';
-import {
-  OUTLINE_PANEL_ID,
-  SIDEBAR_WIDTH,
-} from '@web/features/sidebar/sidebar.constants';
+import { SIDEBAR_WIDTH } from '@web/features/sidebar/sidebar.constants';
+import { OUTLINE_PANEL_ID } from '@web/shared/constants/panels.constants';
 import { SidePanel } from '@web/shared/components/side-panel';
 import { usePanels } from '@web/shared/hooks/use-panels';
 import { isFocusModeAtom } from '@web/shared/state/focus-mode.atom';

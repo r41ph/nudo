@@ -357,6 +357,15 @@ alongside the component.
   `isOpen`, so there is still no persistent Details button. (AC 23)
 - **Verify:** `pnpm test:web editor-top-bar`
 - **Files:** `features/document/components/editor-top-bar.tsx` (+ test).
+- **Status:** done. Not in the spec: both toggles are hidden in focus mode,
+  since neither panel renders there and the toggle would control nothing. The
+  panel ids moved to `shared/constants/panels.constants.ts` (the top bar is in
+  `document` and may not import from `sidebar`), and the inspector's `<aside>`
+  now carries `INSPECTOR_PANEL_ID`. New `panelLeft` / `panelRight` icons. The
+  outline toggle sits at the left of the bar, and the details toggle sits beside
+  focus mode. Expanded and collapsed look the same; only the label and
+  `aria-expanded` change. Stories: four `Narrow*` states on the `tablet`
+  viewport.
 
 ### Task 5.6 — Scrim and mode switch
 
