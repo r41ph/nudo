@@ -412,6 +412,13 @@ alongside the component.
   reopen Details → the Summary is there.
 - **Verify:** `pnpm test:e2e` with Docker up.
 - **Files:** `e2e/tests/document-details.spec.ts`.
+- **Status:** done. A new user's Welcome Document sits inside the "Chapter
+  One" folder, so the spec expands it when collapsed, and hovers the row
+  because row actions are `display: none` until then. Waits on the
+  `updateDocumentById` request, which fires per change, so saving the Summary
+  as POV instead still resolves the wait and fails only at the reload check.
+  Needs Playwright's `chromium-headless-shell` v1223 installed
+  (`pnpm exec playwright install chromium-headless-shell` in `e2e/`).
 
 ---
 
