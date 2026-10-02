@@ -377,6 +377,15 @@ alongside the component.
 - **Verify:** `pnpm test:web document-layout inspector-host`
 - **Files:** `features/document/components/inspector-host.tsx`,
   `shared/components/side-panel.tsx`.
+- **Status:** done. The scrim lives in `SidePanel` (new `onCollapse` prop),
+  so the outline gets one too: `WorkspaceLayout` passes
+  `setOutlineOpen(false)`. It renders only while expanded, fades in over
+  `PANEL_MOTION_MS`, and is `aria-hidden`; keyboard users have the top-bar
+  toggle. The collapse flush is an effect in `DocumentInspectorDetails` keyed
+  on `inspectorExpanded`. Because the scrim covers the top bar, clicking the
+  outline toggle while the inspector is open only collapses the inspector. The
+  `document-layout` assertions are left for 5.7; `inspector-host` covers both
+  modes and the breakpoint crossing.
 
 ### Task 5.7 — Layout tests
 

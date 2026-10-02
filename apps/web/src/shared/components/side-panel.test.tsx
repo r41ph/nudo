@@ -1,8 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { SidePanel } from '@web/shared/components/side-panel';
 
-function renderPanel(collapsed: boolean, side: 'left' | 'right' = 'right') {
+function renderPanel(
+  collapsed: boolean,
+  side: 'left' | 'right' = 'right',
+  onCollapse = vi.fn()
+) {
   render(
     <SidePanel
       id="panel"
@@ -10,6 +15,7 @@ function renderPanel(collapsed: boolean, side: 'left' | 'right' = 'right') {
       width="336px"
       label="Document details"
       collapsed={collapsed}
+      onCollapse={onCollapse}
     >
       <button type="button">Close details</button>
     </SidePanel>
@@ -43,5 +49,20 @@ describe('SidePanel', () => {
 
   it('records which edge it slides from', () => {
     expect(renderPanel(true, 'left')).toHaveAttribute('data-side', 'left');
+  });
+
+  it('collapses when the scrim is clicked', async () => {
+    const onCollapse = vi.fn();
+    renderPanel(false, 'right', onCollapse);
+
+    await userEvent.click(screen.getByTestId('side-panel-scrim'));
+
+    expect(onCollapse).toHaveBeenCalledOnce();
+  });
+
+  it('leaves the page uncovered while collapsed', () => {
+    renderPanel(true);
+
+    expect(screen.queryByTestId('side-panel-scrim')).toBeNull();
   });
 });
