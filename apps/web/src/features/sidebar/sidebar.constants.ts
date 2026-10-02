@@ -6,6 +6,3 @@ export const SIDEBAR_TOOLS = [
   { label: 'Characters', active: false },
   { label: 'Timeline', active: false },
 ] as const;
-
-// Target of the outline toggle's aria-controls below the collapse breakpoint.
-export const OUTLINE_PANEL_ID = 'outline-panel';

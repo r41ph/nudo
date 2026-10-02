@@ -2,6 +2,7 @@ import { useAtomValue } from 'jotai';
 import { DocumentInspector } from '@web/features/document/components/document-inspector';
 import { INSPECTOR_WIDTH } from '@web/features/document/constants/inspector.constants';
 import type { DocumentDetails } from '@web/features/document/document.types';
+import { INSPECTOR_PANEL_ID } from '@web/shared/constants/panels.constants';
 import { isFocusModeAtom } from '@web/shared/state/focus-mode.atom';
 import { inspectorAtom } from '@web/shared/state/panels.atom';
 
@@ -15,6 +16,7 @@ export function InspectorHost({ details }: { details: DocumentDetails }) {
   // scrolls, so the panel has to hold its place against it.
   return (
     <aside
+      id={INSPECTOR_PANEL_ID}
       aria-label="Document details"
       style={{ width: INSPECTOR_WIDTH }}
       className="sticky top-0 h-svh shrink-0 self-start border-l border-border bg-background"
