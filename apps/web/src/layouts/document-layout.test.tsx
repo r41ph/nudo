@@ -68,6 +68,24 @@ const outlinePanel = () =>
 
 const toggle = (name: RegExp) => screen.queryByRole('button', { name });
 
+// jsdom's getComputedStyle doesn't inherit custom properties, so resolve each
+// one from the nearest ancestor that sets it, as the cascade would.
+const inheritedVar = (el: HTMLElement | null, name: string): string => {
+  for (; el; el = el.parentElement) {
+    const value = el.style.getPropertyValue(name);
+    if (value) return value;
+  }
+  return '0px';
+};
+
+const insets = () => {
+  const column = screen.getByText('editor').parentElement;
+  return {
+    left: inheritedVar(column, '--outline-inset'),
+    right: inheritedVar(column, '--inspector-inset'),
+  };
+};
+
 describe('DocumentLayout — inspector', () => {
   it('renders nothing for the inspector until it is opened', () => {
     renderLayout({ focus: false });
@@ -247,6 +265,45 @@ describe('DocumentLayout — focus mode across widths', () => {
       expect(inspector()).toBeNull();
       expect(outlinePanel()).toBeNull();
       expect(toggle(/^(Show|Hide) (outline|details)$/)).toBeNull();
+    }
+  );
+});
+
+describe('DocumentLayout — manuscript centering insets', () => {
+  it('offsets by the outline alone when the inspector is closed', () => {
+    setViewportWidth(1440);
+    renderLayout({ focus: false, withOutline: true });
+
+    expect(insets()).toEqual({ left: '295px', right: '0px' });
+  });
+
+  it('offsets by both panels when the inspector is docked', () => {
+    setViewportWidth(1440);
+    renderLayout({ focus: false, inspectorOpen: true, withOutline: true });
+
+    expect(insets()).toEqual({ left: '295px', right: '336px' });
+  });
+
+  it('drops the inspector inset once it is closed', async () => {
+    setViewportWidth(1440);
+    const user = userEvent.setup();
+    renderLayout({ focus: false, inspectorOpen: true, withOutline: true });
+
+    await user.click(screen.getByRole('button', { name: 'Close details' }));
+
+    expect(insets()).toEqual({ left: '295px', right: '0px' });
+  });
+
+  it.each([
+    ['below 1280px', { width: 1024, focus: false }],
+    ['in focus mode', { width: 1440, focus: true }],
+  ])(
+    'has no insets %s, where panels overlay or hide',
+    (_, { width, focus }) => {
+      setViewportWidth(width);
+      renderLayout({ focus, inspectorOpen: true, withOutline: true });
+
+      expect(insets()).toEqual({ left: '0px', right: '0px' });
     }
   );
 });
