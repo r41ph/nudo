@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { AppSidebar } from '@web/features/sidebar/components/app-sidebar';
 import { SIDEBAR_WIDTH } from '@web/features/sidebar/sidebar.constants';
@@ -12,13 +12,17 @@ export function WorkspaceLayout({ children }: { children: ReactNode }) {
   const isFocusMode = useAtomValue(isFocusModeAtom);
   const { isDesktop, outlineExpanded } = usePanels();
   const setOutlineOpen = useSetAtom(setOutlineOpenAtom);
+  const isDocked = !isFocusMode && isDesktop;
+  const insetStyle = {
+    '--outline-inset': isDocked ? SIDEBAR_WIDTH : '0px',
+  } as CSSProperties;
 
   // flex-1: below 1280px and in focus mode no h-svh column is left in the row
   // to stretch it, and the page must still fill the viewport.
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1" style={insetStyle}>
       {!isFocusMode &&
-        (isDesktop ? (
+        (isDocked ? (
           <div className="sticky top-0 self-start h-svh">
             <AppSidebar />
           </div>
