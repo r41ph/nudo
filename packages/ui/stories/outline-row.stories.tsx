@@ -20,6 +20,7 @@ const meta = {
     kind: 'document',
     status: null,
     wordCount: 1240,
+    descendantCount: 0,
     isOpen: false,
     isActive: false,
     onRename: noop,
@@ -45,11 +46,26 @@ export const DocumentWithStatus: Story = {
 };
 
 export const FolderCollapsed: Story = {
-  args: { title: 'Part One', kind: 'folder', wordCount: 18280 },
+  args: {
+    title: 'Part One',
+    kind: 'folder',
+    wordCount: 18280,
+    descendantCount: 4,
+  },
 };
 
 export const FolderExpanded: Story = {
-  args: { title: 'Part One', kind: 'folder', isOpen: true, wordCount: 18280 },
+  args: {
+    title: 'Part One',
+    kind: 'folder',
+    isOpen: true,
+    wordCount: 18280,
+    descendantCount: 4,
+  },
+};
+
+export const FolderEmpty: Story = {
+  args: { title: 'Part One', kind: 'folder', wordCount: 0 },
 };
 
 export const FolderDone: Story = {
@@ -58,6 +74,7 @@ export const FolderDone: Story = {
     kind: 'folder',
     status: 'done',
     wordCount: 3120,
+    descendantCount: 2,
   },
 };
 

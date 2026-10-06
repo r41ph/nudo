@@ -44,7 +44,7 @@ const ROW_BASE =
   'group-focus-visible/item:outline-2 group-focus-visible/item:outline-ring group-focus-visible/item:outline-offset-2';
 
 const CHEVRON_GUTTER = 'pl-3.5';
-// Documents have no chevron, so they get a wider gutter and the grip sits
+// Rows without a chevron get a wider gutter and the grip sits
 // further in to stay clear of the guide line (4px outside the row, see
 // `GUIDE_INSET` in `outline-tree.tsx`).
 const DOCUMENT_GUTTER = 'pl-5';
@@ -200,6 +200,9 @@ export const OutlineRow = memo(function OutlineRow({
   }
 
   const isFolder = kind === 'folder';
+  // `kind` alone isn't enough: a document is promoted to a folder when it gains
+  // a child and is never demoted, so an emptied one would expand to nothing.
+  const hasChevron = isFolder && descendantCount > 0;
 
   // Selection is carried by fill and ink, never weight.
   const titleFont = isFolder
@@ -210,13 +213,13 @@ export const OutlineRow = memo(function OutlineRow({
     <div
       className={cn(
         ROW_BASE,
-        isFolder ? CHEVRON_GUTTER : DOCUMENT_GUTTER,
+        hasChevron ? CHEVRON_GUTTER : DOCUMENT_GUTTER,
         isActive && 'bg-sidebar-accent hover:bg-sidebar-accent'
       )}
     >
-      <RowGrip className={isFolder ? undefined : DOCUMENT_GRIP} />
+      <RowGrip className={hasChevron ? undefined : DOCUMENT_GRIP} />
 
-      {isFolder && (
+      {hasChevron && (
         <button
           type="button"
           onClick={handleToggle}
