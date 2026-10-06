@@ -196,6 +196,23 @@ describe('OutlineRow — status', () => {
   });
 });
 
+describe('OutlineRow — chevron', () => {
+  it('lets a folder with children expand', () => {
+    renderRow({ title: 'Chapter One', kind: 'folder', descendantCount: 1 });
+
+    expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
+  });
+
+  // Regression: a document is promoted to a folder when it gains a child and
+  // never demoted, so emptying it left a chevron that expanded to nothing.
+  it('drops the chevron once a folder has nothing inside', () => {
+    renderRow({ title: 'Chapter One', kind: 'folder', descendantCount: 0 });
+
+    expect(screen.queryByRole('button', { name: 'Expand' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Collapse' })).toBeNull();
+  });
+});
+
 describe('OutlineRow — add inside', () => {
   it('offers "New inside" on a document row, so a document can become a container', async () => {
     const user = userEvent.setup();
