@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { POV_SUGGESTION_LIMIT } from '@web/features/document/constants/inspector.constants';
-import { GET_OUTLINE } from '@web/shared/api/outline.api';
-import { graphqlClient } from '@web/shared/lib/graphql-client';
+import { outlineQueryOptions } from '@web/shared/api/outline.api';
+import { useProjectId } from '@web/shared/hooks/use-project-id';
 import type {
   OutlineNode,
   OutlineQueryData,
@@ -54,8 +54,7 @@ const selectSuggestions = (outline: OutlineQueryData) =>
 // cache instead of fetching, and a save's outline invalidation refreshes it.
 export function usePovSuggestions(): string[] {
   const { data } = useQuery({
-    queryKey: ['outline'],
-    queryFn: () => graphqlClient.request<OutlineQueryData>(GET_OUTLINE),
+    ...outlineQueryOptions(useProjectId()),
     select: selectSuggestions,
   });
   return data ?? EMPTY;

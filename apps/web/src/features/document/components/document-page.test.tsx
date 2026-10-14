@@ -5,7 +5,11 @@ import { DocumentPage } from '@web/features/document/components/document-page';
 import { renderWithProviders, createStore } from '@web/test/test-utils';
 import { tokenAtom, userAtom } from '@web/features/auth/state/auth.store';
 import { currentDocumentAtom } from '@web/features/document/state/document.store';
-import { MOCK_USER, MOCK_DOCUMENT } from '@web/test/mocks/fixtures';
+import {
+  MOCK_USER,
+  MOCK_DOCUMENT,
+  MOCK_PROJECT,
+} from '@web/test/mocks/fixtures';
 import { server } from '@web/test/mocks/server';
 
 vi.mock('@web/layouts/document-layout', () => ({
@@ -49,7 +53,7 @@ vi.mock('react-router-dom', async () => {
 describe('DocumentPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockParams = { id: MOCK_DOCUMENT.id };
+    mockParams = { projectId: MOCK_PROJECT.id, documentId: MOCK_DOCUMENT.id };
   });
 
   it('redirects to /login when not authenticated', async () => {
@@ -100,7 +104,10 @@ describe('DocumentPage', () => {
   });
 
   it('shows error when document is not found', async () => {
-    mockParams = { id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' };
+    mockParams = {
+      projectId: MOCK_PROJECT.id,
+      documentId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    };
 
     server.use(
       graphql.query('GetDocument', () => {
@@ -122,7 +129,7 @@ describe('DocumentPage', () => {
   });
 
   it('does not fetch when id is an invalid UUID', () => {
-    mockParams = { id: 'not-a-uuid' };
+    mockParams = { projectId: MOCK_PROJECT.id, documentId: 'not-a-uuid' };
 
     const store = createStore();
     store.set(tokenAtom, 'fake-token');
@@ -134,7 +141,10 @@ describe('DocumentPage', () => {
   });
 
   it('offers a create button on the not-found placeholder', async () => {
-    mockParams = { id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' };
+    mockParams = {
+      projectId: MOCK_PROJECT.id,
+      documentId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    };
     server.use(
       graphql.query('GetDocument', () =>
         HttpResponse.json({ data: { documentById: null } })
@@ -153,7 +163,10 @@ describe('DocumentPage', () => {
   });
 
   it('creates a document from the placeholder and navigates to it', async () => {
-    mockParams = { id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' };
+    mockParams = {
+      projectId: MOCK_PROJECT.id,
+      documentId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    };
     let createKind: unknown;
     server.use(
       graphql.query('GetDocument', () =>
@@ -178,14 +191,19 @@ describe('DocumentPage', () => {
     );
 
     await waitFor(() =>
-      expect(mockNavigate).toHaveBeenCalledWith(`/document/${MOCK_DOCUMENT.id}`)
+      expect(mockNavigate).toHaveBeenCalledWith(
+        `/project/${MOCK_PROJECT.id}/document/${MOCK_DOCUMENT.id}`
+      )
     );
     // Any other kind would be rejected by the DB's `kind` CHECK constraint.
     expect(createKind).toBe('document');
   });
 
   it('surfaces a failure when creating from the placeholder fails', async () => {
-    mockParams = { id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' };
+    mockParams = {
+      projectId: MOCK_PROJECT.id,
+      documentId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    };
     server.use(
       graphql.query('GetDocument', () =>
         HttpResponse.json({ data: { documentById: null } })

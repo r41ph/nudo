@@ -6,24 +6,36 @@ import {
   MOCK_DOCUMENT_2,
   MOCK_FOLDER,
   MOCK_USER_SETTINGS,
+  MOCK_PROJECT,
 } from '@web/test/mocks/fixtures';
 
+// Both mock documents live in MOCK_PROJECT; any other project is empty.
+function documentsIn(projectId: unknown) {
+  return projectId === MOCK_PROJECT.id ? [MOCK_DOCUMENT, MOCK_DOCUMENT_2] : [];
+}
+
 export const handlers = [
-  graphql.query('GetDocuments', () => {
+  graphql.query('GetProjects', () => {
+    return HttpResponse.json({
+      data: { allProjects: { nodes: [MOCK_PROJECT] } },
+    });
+  }),
+
+  graphql.query('GetDocuments', ({ variables }) => {
     return HttpResponse.json({
       data: {
         allDocuments: {
-          nodes: [MOCK_DOCUMENT, MOCK_DOCUMENT_2],
+          nodes: documentsIn(variables.projectId),
         },
       },
     });
   }),
 
-  graphql.query('GetOutline', () => {
+  graphql.query('GetOutline', ({ variables }) => {
     return HttpResponse.json({
       data: {
         allDocuments: {
-          nodes: [MOCK_DOCUMENT, MOCK_DOCUMENT_2].map((doc) => ({
+          nodes: documentsIn(variables.projectId).map((doc) => ({
             id: doc.id,
             title: doc.title,
             parentId: null,

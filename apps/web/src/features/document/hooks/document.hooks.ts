@@ -6,8 +6,12 @@ import {
   currentDocumentAtom,
   liveWordCountAtom,
 } from '@web/features/document/state/document.store';
-import { GET_DOCUMENTS } from '@web/features/document/api/document.api';
+import {
+  GET_DOCUMENTS,
+  documentsQueryKey,
+} from '@web/features/document/api/document.api';
 import { isAuthenticatedAtom } from '@web/features/auth/state/auth.store';
+import { useProjectId } from '@web/shared/hooks/use-project-id';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 
 type DocumentNode = { id: string; wordCount: number };
@@ -23,17 +27,18 @@ export function useWordCount(documentId?: string): number {
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   // liveWordCountAtom is written at most every 500ms (debounced at write side)
   const liveWordCount = useAtomValue(liveWordCountAtom);
+  const projectId = useProjectId();
 
   const { data } = useQuery({
-    queryKey: ['documents'],
+    queryKey: documentsQueryKey(projectId),
     queryFn: () =>
       graphqlClient.request<{ allDocuments: { nodes: DocumentNode[] } }>(
-        GET_DOCUMENTS
+        GET_DOCUMENTS,
+        { projectId }
       ),
-    // The sidebar mounts before HomePage redirects to /login; an anonymous
-    // request succeeds with an empty list and would be served from cache
-    // after login.
-    enabled: isAuthenticated,
+    // The sidebar mounts before the redirect to /login; an anonymous request
+    // succeeds with an empty list and would be served from cache after login.
+    enabled: isAuthenticated && !!projectId,
   });
 
   const activeLiveCount =

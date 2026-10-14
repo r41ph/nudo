@@ -33,6 +33,8 @@ import {
   useUserPreferences,
 } from '@web/features/toolbar/hooks/toolbar.hooks';
 import { isValidUuid } from '@web/shared/lib/uuid';
+import { useProjectId } from '@web/shared/hooks/use-project-id';
+import { documentPath } from '@web/shared/lib/routes';
 import type { Value } from 'platejs';
 import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 import { DIALOG } from '@web/shared/state/dialog.constants';
@@ -54,7 +56,8 @@ type GetDocumentResponse = {
 };
 
 export function DocumentPage() {
-  const { id } = useParams<{ id: string }>();
+  const { documentId: id } = useParams<{ documentId: string }>();
+  const projectId = useProjectId();
   const navigate = useNavigate();
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   const userId = useAtomValue(userIdAtom);
@@ -156,6 +159,7 @@ export function DocumentPage() {
       graphqlClient.request<{
         createNode: { document: { id: string } };
       }>(CREATE_NODE, {
+        projectId,
         kind: 'document',
         parentId: null,
         title: variables.title,
@@ -164,7 +168,7 @@ export function DocumentPage() {
     onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       queryClient.invalidateQueries({ queryKey: ['outline'] });
-      navigate(`/document/${created.createNode.document.id}`);
+      navigate(documentPath(projectId!, created.createNode.document.id));
     },
   });
 

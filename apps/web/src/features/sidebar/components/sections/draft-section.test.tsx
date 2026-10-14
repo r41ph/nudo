@@ -7,7 +7,11 @@ import { renderWithProviders, createStore } from '@web/test/test-utils';
 import { inspectorAtom } from '@web/shared/state/panels.atom';
 import { server } from '@web/test/mocks/server';
 import { queryClient } from '@web/shared/lib/query-client';
-import { MOCK_DOCUMENT, MOCK_DOCUMENT_2 } from '@web/test/mocks/fixtures';
+import {
+  MOCK_DOCUMENT,
+  MOCK_DOCUMENT_2,
+  MOCK_PROJECT,
+} from '@web/test/mocks/fixtures';
 import type {
   NodeKind,
   NodeStatus,
@@ -94,7 +98,10 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useParams: () => ({ id: MOCK_DOCUMENT.id }),
+    useParams: () => ({
+      projectId: MOCK_PROJECT.id,
+      documentId: MOCK_DOCUMENT.id,
+    }),
     useNavigate: () => navigateSpy,
   };
 });
@@ -128,6 +135,22 @@ beforeEach(() => {
 });
 
 describe('DraftSection', () => {
+  it("asks only for the active project's outline", async () => {
+    const requested = vi.fn();
+    server.use(
+      graphql.query('GetOutline', ({ variables }) => {
+        requested(variables);
+        return HttpResponse.json({ data: { allDocuments: { nodes: [] } } });
+      })
+    );
+
+    renderWithProviders(<DraftSection />);
+
+    await waitFor(() =>
+      expect(requested).toHaveBeenCalledWith({ projectId: MOCK_PROJECT.id })
+    );
+  });
+
   it('renders the Draft label', () => {
     renderWithProviders(<DraftSection />);
     expect(screen.getByText('Draft')).toBeInTheDocument();
@@ -164,7 +187,7 @@ describe('DraftSection', () => {
 
     await waitFor(() =>
       expect(navigateSpy).toHaveBeenCalledWith(
-        `/document/${MOCK_DOCUMENT_2.id}`
+        `/project/${MOCK_PROJECT.id}/document/${MOCK_DOCUMENT_2.id}`
       )
     );
   });
@@ -180,7 +203,9 @@ describe('DraftSection', () => {
 
     fireEvent.click(screen.getByTestId(`delete-${MOCK_DOCUMENT.id}`));
 
-    await waitFor(() => expect(navigateSpy).toHaveBeenCalledWith('/'));
+    await waitFor(() =>
+      expect(navigateSpy).toHaveBeenCalledWith(`/project/${MOCK_PROJECT.id}`)
+    );
   });
 
   it('does not navigate when deleting a non-active node', async () => {
@@ -226,7 +251,9 @@ describe('DraftSection', () => {
     fireEvent.click(screen.getByTestId(`add-doc-${MOCK_DOCUMENT.id}`));
 
     await waitFor(() =>
-      expect(navigateSpy).toHaveBeenCalledWith('/document/new-node')
+      expect(navigateSpy).toHaveBeenCalledWith(
+        `/project/${MOCK_PROJECT.id}/document/new-node`
+      )
     );
     expect(captured).toMatchObject({
       kind: 'document',
@@ -330,7 +357,9 @@ describe('DraftSection', () => {
 
     fireEvent.click(await screen.findByTestId(`details-${MOCK_DOCUMENT_2.id}`));
 
-    expect(navigateSpy).toHaveBeenCalledWith(`/document/${MOCK_DOCUMENT_2.id}`);
+    expect(navigateSpy).toHaveBeenCalledWith(
+      `/project/${MOCK_PROJECT.id}/document/${MOCK_DOCUMENT_2.id}`
+    );
     expect(store.get(inspectorAtom).isOpen).toBe(true);
   });
 

@@ -8,6 +8,7 @@ import {
 import type { OutlineNode } from '@web/shared/types/outline.types';
 import { server } from '@web/test/mocks/server';
 import { renderHookWithProviders } from '@web/test/test-utils';
+import { MOCK_PROJECT } from '@web/test/mocks/fixtures';
 
 let seq = 0;
 const node = (pov: string): OutlineNode => ({
@@ -80,7 +81,10 @@ describe('usePovSuggestions', () => {
       )
     );
 
-    const { result } = renderHookWithProviders(() => usePovSuggestions());
+    const { result } = renderHookWithProviders(() => usePovSuggestions(), {
+      initialRoute: `/project/${MOCK_PROJECT.id}`,
+      routePath: '/project/:projectId',
+    });
 
     expect(result.current).toEqual([]);
     await waitFor(() => expect(result.current).toEqual(['Mara', 'Teo']));
