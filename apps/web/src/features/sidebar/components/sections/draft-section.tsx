@@ -16,8 +16,13 @@ import {
   RENAME_DOCUMENT,
   DELETE_DOCUMENT,
 } from '@web/features/document/api/document.api';
-import { GET_OUTLINE, SET_NODE_STATUS } from '@web/shared/api/outline.api';
+import {
+  outlineQueryOptions,
+  SET_NODE_STATUS,
+} from '@web/shared/api/outline.api';
+import { useProjectId } from '@web/shared/hooks/use-project-id';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
+import { documentPath, projectPath } from '@web/shared/lib/routes';
 import { queryClient } from '@web/shared/lib/query-client';
 import { openInspectorAtom } from '@web/shared/state/panels.atom';
 import { useSidebarDnd } from '@web/features/sidebar/hooks/app-sidebar.hooks';
@@ -31,11 +36,7 @@ import {
   type OutlineTreeHandle,
 } from '@web/features/outline/components/outline-tree';
 import type { OutlineTreeCallbacks } from '@web/features/outline/components/outline-tree.types';
-import type {
-  NodeKind,
-  NodeStatus,
-  OutlineQueryData,
-} from '@web/shared/types/outline.types';
+import type { NodeKind, NodeStatus } from '@web/shared/types/outline.types';
 
 const EMPTY_CONTENT = [{ type: 'p', children: [{ text: '' }] }];
 
@@ -46,16 +47,14 @@ const DEFAULT_TITLE: Record<NodeKind, string> = {
 };
 
 export function DraftSection() {
-  const { id: activeDocId } = useParams<{ id: string }>();
+  const { documentId: activeDocId } = useParams<{ documentId: string }>();
+  const projectId = useProjectId();
   const navigate = useNavigate();
   const treeRef = useRef<OutlineTreeHandle>(null);
   const { moveNode } = useSidebarDnd();
   const openInspector = useSetAtom(openInspectorAtom);
 
-  const { data } = useQuery({
-    queryKey: ['outline'],
-    queryFn: () => graphqlClient.request<OutlineQueryData>(GET_OUTLINE),
-  });
+  const { data } = useQuery(outlineQueryOptions(projectId));
 
   const nodes = useMemo(() => data?.allDocuments.nodes ?? [], [data]);
 
@@ -131,6 +130,7 @@ export function DraftSection() {
       graphqlClient.request<{ createNode: { document: { id: string } } }>(
         CREATE_NODE,
         {
+          projectId,
           kind: v.kind,
           parentId: v.parentId,
           title: DEFAULT_TITLE[v.kind],
@@ -141,7 +141,7 @@ export function DraftSection() {
       invalidate();
       if (v.parentId) treeRef.current?.expandNode(v.parentId);
       if (v.kind !== 'separator') {
-        navigate(`/document/${res.createNode.document.id}`);
+        navigate(documentPath(projectId!, res.createNode.document.id));
       }
     },
     onError: () =>
@@ -174,9 +174,11 @@ export function DraftSection() {
           ? pickAdjacentDocumentId(adjacency, removedIds[0])
           : pickDocumentAfterContainerDeletion(adjacency, removedIds);
       queryClient.removeQueries({ queryKey: ['document', activeDocId] });
-      navigate(nextId ? `/document/${nextId}` : '/');
+      navigate(
+        nextId ? documentPath(projectId!, nextId) : projectPath(projectId!)
+      );
     },
-    [activeDocId, nodes, navigate]
+    [activeDocId, nodes, navigate, projectId]
   );
 
   const handleDelete = useCallback(
@@ -194,7 +196,7 @@ export function DraftSection() {
 
   const callbacks: OutlineTreeCallbacks = useMemo(
     () => ({
-      onOpenNode: (id) => navigate(`/document/${id}`),
+      onOpenNode: (id) => navigate(documentPath(projectId!, id)),
       onRenameNode: (id, title) => renameNode({ id, title }),
       onDeleteNode: handleDelete,
       onAddChild: (parentId, kind) => addChild({ kind, parentId }),
@@ -202,7 +204,7 @@ export function DraftSection() {
       // The inspector always shows the route's document, so another row's
       // details means opening that document first.
       onOpenDetails: (id) => {
-        if (id !== activeDocId) navigate(`/document/${id}`);
+        if (id !== activeDocId) navigate(documentPath(projectId!, id));
         openInspector();
       },
       onMoveNode: (nodeId, targetParentId, positions) =>
@@ -217,6 +219,7 @@ export function DraftSection() {
       moveNode,
       activeDocId,
       openInspector,
+      projectId,
     ]
   );
 

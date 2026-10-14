@@ -23,6 +23,7 @@ import {
 } from '@web/shared/state/panels.atom';
 import { server } from '@web/test/mocks/server';
 import { renderWithProviders, createStore } from '@web/test/test-utils';
+import { MOCK_PROJECT } from '@web/test/mocks/fixtures';
 
 vi.mock('sonner', () => ({ toast: { error: vi.fn() } }));
 
@@ -106,7 +107,12 @@ function setup({
   store.set(openInspectorAtom);
   if (!requestFocus) store.set(inspectorFocusRequestedAtom, false);
   const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-  renderWithProviders(ui, { store, queryClient });
+  renderWithProviders(ui, {
+    store,
+    queryClient,
+    initialRoute: `/project/${MOCK_PROJECT.id}`,
+    routePath: '/project/:projectId',
+  });
   return { store, user };
 }
 

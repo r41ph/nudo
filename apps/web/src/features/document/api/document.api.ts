@@ -19,8 +19,8 @@ export const GET_DOCUMENT = gql`
 `;
 
 export const GET_DOCUMENTS = gql`
-  query GetDocuments {
-    allDocuments(orderBy: POSITION_ASC) {
+  query GetDocuments($projectId: UUID!) {
+    allDocuments(condition: { projectId: $projectId }, orderBy: POSITION_ASC) {
       nodes {
         id
         title
@@ -32,6 +32,10 @@ export const GET_DOCUMENTS = gql`
     }
   }
 `;
+
+export function documentsQueryKey(projectId: string | undefined) {
+  return ['documents', projectId] as const;
+}
 
 export const GET_DOCUMENT_VERSIONS = gql`
   query GetDocumentVersions($documentId: UUID!) {
@@ -51,6 +55,7 @@ export const GET_DOCUMENT_VERSIONS = gql`
 
 export const CREATE_NODE = gql`
   mutation CreateNode(
+    $projectId: UUID!
     $kind: String!
     $parentId: UUID
     $title: String
@@ -58,6 +63,7 @@ export const CREATE_NODE = gql`
   ) {
     createNode(
       input: {
+        nodeProjectId: $projectId
         nodeKind: $kind
         nodeParentId: $parentId
         nodeTitle: $title

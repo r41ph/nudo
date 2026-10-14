@@ -6,7 +6,10 @@ import { isAuthenticatedAtom } from '@web/features/auth/state/auth.store';
 import {
   GET_DOCUMENTS,
   CREATE_NODE,
+  documentsQueryKey,
 } from '@web/features/document/api/document.api';
+import { useProjectId } from '@web/shared/hooks/use-project-id';
+import { documentPath } from '@web/shared/lib/routes';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
 import { Button } from '@ui/components/ui/button';
@@ -15,14 +18,15 @@ import { PlusIcon } from 'lucide-react';
 export function HomePage() {
   const navigate = useNavigate();
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+  const projectId = useProjectId();
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['documents'],
+    queryKey: documentsQueryKey(projectId),
     queryFn: () =>
       graphqlClient.request<{
         allDocuments: { nodes: Array<{ id: string; title: string }> };
-      }>(GET_DOCUMENTS),
-    enabled: isAuthenticated,
+      }>(GET_DOCUMENTS, { projectId }),
+    enabled: isAuthenticated && !!projectId,
   });
 
   const {
@@ -34,6 +38,7 @@ export function HomePage() {
       graphqlClient.request<{
         createNode: { document: { id: string } };
       }>(CREATE_NODE, {
+        projectId,
         kind: 'section',
         parentId: null,
         title: variables.title,
@@ -42,7 +47,7 @@ export function HomePage() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       queryClient.invalidateQueries({ queryKey: ['outline'] });
-      navigate(`/document/${data.createNode.document.id}`);
+      navigate(documentPath(projectId!, data.createNode.document.id));
     },
   });
 
@@ -83,7 +88,7 @@ export function HomePage() {
 
   const docs = data?.allDocuments?.nodes;
   if (docs && docs.length > 0) {
-    return <Navigate to={`/document/${docs[0].id}`} />;
+    return <Navigate to={documentPath(projectId!, docs[0].id)} />;
   }
 
   return (

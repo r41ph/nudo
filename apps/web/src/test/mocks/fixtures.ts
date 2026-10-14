@@ -6,6 +6,11 @@ export const MOCK_USER = {
 
 export const MOCK_TOKEN = 'fake-jwt-token-for-testing';
 
+export const MOCK_PROJECT = {
+  id: '99999999-8888-7777-6666-555544443333',
+  title: 'Test Project',
+};
+
 export const MOCK_DOCUMENT = {
   id: '11111111-2222-3333-4444-555566667777',
   title: 'Test Document',

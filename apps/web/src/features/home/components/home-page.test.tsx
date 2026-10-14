@@ -6,20 +6,20 @@ import { HomePage } from '@web/features/home/components/home-page';
 import { server } from '@web/test/mocks/server';
 import { renderWithProviders, createStore } from '@web/test/test-utils';
 import { tokenAtom } from '@web/features/auth/state/auth.store';
-import { MOCK_TOKEN } from '@web/test/mocks/fixtures';
+import { MOCK_PROJECT, MOCK_TOKEN } from '@web/test/mocks/fixtures';
 
 function renderHome() {
   const store = createStore();
   store.set(tokenAtom, MOCK_TOKEN);
   return renderWithProviders(
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/project/:projectId" element={<HomePage />} />
       <Route
-        path="/document/:id"
+        path="/project/:projectId/document/:documentId"
         element={<div data-testid="document-page">document</div>}
       />
     </Routes>,
-    { store, initialRoute: '/' }
+    { store, initialRoute: `/project/${MOCK_PROJECT.id}` }
   );
 }
 
