@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { CSSProperties } from 'react';
 import { Sidebar, SidebarProvider } from '@ui/components/ui/sidebar';
-import { ProjectHeader } from '@web/features/sidebar/components/project-header';
+import { ProjectHeaderView } from '@web/features/sidebar/components/project-header';
 import { SIDEBAR_WIDTH } from '@web/features/sidebar/sidebar.constants';
 
 const sidebarStyle = { '--sidebar-width': SIDEBAR_WIDTH } as CSSProperties;
 
 const meta = {
   title: 'Sidebar/ProjectHeader',
-  component: ProjectHeader,
+  component: ProjectHeaderView,
   parameters: { layout: 'centered' },
   decorators: [
     (Story) => (
@@ -19,17 +19,25 @@ const meta = {
       </SidebarProvider>
     ),
   ],
-} satisfies Meta<typeof ProjectHeader>;
+} satisfies Meta<typeof ProjectHeaderView>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: { name: 'Northwater' },
+  args: { title: 'Northwater' },
+};
+
+export const Loading: Story = {
+  args: { title: undefined, isLoading: true },
+};
+
+export const LoadError: Story = {
+  args: { title: undefined, isError: true },
 };
 
 export const Dark: Story = {
-  args: { name: 'Northwater' },
+  args: { title: 'Northwater' },
   decorators: [
     (Story) => (
       <div className="dark bg-background">

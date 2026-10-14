@@ -6,7 +6,7 @@ import { SidebarFooterActions } from '@web/features/sidebar/components/sidebar-f
 export function AppSidebar() {
   return (
     <Sidebar collapsible="none" className="px-4 pt-6 pb-5">
-      <ProjectHeader name="Project Alpha" />
+      <ProjectHeader />
       <SidebarContent className="mt-6">
         <DraftSection />
       </SidebarContent>
