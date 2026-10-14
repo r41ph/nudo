@@ -56,6 +56,18 @@ export interface SeededDocument {
   title: string;
 }
 
+// Sign-up seeds exactly one project per user.
+export async function getProjectId(
+  user: Pick<SeededUser, 'id'>
+): Promise<string> {
+  const { rows } = await getTestPool().query<{ id: string }>(
+    'SELECT id FROM projects WHERE user_id = $1 ORDER BY created_at LIMIT 1',
+    [user.id]
+  );
+  if (!rows[0]) throw new Error(`getProjectId: user ${user.id} has no project`);
+  return rows[0].id;
+}
+
 let docSeq = 0;
 
 // Raw SQL rather than the API: the owner pool bypasses RLS (ENABLE, not
@@ -67,10 +79,11 @@ export async function createDocument(
   const n = ++docSeq;
   const title = overrides?.title ?? `Test Document ${n}`;
 
+  const projectId = await getProjectId(user);
   const { rows } = await getTestPool().query<{ id: string }>(
-    `INSERT INTO documents (user_id, title)
-     VALUES ($1, $2) RETURNING id`,
-    [user.id, title]
+    `INSERT INTO documents (user_id, project_id, title)
+     VALUES ($1, $2, $3) RETURNING id`,
+    [user.id, projectId, title]
   );
 
   return { id: rows[0].id, userId: user.id, title };

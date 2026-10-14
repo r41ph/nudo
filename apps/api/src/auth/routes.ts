@@ -40,17 +40,23 @@ authRouter.post('/register', async (req: Request, res: Response) => {
     const seed = await pool.connect();
     try {
       await seed.query('BEGIN');
-      const chapter = await seed.query(
-        `INSERT INTO documents (user_id, parent_id, kind, status, title, content, plain_text, word_count, position)
-         VALUES ($1, NULL, 'folder', 'drafting', 'Chapter One', '[]'::jsonb, '', 0, 0)
-         RETURNING id`,
+      const project = await seed.query(
+        `INSERT INTO projects (user_id) VALUES ($1) RETURNING id`,
         [user.id]
       );
+      const projectId = project.rows[0].id;
+      const chapter = await seed.query(
+        `INSERT INTO documents (user_id, project_id, parent_id, kind, status, title, content, plain_text, word_count, position)
+         VALUES ($1, $2, NULL, 'folder', 'drafting', 'Chapter One', '[]'::jsonb, '', 0, 0)
+         RETURNING id`,
+        [user.id, projectId]
+      );
       await seed.query(
-        `INSERT INTO documents (user_id, parent_id, kind, title, content, plain_text, word_count, position)
-         VALUES ($1, $2, 'document', $3, $4::jsonb, $5, $6, 0)`,
+        `INSERT INTO documents (user_id, project_id, parent_id, kind, title, content, plain_text, word_count, position)
+         VALUES ($1, $2, $3, 'document', $4, $5::jsonb, $6, $7, 0)`,
         [
           user.id,
+          projectId,
           chapter.rows[0].id,
           WELCOME_DOCUMENT.title,
           JSON.stringify(WELCOME_DOCUMENT.content),

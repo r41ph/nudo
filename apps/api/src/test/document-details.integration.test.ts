@@ -5,7 +5,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';
 import { graphql } from './graphql.js';
-import { createDocument, createUser, type SeededUser } from './seed.js';
+import {
+  createDocument,
+  createUser,
+  getProjectId,
+  type SeededUser,
+} from './seed.js';
 
 const UPDATE_DETAILS = `
   mutation ($id: UUID!, $patch: DocumentPatch!) {
@@ -23,8 +28,10 @@ const UPDATE_DETAILS = `
 `;
 
 const CREATE_NODE = `
-  mutation ($kind: String, $title: String) {
-    createNode(input: { nodeKind: $kind, nodeTitle: $title }) {
+  mutation ($projectId: UUID!, $kind: String, $title: String) {
+    createNode(
+      input: { nodeProjectId: $projectId, nodeKind: $kind, nodeTitle: $title }
+    ) {
       document {
         id
         summary
@@ -76,7 +83,15 @@ describe('documents.summary / documents.pov', () => {
   it('defaults both to an empty string on create_node', async () => {
     const res = await graphql<{
       createNode: { document: { id: string; summary: string; pov: string } };
-    }>(CREATE_NODE, { kind: 'document', title: 'Untitled' }, user.token);
+    }>(
+      CREATE_NODE,
+      {
+        projectId: await getProjectId(user),
+        kind: 'document',
+        title: 'Untitled',
+      },
+      user.token
+    );
 
     expect(res.errors).toBeUndefined();
     expect(res.data!.createNode.document.summary).toBe('');
