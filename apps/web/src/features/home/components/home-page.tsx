@@ -10,6 +10,10 @@ import {
 } from '@web/features/document/api/document.api';
 import { useProjectId } from '@web/shared/hooks/use-project-id';
 import { documentPath } from '@web/shared/lib/routes';
+import {
+  firstDocumentId,
+  type HomeNode,
+} from '@web/features/home/lib/first-document';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
 import { queryClient } from '@web/shared/lib/query-client';
 import { Button } from '@ui/components/ui/button';
@@ -24,7 +28,7 @@ export function HomePage() {
     queryKey: documentsQueryKey(projectId),
     queryFn: () =>
       graphqlClient.request<{
-        allDocuments: { nodes: Array<{ id: string; title: string }> };
+        allDocuments: { nodes: HomeNode[] };
       }>(GET_DOCUMENTS, { projectId }),
     enabled: isAuthenticated && !!projectId,
   });
@@ -86,9 +90,9 @@ export function HomePage() {
     );
   }
 
-  const docs = data?.allDocuments?.nodes;
-  if (docs && docs.length > 0) {
-    return <Navigate to={documentPath(projectId!, docs[0].id)} />;
+  const firstId = firstDocumentId(data?.allDocuments?.nodes ?? []);
+  if (firstId) {
+    return <Navigate to={documentPath(projectId!, firstId)} />;
   }
 
   return (

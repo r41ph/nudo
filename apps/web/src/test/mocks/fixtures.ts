@@ -24,6 +24,7 @@ export const MOCK_DOCUMENT = {
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
   folderId: null,
+  parentId: null,
   position: 0,
 };
 
@@ -40,6 +41,7 @@ export const MOCK_DOCUMENT_2 = {
   createdAt: '2026-01-02T00:00:00Z',
   updatedAt: '2026-01-02T00:00:00Z',
   folderId: null,
+  parentId: null,
   position: 1,
 };
 
