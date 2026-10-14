@@ -6,7 +6,12 @@ import { randomUUID } from 'node:crypto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';
 import { graphql } from './graphql.js';
-import { createDocument, createUser, type SeededUser } from './seed.js';
+import {
+  createDocument,
+  createUser,
+  getProjectId,
+  type SeededUser,
+} from './seed.js';
 
 let userA: SeededUser;
 let userB: SeededUser;
@@ -88,15 +93,16 @@ describe('RLS: documents', () => {
 
 describe('RLS: outline functions', () => {
   async function seedNestedDoc(owner: SeededUser) {
+    const projectId = await getProjectId(owner);
     const folder = await getTestPool().query<{ id: string }>(
-      `INSERT INTO documents (user_id, title, kind)
-       VALUES ($1, 'A folder', 'folder') RETURNING id`,
-      [owner.id]
+      `INSERT INTO documents (user_id, project_id, title, kind)
+       VALUES ($1, $2, 'A folder', 'folder') RETURNING id`,
+      [owner.id, projectId]
     );
     const doc = await getTestPool().query<{ id: string }>(
-      `INSERT INTO documents (user_id, title, kind, parent_id)
-       VALUES ($1, 'A doc', 'document', $2) RETURNING id`,
-      [owner.id, folder.rows[0].id]
+      `INSERT INTO documents (user_id, project_id, title, kind, parent_id)
+       VALUES ($1, $2, 'A doc', 'document', $3) RETURNING id`,
+      [owner.id, projectId, folder.rows[0].id]
     );
     return { folderId: folder.rows[0].id, docId: doc.rows[0].id };
   }

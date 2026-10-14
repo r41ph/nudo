@@ -1,14 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';
 import { graphql } from './graphql.js';
-import { createUser, type SeededUser } from './seed.js';
+import { createUser, getProjectId, type SeededUser } from './seed.js';
 
 const richText = (text: string) => [{ type: 'p', children: [{ text }] }];
 
 const CREATE_NODE = `
-  mutation ($kind: String, $parentId: UUID, $title: String, $content: JSON) {
+  mutation (
+    $projectId: UUID!
+    $kind: String
+    $parentId: UUID
+    $title: String
+    $content: JSON
+  ) {
     createNode(
       input: {
+        nodeProjectId: $projectId
         nodeKind: $kind
         nodeParentId: $parentId
         nodeTitle: $title
@@ -49,7 +56,7 @@ async function makeNode(
 ) {
   const res = await graphql<{ createNode: { document: NodeResult } }>(
     CREATE_NODE,
-    vars,
+    { ...vars, projectId: await getProjectId(user) },
     user.token
   );
   expect(res.errors).toBeUndefined();
@@ -117,7 +124,12 @@ describe('create_node', () => {
 
     const res = await graphql(
       CREATE_NODE,
-      { kind: 'document', parentId: sep.id, title: 'Nope' },
+      {
+        projectId: await getProjectId(user),
+        kind: 'document',
+        parentId: sep.id,
+        title: 'Nope',
+      },
       user.token
     );
     expect(res.errors).toBeDefined();
