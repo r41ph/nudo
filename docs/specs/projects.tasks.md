@@ -1,6 +1,6 @@
 # Tasks: Projects
 
-> Status: Planned
+> Status: In progress — PR 1 in review (PR #44 — https://github.com/r41ph/nudo/pull/44); PR 2 not started
 > Spec: [`projects.md`](./projects.md)
 > Plan: [`projects.plan.md`](./projects.plan.md)
 > Branch: `feat/projects`
