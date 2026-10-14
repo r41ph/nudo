@@ -28,6 +28,7 @@ export const GET_DOCUMENTS = gql`
         updatedAt
         parentId
         position
+        kind
       }
     }
   }
