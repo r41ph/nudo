@@ -51,6 +51,14 @@
   --status-done: #6f9c82; /* done / saved dot */
   --status-empty: #c7bca8; /* empty status ring */
   --row-hover: rgba(42, 37, 31, 0.035); /* neutral ink wash — row hover */
+  /* Plotline palette; keys stored in plotlines.color. Each is >=3:1 on --background. */
+  --plot-blue: #3f5f8f;
+  --plot-green: #5a7a4f;
+  --plot-plum: #7a4a78;
+  --plot-ochre: #9a6b1f;
+  --plot-teal: #2f6f6f;
+  --plot-rose: #a8466a;
+  --plot-slate: #5e6470;
 }
 
 .dark {
@@ -100,6 +108,14 @@
   --status-done: #7fae91; /* done */
   --status-empty: #5a5246; /* empty status ring */
   --row-hover: rgba(232, 223, 208, 0.05); /* neutral ink wash — row hover */
+  /* Plotline palette — dark. */
+  --plot-blue: #8fa8d8;
+  --plot-green: #9cb88a;
+  --plot-plum: #c48fc0;
+  --plot-ochre: #d9b25a;
+  --plot-teal: #7ab8b0;
+  --plot-rose: #e08aa8;
+  --plot-slate: #a6abb5;
 }
 
 @theme inline {
@@ -152,6 +168,13 @@
   --color-status-empty: var(--status-empty);
   --color-row-hover: var(--row-hover);
   --font-serif: 'Newsreader', 'EB Garamond', Georgia, serif;
+  --color-plot-blue: var(--plot-blue);
+  --color-plot-green: var(--plot-green);
+  --color-plot-plum: var(--plot-plum);
+  --color-plot-ochre: var(--plot-ochre);
+  --color-plot-teal: var(--plot-teal);
+  --color-plot-rose: var(--plot-rose);
+  --color-plot-slate: var(--plot-slate);
 }
 
 @layer base {
