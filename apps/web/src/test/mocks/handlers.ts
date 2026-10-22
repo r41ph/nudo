@@ -7,6 +7,8 @@ import {
   MOCK_FOLDER,
   MOCK_USER_SETTINGS,
   MOCK_PROJECT,
+  MOCK_PLOTLINES,
+  MOCK_PLOT_BEATS,
 } from '@web/test/mocks/fixtures';
 
 // Both mock documents live in MOCK_PROJECT; any other project is empty.
@@ -18,6 +20,16 @@ export const handlers = [
   graphql.query('GetProjects', () => {
     return HttpResponse.json({
       data: { allProjects: { nodes: [MOCK_PROJECT] } },
+    });
+  }),
+
+  graphql.query('GetPlot', ({ variables }) => {
+    const populated = variables.projectId === MOCK_PROJECT.id;
+    return HttpResponse.json({
+      data: {
+        allPlotlines: { nodes: populated ? MOCK_PLOTLINES : [] },
+        allPlotBeats: { nodes: populated ? MOCK_PLOT_BEATS : [] },
+      },
     });
   }),
 
