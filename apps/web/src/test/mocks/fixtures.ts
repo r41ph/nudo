@@ -59,3 +59,29 @@ export const MOCK_USER_SETTINGS = {
   enabledTools: ['bold', 'italic', 'underline'],
   toolbarType: 'floating',
 };
+
+// The populated plot answered for MOCK_PROJECT; every other project is empty.
+export const MOCK_PLOTLINES = [
+  {
+    id: '0a000000-0000-4000-8000-000000000001',
+    name: 'Main plot',
+    color: 'blue',
+    position: 0,
+  },
+  {
+    id: '0a000000-0000-4000-8000-000000000002',
+    name: 'Ada',
+    color: 'green',
+    position: 1,
+  },
+] as const;
+
+export const MOCK_PLOT_BEATS = [
+  {
+    id: '0b000000-0000-4000-8000-000000000001',
+    name: 'Beginning',
+    position: 0,
+  },
+  { id: '0b000000-0000-4000-8000-000000000002', name: 'Middle', position: 1 },
+  { id: '0b000000-0000-4000-8000-000000000003', name: 'End', position: 2 },
+] as const;
