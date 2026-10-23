@@ -12,6 +12,12 @@ const DocumentPage = lazy(() =>
   }))
 );
 
+const PlotPage = lazy(() =>
+  import('@web/features/plot/components/plot-page').then((m) => ({
+    default: m.PlotPage,
+  }))
+);
+
 const HomePage = lazy(() =>
   import('@web/features/home/components/home-page').then((m) => ({
     default: m.HomePage,
@@ -41,6 +47,7 @@ export default function AppRoutes() {
       <Route path="/project/:projectId" element={<AppShell />}>
         <Route index element={<HomePage />} />
         <Route path="document/:documentId" element={<DocumentPage />} />
+        <Route path="plot" element={<PlotPage />} />
       </Route>
     </Routes>
   );
