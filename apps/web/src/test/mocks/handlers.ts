@@ -33,6 +33,58 @@ export const handlers = [
     });
   }),
 
+  graphql.mutation('StartPlot', () =>
+    HttpResponse.json({ data: { startPlot: { clientMutationId: null } } })
+  ),
+
+  graphql.mutation('CreatePlotline', ({ variables }) =>
+    HttpResponse.json({
+      data: { createPlotline: { plotline: { id: variables.id } } },
+    })
+  ),
+
+  graphql.mutation('UpdatePlotline', ({ variables }) =>
+    HttpResponse.json({
+      data: { updatePlotlineById: { plotline: { id: variables.id } } },
+    })
+  ),
+
+  graphql.mutation('DeletePlotline', ({ variables }) =>
+    HttpResponse.json({
+      data: { deletePlotlineById: { deletedPlotlineId: variables.id } },
+    })
+  ),
+
+  graphql.mutation('ReorderPlotlines', () =>
+    HttpResponse.json({
+      data: { reorderPlotlines: { clientMutationId: null } },
+    })
+  ),
+
+  graphql.mutation('CreatePlotBeat', ({ variables }) =>
+    HttpResponse.json({
+      data: { createPlotBeat: { plotBeat: { id: variables.id } } },
+    })
+  ),
+
+  graphql.mutation('UpdatePlotBeat', ({ variables }) =>
+    HttpResponse.json({
+      data: { updatePlotBeatById: { plotBeat: { id: variables.id } } },
+    })
+  ),
+
+  graphql.mutation('DeletePlotBeat', ({ variables }) =>
+    HttpResponse.json({
+      data: { deletePlotBeatById: { deletedPlotBeatId: variables.id } },
+    })
+  ),
+
+  graphql.mutation('ReorderPlotBeats', () =>
+    HttpResponse.json({
+      data: { reorderPlotBeats: { clientMutationId: null } },
+    })
+  ),
+
   graphql.query('GetDocuments', ({ variables }) => {
     return HttpResponse.json({
       data: {
