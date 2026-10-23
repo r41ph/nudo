@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { CSSProperties } from 'react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Sidebar, SidebarProvider } from '@ui/components/ui/sidebar';
 import { ProjectHeaderView } from '@web/features/sidebar/components/project-header';
 import { SIDEBAR_WIDTH } from '@web/features/sidebar/sidebar.constants';
@@ -12,11 +13,20 @@ const meta = {
   parameters: { layout: 'centered' },
   decorators: [
     (Story) => (
-      <SidebarProvider style={sidebarStyle}>
-        <Sidebar collapsible="none" className="px-4 pt-6 pb-5">
-          <Story />
-        </Sidebar>
-      </SidebarProvider>
+      <MemoryRouter initialEntries={['/project/northwater/document/chapter-1']}>
+        <Routes>
+          <Route
+            path="/project/:projectId/*"
+            element={
+              <SidebarProvider style={sidebarStyle}>
+                <Sidebar collapsible="none" className="px-4 pt-6 pb-5">
+                  <Story />
+                </Sidebar>
+              </SidebarProvider>
+            }
+          />
+        </Routes>
+      </MemoryRouter>
     ),
   ],
 } satisfies Meta<typeof ProjectHeaderView>;
