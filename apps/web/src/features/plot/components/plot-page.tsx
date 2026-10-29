@@ -1,5 +1,6 @@
 import { Button } from '@ui/components/ui/button';
 import { Skeleton } from '@ui/components/ui/skeleton';
+import { PlotBoard } from '@web/features/plot/components/board/plot-board';
 import { PlotEmpty } from '@web/features/plot/components/plot-empty';
 import { usePlot } from '@web/features/plot/hooks/use-plot';
 import { usePlotMutations } from '@web/features/plot/hooks/use-plot-mutations';
@@ -44,11 +45,5 @@ export function PlotPage() {
     );
   }
 
-  return (
-    <div className="flex-1 px-10 py-8">
-      <h1 className="font-newsreader text-2xl font-semibold text-foreground">
-        Plot
-      </h1>
-    </div>
-  );
+  return <PlotBoard projectId={projectId} plot={plot} />;
 }
