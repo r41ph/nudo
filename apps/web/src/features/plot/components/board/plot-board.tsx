@@ -2,13 +2,13 @@ import { PlusIcon } from 'lucide-react';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { PlotHeader } from '@web/features/plot/components/board/plot-header';
+import { PlotlineLabel } from '@web/features/plot/components/board/plotline-label';
 import {
   PLOT_BEAT_COLUMN_WIDTH,
   PLOT_LABEL_COLUMN_WIDTH,
-  PLOTLINE_COLOR_DOT_CLASS,
 } from '@web/features/plot/constants/plot.constants';
 import { usePlotMutations } from '@web/features/plot/hooks/use-plot-mutations';
-import { countLabel } from '@web/features/plot/lib/plot.utils';
+import { moveId } from '@web/features/plot/lib/plot.utils';
 import type { Plot } from '@web/features/plot/plot.types';
 
 interface PlotBoardProps {
@@ -21,7 +21,14 @@ interface PlotBoardProps {
 const COVER_GUTTER = 'shadow-[-2.5rem_0_0_0_var(--background)]';
 
 export function PlotBoard({ projectId, plot }: PlotBoardProps) {
-  const { addBeat, addPlotline } = usePlotMutations(projectId);
+  const {
+    addBeat,
+    addPlotline,
+    updatePlotline,
+    reorderPlotlines,
+    deletePlotline,
+  } = usePlotMutations(projectId);
+  const plotlineIds = plot.plotlines.map((p) => p.id);
   const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${plot.beats.length}, ${PLOT_BEAT_COLUMN_WIDTH}px)`;
 
   return (
@@ -58,29 +65,22 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
               </div>
             ))}
           </div>
-          {plot.plotlines.map((plotline) => (
+          {plot.plotlines.map((plotline, index) => (
             <div key={plotline.id} role="row" className="contents">
-              <div
-                role="rowheader"
-                className={cn(
-                  'sticky left-0 z-10 col-start-1 flex min-h-24 items-start gap-2 border-b border-border bg-background py-3 pr-3',
-                  COVER_GUTTER
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    'mt-1.5 size-2.5 shrink-0 rounded-full',
-                    PLOTLINE_COLOR_DOT_CLASS[plotline.color]
-                  )}
-                />
-                <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-                  {plotline.name}
-                </span>
-                <span className="shrink-0 pt-0.5 text-xs text-muted-foreground">
-                  {countLabel(0, 'card')}
-                </span>
-              </div>
+              <PlotlineLabel
+                plotline={plotline}
+                isFirst={index === 0}
+                isLast={index === plot.plotlines.length - 1}
+                onRename={(name) => updatePlotline(plotline.id, { name })}
+                onColorChange={(color) =>
+                  updatePlotline(plotline.id, { color })
+                }
+                onMove={(delta) =>
+                  reorderPlotlines(moveId(plotlineIds, plotline.id, delta))
+                }
+                onDelete={() => deletePlotline(plotline)}
+                className={cn('sticky left-0 z-10 col-start-1', COVER_GUTTER)}
+              />
             </div>
           ))}
         </div>

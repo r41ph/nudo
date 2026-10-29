@@ -22,3 +22,12 @@ export function nextPlotlineColor(
 export function countLabel(count: number, noun: string): string {
   return `${count} ${noun}${count === 1 ? '' : 's'}`;
 }
+
+export function moveId(ids: readonly string[], id: string, delta: -1 | 1) {
+  const from = ids.indexOf(id);
+  const to = from + delta;
+  if (from === -1 || to < 0 || to >= ids.length) return [...ids];
+  const next = [...ids];
+  [next[from], next[to]] = [next[to], next[from]];
+  return next;
+}
