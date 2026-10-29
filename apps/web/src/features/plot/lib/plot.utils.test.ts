@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { nextPlotlineColor } from '@web/features/plot/lib/plot.utils';
+import {
+  countLabel,
+  nextPlotlineColor,
+} from '@web/features/plot/lib/plot.utils';
 import { PLOTLINE_COLORS } from '@web/features/plot/constants/plot.constants';
 
 describe('nextPlotlineColor', () => {
@@ -17,5 +20,15 @@ describe('nextPlotlineColor', () => {
 
   it('keeps cycling evenly past the first round', () => {
     expect(nextPlotlineColor([...PLOTLINE_COLORS, 'blue'])).toBe('green');
+  });
+});
+
+describe('countLabel', () => {
+  it.each([
+    [0, '0 cards'],
+    [1, '1 card'],
+    [2, '2 cards'],
+  ])('labels %i as "%s"', (count, label) => {
+    expect(countLabel(count, 'card')).toBe(label);
   });
 });
