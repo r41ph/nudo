@@ -1,23 +1,26 @@
 <img src="apps/web/src/assets/nudo-A-Editorial-Bold-transparent.svg" alt="nudo logo" height="32" />
 
-#
-
 [![CI](https://github.com/r41ph/nudo/actions/workflows/ci.yml/badge.svg)](https://github.com/r41ph/nudo/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A full-stack writing application built for long-form writing. Users organise their work into folders, write in a rich text editor with a customisable toolbar, and have their work saved automatically as they type.
+A full-stack writing application built for long-form writing. Writers organise a manuscript into an outline of chapters and folders, write in a rich text editor with a customisable toolbar, track each document's status, summary and POV, and have their work saved automatically as they type.
 
 ## Features
 
 - **Rich text editor** — powered by Plate.js. Supports headings, bold, italic, underline, strikethrough, blockquotes, code blocks, font size and colour, highlight, and text alignment
 - **Customisable toolbar** — users choose which tools appear in their toolbar; preferences are persisted per user
 - **Comments and suggestions** — inline annotations and tracked suggestions for reviewing and collaborating on documents
-- **Document management** — create, rename, and delete documents
-- **Folder organisation** — group documents into folders with drag-and-drop reordering
+- **Projects** — each manuscript is a project that owns its outline; routes, the outline and word counts are scoped to the active project. New accounts start with one project (switching between several is planned)
+- **Outline** — create, rename, and delete documents and folders, nest them, and reorder them with drag and drop
+- **Document inspector** — a side panel for editing a document's title, status, summary, and POV, with POV suggestions drawn from the rest of the manuscript
+- **Focus mode and dark mode** — hide the surrounding chrome while writing; switch between light and dark themes from the sidebar
+- **Responsive layout** — the sidebar and inspector slide in as overlays on narrower screens
 - **Auto-save** — content is saved automatically with a 2.5 s debounce; a status indicator shows save state
 - **Document versioning** — previous versions are stored automatically on save (restore exists as a database function but is not yet surfaced in the UI)
 - **Authentication** — JWT-based login and registration with access/refresh token rotation
-- **Word count** — live word count tracked per document
+- **Word count** — live word counts for the current document and the whole manuscript
+
+**In progress:** a Plot tool for arranging plotlines and beats alongside the manuscript.
 
 ---
 
@@ -304,79 +307,7 @@ The root `.env.example` uses the dev credentials defined in `docker-compose.yml`
 
 ## Git Workflow
 
-### Branch structure
-
-- `main` — always production-ready. Nothing lands here without a pull request.
-- `feature/*` — short-lived branches cut from `main`. One branch per feature or fix.
-
-### Step-by-step flow
-
-#### 1. Start a feature
-
-```bash
-git checkout main
-git pull
-git checkout -b feature/my-feature
-```
-
-#### 2. Work on the feature
-
-Commit as you go using [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `refactor:`, etc.).
-To keep your branch up-to-date with `main` and ensure a clean history, rebase frequently:
-
-```bash
-git fetch origin
-git rebase origin/main
-```
-
-Because rebasing rewrites history, a standard `push` will be rejected. Use `--force-with-lease` to update your remote branch safely:
-
-```bash
-# Safely update your remote feature branch after a rebase
-git push --force-with-lease
-```
-
-**Note**: Prefer `--force-with-lease` over `--force` because it won't overwrite the remote branch if someone else has pushed new commits to it since your last fetch.
-
-#### 3. Open a pull request
-
-Push your branch and open a PR against `main`. The PR description should explain what the change does and why.
-
-```bash
-git push -u origin feature/my-feature
-```
-
-#### 4. Review and merge
-
-Once approved, merge the PR into `main`. Delete the feature branch after merging.
-
-#### Squash and Merge via UI or CLI:
-
-You can use GitHub "Squash and Merge" button. This combines all commits from feature/my-feature into a single commit on main.
-
-Commit Message: Use a Conventional Commit message for the squash commit (e.g., feat: add user authentication).
-
-#### Clean up local and remote:
-
-```bash
-# Switch back to main
-git checkout main
-
-# Pull the new squash commit from origin
-git pull
-
-# Delete the local feature branch
-git branch -d feature/my-feature
-
-# Delete the remote branch (or use Github UI)
-git push origin --delete feature/my-feature
-```
-
-### Rules
-
-- Never commit directly to `main`.
-- `main` must always be in a deployable state.
-- Keep feature branches short. Long-running branches lead to painful merges.
+`main` is always deployable. Non-trivial work lands through a short-lived branch and a squash-merged pull request; commits follow [Conventional Commits](https://www.conventionalcommits.org/). See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the full workflow.
 
 ---
 

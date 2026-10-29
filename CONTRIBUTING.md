@@ -152,6 +152,23 @@ tests pass. The PR and its spec must link to each other:
 This bidirectional link is summarized here; the full PR step lives in the
 **Feature Workflow** section of [`CLAUDE.md`](./CLAUDE.md).
 
+### Branching and merging
+
+Cut a short-lived branch from `origin/main` for each feature or fix. Keep it
+current by rebasing rather than merging, then update the remote with
+`--force-with-lease` — unlike `--force`, it refuses to overwrite commits someone
+else pushed since your last fetch:
+
+```bash
+git fetch origin
+git rebase origin/main
+git push --force-with-lease
+```
+
+PRs are merged with **Squash and Merge**, using a Conventional Commit message for
+the squash commit (e.g. `feat: add user authentication`). Delete the branch
+afterwards.
+
 ### Commit messages
 
 We use [Conventional Commits](https://www.conventionalcommits.org): each message
