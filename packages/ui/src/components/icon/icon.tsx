@@ -1,6 +1,8 @@
 import {
   ALargeSmallIcon,
   ArrowDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
   ArrowUpIcon,
   Heading1,
   AlignLeftIcon,
@@ -64,6 +66,8 @@ const icons = {
   minus: Minus,
   plus: Plus,
   arrowDown: ArrowDownIcon,
+  arrowLeft: ArrowLeftIcon,
+  arrowRight: ArrowRightIcon,
   arrowUp: ArrowUpIcon,
   bookOpen: BookOpenIcon,
   check: CheckIcon,
