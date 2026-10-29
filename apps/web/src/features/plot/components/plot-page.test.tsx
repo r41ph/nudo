@@ -5,9 +5,11 @@ import { graphql, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { PlotPage } from '@web/features/plot/components/plot-page';
 import {
+  PLOT_EDIT_MIN_WIDTH,
   PLOT_SAVE_ERROR,
   PLOT_SAVE_ERROR_ID,
 } from '@web/features/plot/constants/plot.constants';
+import { setViewportWidth } from '@web/test/media';
 import { server } from '@web/test/mocks/server';
 import {
   MOCK_PLOTLINES,
@@ -126,6 +128,21 @@ describe('PlotPage', () => {
     ).toBeInTheDocument();
   });
 
+  it('hides Start plot on a narrow screen', async () => {
+    setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
+    renderPage(EMPTY_PROJECT_ID);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Lay out your story' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'View only — open nudo on a larger screen to edit the plot.'
+      )
+    ).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Start plot' })).toBeNull();
+  });
+
   it('shows the board, not the empty state, for a populated plot', async () => {
     renderPage();
 
@@ -133,6 +150,18 @@ describe('PlotPage', () => {
       await screen.findByRole('heading', { name: 'Plot' })
     ).toBeInTheDocument();
     expect(screen.queryByText('Lay out your story')).not.toBeInTheDocument();
+  });
+
+  it('shows the board view-only on a narrow screen', async () => {
+    setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
+    renderPage();
+
+    expect(
+      await screen.findByText(
+        'View only — open nudo on a larger screen to edit the plot.'
+      )
+    ).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Add beat' })).toBeNull();
   });
 
   it('Start plot shows a pending state, then the board', async () => {

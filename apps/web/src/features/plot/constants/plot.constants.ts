@@ -36,6 +36,8 @@ export const PLOT_BEAT_COLUMN_WIDTH = 240;
 // Below this the board is view-only; the sidebar has already collapsed at
 // 1280px, leaving room for the label column and about three beats.
 export const PLOT_EDIT_MIN_WIDTH = 1024;
+export const PLOT_VIEW_ONLY_MESSAGE =
+  'View only — open nudo on a larger screen to edit the plot.';
 
 // Matches the CHECK on plotlines.name and plot_beats.name.
 export const PLOT_NAME_MAX_LENGTH = 120;
