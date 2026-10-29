@@ -6,6 +6,7 @@ interface PlotHeaderProps {
   plotlineCount: number;
   beatCount: number;
   cardCount: number;
+  editable: boolean;
   onAddBeat: () => void;
   onAddPlotline: () => void;
 }
@@ -14,6 +15,7 @@ export function PlotHeader({
   plotlineCount,
   beatCount,
   cardCount,
+  editable,
   onAddBeat,
   onAddPlotline,
 }: PlotHeaderProps) {
@@ -31,16 +33,18 @@ export function PlotHeader({
           ].join(' · ')}
         </p>
       </div>
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={onAddBeat}>
-          <PlusIcon aria-hidden />
-          Add beat
-        </Button>
-        <Button variant="outline" size="sm" onClick={onAddPlotline}>
-          <PlusIcon aria-hidden />
-          Add plotline
-        </Button>
-      </div>
+      {editable && (
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={onAddBeat}>
+            <PlusIcon aria-hidden />
+            Add beat
+          </Button>
+          <Button variant="outline" size="sm" onClick={onAddPlotline}>
+            <PlusIcon aria-hidden />
+            Add plotline
+          </Button>
+        </div>
+      )}
     </header>
   );
 }

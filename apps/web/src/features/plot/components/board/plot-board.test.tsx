@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   holdMutation,
   renderBoard,
   servePlot,
 } from '@web/features/plot/test/plot-board-harness';
+import { PLOT_EDIT_MIN_WIDTH } from '@web/features/plot/constants/plot.constants';
+import { setViewportWidth } from '@web/test/media';
 import { MOCK_PLOTLINES, MOCK_PLOT_BEATS } from '@web/test/mocks/fixtures';
+
+const VIEW_ONLY_BANNER =
+  'View only — open nudo on a larger screen to edit the plot.';
 
 describe('PlotBoard', () => {
   it('shows the title and a plural summary', async () => {
@@ -85,4 +90,44 @@ describe('PlotBoard', () => {
       release();
     }
   );
+});
+
+describe('PlotBoard — below PLOT_EDIT_MIN_WIDTH', () => {
+  it('is view-only: a banner, no add buttons and no menus', async () => {
+    setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
+    renderBoard();
+
+    const grid = await screen.findByRole('table', { name: 'Plot board' });
+    expect(screen.getByText(VIEW_ONLY_BANNER)).toBeVisible();
+    for (const name of ['Add beat', 'Add plotline', 'Plotline']) {
+      expect(screen.queryByRole('button', { name })).toBeNull();
+    }
+    expect(screen.queryByRole('button', { name: /^Actions for/ })).toBeNull();
+    expect(
+      within(grid)
+        .getAllByRole('columnheader')
+        .map((h) => h.textContent)
+    ).toEqual(['Beginning', 'Middle', 'End']);
+    expect(within(grid).getAllByRole('rowheader')).toHaveLength(2);
+  });
+
+  it('is editable at exactly PLOT_EDIT_MIN_WIDTH', async () => {
+    setViewportWidth(PLOT_EDIT_MIN_WIDTH);
+    renderBoard();
+
+    expect(
+      await screen.findByRole('button', { name: 'Add beat' })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(VIEW_ONLY_BANNER)).toBeNull();
+  });
+
+  it('switches to view-only when the window narrows', async () => {
+    renderBoard();
+    await screen.findByRole('button', { name: 'Actions for Middle' });
+
+    act(() => setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1));
+
+    expect(screen.getByText(VIEW_ONLY_BANNER)).toBeVisible();
+    expect(screen.queryByRole('button', { name: /^Actions for/ })).toBeNull();
+  });
 });

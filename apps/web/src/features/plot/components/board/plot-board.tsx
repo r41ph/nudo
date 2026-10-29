@@ -7,7 +7,9 @@ import { PlotlineLabel } from '@web/features/plot/components/board/plotline-labe
 import {
   PLOT_BEAT_COLUMN_WIDTH,
   PLOT_LABEL_COLUMN_WIDTH,
+  PLOT_VIEW_ONLY_MESSAGE,
 } from '@web/features/plot/constants/plot.constants';
+import { usePlotEditable } from '@web/features/plot/hooks/use-plot-editable';
 import { usePlotMutations } from '@web/features/plot/hooks/use-plot-mutations';
 import { moveId } from '@web/features/plot/lib/plot.utils';
 import type { Plot } from '@web/features/plot/plot.types';
@@ -32,6 +34,7 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
     reorderBeats,
     deleteBeat,
   } = usePlotMutations(projectId);
+  const editable = usePlotEditable();
   const plotlineIds = plot.plotlines.map((p) => p.id);
   const beatIds = plot.beats.map((b) => b.id);
   const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${plot.beats.length}, ${PLOT_BEAT_COLUMN_WIDTH}px)`;
@@ -42,9 +45,15 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
         plotlineCount={plot.plotlines.length}
         beatCount={plot.beats.length}
         cardCount={0}
+        editable={editable}
         onAddBeat={addBeat}
         onAddPlotline={addPlotline}
       />
+      {!editable && (
+        <p className="mx-10 mb-4 rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
+          {PLOT_VIEW_ONLY_MESSAGE}
+        </p>
+      )}
       <div className="min-h-0 flex-1 overflow-auto px-10 pb-8">
         <div
           role="table"
@@ -64,6 +73,7 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
               <BeatHeader
                 key={beat.id}
                 beat={beat}
+                editable={editable}
                 isFirst={index === 0}
                 isLast={index === plot.beats.length - 1}
                 onRename={(name) => updateBeat(beat.id, { name })}
@@ -79,6 +89,7 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
             <div key={plotline.id} role="row" className="contents">
               <PlotlineLabel
                 plotline={plotline}
+                editable={editable}
                 isFirst={index === 0}
                 isLast={index === plot.plotlines.length - 1}
                 onRename={(name) => updatePlotline(plotline.id, { name })}
@@ -94,15 +105,17 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
             </div>
           ))}
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="sticky left-0 mt-2"
-          onClick={addPlotline}
-        >
-          <PlusIcon aria-hidden />
-          Plotline
-        </Button>
+        {editable && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="sticky left-0 mt-2"
+            onClick={addPlotline}
+          >
+            <PlusIcon aria-hidden />
+            Plotline
+          </Button>
+        )}
       </div>
     </div>
   );

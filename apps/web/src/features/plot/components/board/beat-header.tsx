@@ -14,6 +14,7 @@ import type { PlotBeat } from '@web/features/plot/plot.types';
 
 interface BeatHeaderProps {
   beat: PlotBeat;
+  editable: boolean;
   isFirst: boolean;
   isLast: boolean;
   onRename: (name: string) => void;
@@ -30,6 +31,7 @@ const TRIGGER =
 
 export function BeatHeader({
   beat,
+  editable,
   isFirst,
   isLast,
   onRename,
@@ -63,50 +65,52 @@ export function BeatHeader({
           {beat.name}
         </span>
       )}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Actions for ${beat.name}`}
-            className={TRIGGER}
-          >
-            <Icon name="moreHorizontal" decorative />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="w-48"
-          onCloseAutoFocus={(event) => {
-            if (!renamePendingRef.current) return;
-            renamePendingRef.current = false;
-            event.preventDefault();
-            setIsRenaming(true);
-          }}
-        >
-          <DropdownMenuItem
-            onSelect={() => {
-              renamePendingRef.current = true;
+      {editable && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Actions for ${beat.name}`}
+              className={TRIGGER}
+            >
+              <Icon name="moreHorizontal" decorative />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-48"
+            onCloseAutoFocus={(event) => {
+              if (!renamePendingRef.current) return;
+              renamePendingRef.current = false;
+              event.preventDefault();
+              setIsRenaming(true);
             }}
           >
-            <Icon name="pencil" decorative />
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled={isFirst} onSelect={() => onMove(-1)}>
-            <Icon name="arrowLeft" decorative />
-            Move left
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled={isLast} onSelect={() => onMove(1)}>
-            <Icon name="arrowRight" decorative />
-            Move right
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" onSelect={onDelete}>
-            <Icon name="trash" decorative />
-            Delete beat
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuItem
+              onSelect={() => {
+                renamePendingRef.current = true;
+              }}
+            >
+              <Icon name="pencil" decorative />
+              Rename
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={isFirst} onSelect={() => onMove(-1)}>
+              <Icon name="arrowLeft" decorative />
+              Move left
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={isLast} onSelect={() => onMove(1)}>
+              <Icon name="arrowRight" decorative />
+              Move right
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" onSelect={onDelete}>
+              <Icon name="trash" decorative />
+              Delete beat
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 }
