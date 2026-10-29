@@ -1,54 +1,12 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { graphql, HttpResponse } from 'msw';
-import { PlotBoard } from '@web/features/plot/components/board/plot-board';
-import { usePlot } from '@web/features/plot/hooks/use-plot';
-import { server } from '@web/test/mocks/server';
 import {
-  MOCK_PLOTLINES,
-  MOCK_PLOT_BEATS,
-  MOCK_PROJECT,
-} from '@web/test/mocks/fixtures';
-import { renderWithProviders } from '@web/test/test-utils';
-
-function Board() {
-  const { data } = usePlot(MOCK_PROJECT.id);
-  return data ? <PlotBoard projectId={MOCK_PROJECT.id} plot={data} /> : null;
-}
-
-function renderBoard() {
-  return renderWithProviders(<Board />);
-}
-
-function servePlot(plotlines: unknown[], beats: unknown[]) {
-  server.use(
-    graphql.query('GetPlot', () =>
-      HttpResponse.json({
-        data: {
-          allPlotlines: { nodes: plotlines },
-          allPlotBeats: { nodes: beats },
-        },
-      })
-    )
-  );
-}
-
-// Holds the create in flight: the settle refetch would otherwise replace the
-// optimistic row with the fixture, which never gains it.
-function holdMutation(operation: string) {
-  const variables = vi.fn();
-  let release!: () => void;
-  const gate = new Promise<void>((r) => (release = r));
-  server.use(
-    graphql.mutation(operation, async ({ variables: vars }) => {
-      variables(vars);
-      await gate;
-      return HttpResponse.json({ data: {} });
-    })
-  );
-  return { variables, release };
-}
+  holdMutation,
+  renderBoard,
+  servePlot,
+} from '@web/features/plot/test/plot-board-harness';
+import { MOCK_PLOTLINES, MOCK_PLOT_BEATS } from '@web/test/mocks/fixtures';
 
 describe('PlotBoard', () => {
   it('shows the title and a plural summary', async () => {

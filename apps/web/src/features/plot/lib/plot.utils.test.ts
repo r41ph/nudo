@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   countLabel,
+  moveId,
   nextPlotlineColor,
 } from '@web/features/plot/lib/plot.utils';
 import { PLOTLINE_COLORS } from '@web/features/plot/constants/plot.constants';
@@ -30,5 +31,18 @@ describe('countLabel', () => {
     [2, '2 cards'],
   ])('labels %i as "%s"', (count, label) => {
     expect(countLabel(count, 'card')).toBe(label);
+  });
+});
+
+describe('moveId', () => {
+  it('swaps an id with its neighbour', () => {
+    expect(moveId(['a', 'b', 'c'], 'b', -1)).toEqual(['b', 'a', 'c']);
+    expect(moveId(['a', 'b', 'c'], 'b', 1)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('leaves the order alone past either end or for an unknown id', () => {
+    expect(moveId(['a', 'b'], 'a', -1)).toEqual(['a', 'b']);
+    expect(moveId(['a', 'b'], 'b', 1)).toEqual(['a', 'b']);
+    expect(moveId(['a', 'b'], 'z', 1)).toEqual(['a', 'b']);
   });
 });
