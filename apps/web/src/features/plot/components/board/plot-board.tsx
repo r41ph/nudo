@@ -1,6 +1,7 @@
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
+import { BeatHeader } from '@web/features/plot/components/board/beat-header';
 import { PlotHeader } from '@web/features/plot/components/board/plot-header';
 import { PlotlineLabel } from '@web/features/plot/components/board/plotline-label';
 import {
@@ -27,8 +28,12 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
     updatePlotline,
     reorderPlotlines,
     deletePlotline,
+    updateBeat,
+    reorderBeats,
+    deleteBeat,
   } = usePlotMutations(projectId);
   const plotlineIds = plot.plotlines.map((p) => p.id);
+  const beatIds = plot.beats.map((b) => b.id);
   const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${plot.beats.length}, ${PLOT_BEAT_COLUMN_WIDTH}px)`;
 
   return (
@@ -55,14 +60,19 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
                 COVER_GUTTER
               )}
             />
-            {plot.beats.map((beat) => (
-              <div
+            {plot.beats.map((beat, index) => (
+              <BeatHeader
                 key={beat.id}
-                role="columnheader"
-                className="sticky top-0 z-10 truncate border-b border-border bg-background px-3 py-2 text-sm font-medium text-foreground"
-              >
-                {beat.name}
-              </div>
+                beat={beat}
+                isFirst={index === 0}
+                isLast={index === plot.beats.length - 1}
+                onRename={(name) => updateBeat(beat.id, { name })}
+                onMove={(delta) =>
+                  reorderBeats(moveId(beatIds, beat.id, delta))
+                }
+                onDelete={() => deleteBeat(beat)}
+                className="sticky top-0 z-10"
+              />
             ))}
           </div>
           {plot.plotlines.map((plotline, index) => (
