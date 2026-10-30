@@ -1,6 +1,6 @@
 # Tasks: Plot
 
-> Status: In progress — PR 1 (Plot foundation) not started
+> Status: In progress — PR 1 (Plot foundation) in review (PR #45 — https://github.com/r41ph/nudo/pull/45)
 > Spec: [`plot.md`](./plot.md)
 > Plan: [`plot.plan.md`](./plot.plan.md)
 > Branch: `feat/plot-tool` (PR 1)

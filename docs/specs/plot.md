@@ -1,6 +1,6 @@
 # Spec: Plot
 
-> Status: Approved — PR 1 in progress
+> Status: Approved — PR 1 in review (PR #45 — https://github.com/r41ph/nudo/pull/45)
 > Branch: `feat/plot-tool`
 > Depends on: `docs/specs/projects.md` (PR 1 merged as #44)
 > Delivery: `docs/specs/plot.plan.md`, tasks in `docs/specs/plot.tasks.md`

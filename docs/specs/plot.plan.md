@@ -1,7 +1,7 @@
 # Plan: Plot
 
 > Spec: `docs/specs/plot.md`
-> Status: Approved — PR 1 in progress
+> Status: Approved — PR 1 in review (PR #45 — https://github.com/r41ph/nudo/pull/45)
 > Tasks: `docs/specs/plot.tasks.md`
 > Prerequisite: `docs/specs/projects.md` (PR 1 merged as #44)
 
