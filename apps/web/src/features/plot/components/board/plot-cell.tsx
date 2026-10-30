@@ -1,18 +1,24 @@
+import { useEffect, useRef } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { PlotCard } from '@web/features/plot/components/board/plot-card';
+import { cellKey } from '@web/features/plot/lib/plot.utils';
 import type {
   PlotCard as PlotCardData,
+  PlotCell as PlotCellPosition,
+  PlotFocusRequest,
   PlotlineColor,
 } from '@web/features/plot/plot.types';
 
 interface PlotCellProps {
+  cell: PlotCellPosition;
   cards: readonly PlotCardData[];
   color: PlotlineColor;
   editable: boolean;
-  onAddCard: (trigger: HTMLElement) => void;
-  onOpenCard: (card: PlotCardData, trigger: HTMLElement) => void;
+  focusRequest: PlotFocusRequest | null;
+  onAddCard: () => void;
+  onOpenCard: (card: PlotCardData) => void;
 }
 
 // Opacity rather than `hidden` so Add card stays in the tab order; touch
@@ -22,13 +28,23 @@ const ADD_CARD =
   'group-hover/cell:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100';
 
 export function PlotCell({
+  cell,
   cards,
   color,
   editable,
+  focusRequest,
   onAddCard,
   onOpenCard,
 }: PlotCellProps) {
+  const addRef = useRef<HTMLButtonElement>(null);
   const empty = cards.length === 0;
+  const key = cellKey(cell);
+  const focusesAdd =
+    focusRequest && 'cellKey' in focusRequest && focusRequest.cellKey === key;
+
+  useEffect(() => {
+    if (focusesAdd) addRef.current?.focus();
+  }, [focusesAdd, focusRequest?.nonce]);
 
   return (
     <div
@@ -45,15 +61,23 @@ export function PlotCell({
           key={card.id}
           card={card}
           color={color}
-          onOpen={(trigger) => onOpenCard(card, trigger)}
+          onOpen={() => onOpenCard(card)}
+          focusNonce={
+            focusRequest &&
+            'cardId' in focusRequest &&
+            focusRequest.cardId === card.id
+              ? focusRequest.nonce
+              : undefined
+          }
         />
       ))}
       {editable && (
         <Button
+          ref={addRef}
           variant="ghost"
           size="sm"
           className={ADD_CARD}
-          onClick={(event) => onAddCard(event.currentTarget)}
+          onClick={onAddCard}
         >
           <PlusIcon aria-hidden />
           Add card

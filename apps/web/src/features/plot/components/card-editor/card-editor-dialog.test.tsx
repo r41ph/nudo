@@ -250,3 +250,98 @@ describe('CardEditorDialog — view-only', () => {
     expect(within(dialog).queryByRole('button', { name: 'Save' })).toBeNull();
   });
 });
+
+describe('CardEditorDialog — delete', () => {
+  it('offers Delete only on an existing card', async () => {
+    const user = userEvent.setup();
+    renderBoard();
+
+    await user.click(await addCardInMainEnd());
+    expect(
+      within(editor()).queryByRole('button', { name: 'Delete' })
+    ).toBeNull();
+  });
+
+  it('confirms inline, and Keep goes back', async () => {
+    const user = userEvent.setup();
+    const { variables } = holdMutation('DeletePlotCard');
+    renderBoard();
+
+    await user.click(
+      await screen.findByRole('button', { name: "The keeper's logbook" })
+    );
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(
+      within(editor()).getByText("Delete this card? This can't be undone.")
+    ).toBeVisible();
+    const keep = screen.getByRole('button', { name: 'Keep' });
+    expect(keep).toHaveFocus();
+    await user.click(keep);
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeVisible();
+    expect(variables).not.toHaveBeenCalled();
+  });
+
+  it('deletes the card and returns focus to Add card in its cell', async () => {
+    const user = userEvent.setup();
+    const { variables, release } = holdMutation('DeletePlotCard');
+    renderBoard();
+    const card = await screen.findByRole('button', {
+      name: 'Ada leaves on the first ferry',
+    });
+    const cell = card.closest('[role="cell"]') as HTMLElement;
+    holdPlotRefetch();
+
+    await user.click(card);
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'Delete card' }));
+
+    expect(screen.getByRole('button', { name: 'Deleting…' })).toBeDisabled();
+    expect(variables).toHaveBeenCalledWith({ id: MOCK_PLOT_CARDS[3].id });
+    release();
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(
+      screen.queryByRole('button', { name: 'Ada leaves on the first ferry' })
+    ).toBeNull();
+    await waitFor(() =>
+      expect(
+        within(cell).getByRole('button', { name: 'Add card' })
+      ).toHaveFocus()
+    );
+  });
+
+  it('stays open when the delete fails', async () => {
+    const user = userEvent.setup();
+    failMutation('DeletePlotCard');
+    renderBoard();
+
+    await user.click(
+      await screen.findByRole('button', { name: "The keeper's logbook" })
+    );
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'Delete card' }));
+
+    expect(await within(editor()).findByRole('alert')).toHaveTextContent(
+      "Couldn't delete the card — try again."
+    );
+    expect(
+      await screen.findByText("Couldn't save your plot. Try again.")
+    ).toBeVisible();
+  });
+
+  it('has no Delete when view-only', async () => {
+    const user = userEvent.setup();
+    setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
+    renderBoard();
+
+    await user.click(
+      await screen.findByRole('button', { name: "The keeper's logbook" })
+    );
+    expect(
+      within(editor()).queryByRole('button', { name: 'Delete' })
+    ).toBeNull();
+  });
+});

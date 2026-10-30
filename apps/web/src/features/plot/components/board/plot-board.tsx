@@ -3,6 +3,7 @@ import { PlusIcon } from 'lucide-react';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { CardEditorDialog } from '@web/features/plot/components/card-editor/card-editor-dialog';
+import type { CardPlacement } from '@web/features/plot/components/card-editor/card-location';
 import { BeatHeader } from '@web/features/plot/components/board/beat-header';
 import { PlotCell } from '@web/features/plot/components/board/plot-cell';
 import { PlotHeader } from '@web/features/plot/components/board/plot-header';
@@ -19,14 +20,17 @@ import {
   groupCardsByCell,
   moveId,
 } from '@web/features/plot/lib/plot.utils';
-import type { Plot, PlotCard } from '@web/features/plot/plot.types';
+import type {
+  Plot,
+  PlotCard,
+  PlotFocusRequest,
+} from '@web/features/plot/plot.types';
 
 interface EditorTarget {
   // Remounts the dialog per opening, so its form starts from this card.
   session: number;
   card: PlotCard | null;
-  plotlineId: string;
-  beatId: string;
+  placement: CardPlacement;
 }
 
 interface PlotBoardProps {
@@ -57,27 +61,40 @@ export function PlotBoard({
     deleteBeat,
     createCard,
     updateCard,
+    relocateCard,
+    deleteCard,
   } = usePlotMutations(projectId);
   const editable = usePlotEditable();
   const [editor, setEditor] = useState<EditorTarget | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const sessionRef = useRef(0);
+  const deletedRef = useRef(false);
   // The dialog has no DialogTrigger, so Radix cannot restore focus by itself.
-  const editorTriggerRef = useRef<HTMLElement | null>(null);
+  const [focusRequest, setFocusRequest] = useState<PlotFocusRequest | null>(
+    null
+  );
 
-  const openEditor = (
-    target: Omit<EditorTarget, 'session'>,
-    trigger: HTMLElement
-  ) => {
+  const openEditor = (card: PlotCard | null, placement: CardPlacement) => {
     sessionRef.current += 1;
-    editorTriggerRef.current = trigger;
-    setEditor({ ...target, session: sessionRef.current });
+    deletedRef.current = false;
+    setEditor({ card, placement, session: sessionRef.current });
     setEditorOpen(true);
   };
-  const editorPlotline = plot.plotlines.find(
-    (p) => p.id === editor?.plotlineId
-  );
-  const editorBeat = plot.beats.find((b) => b.id === editor?.beatId);
+
+  const saveCard = async (
+    card: PlotCard | null,
+    fields: { title: string; description: string },
+    placement: CardPlacement
+  ) => {
+    if (!card) return createCard(placement, fields);
+    if (fields.title !== card.title || fields.description !== card.description)
+      await updateCard(card.id, fields);
+    if (
+      placement.plotlineId !== card.plotlineId ||
+      placement.beatId !== card.beatId
+    )
+      await relocateCard(card.id, placement);
+  };
   const plotlineIds = plot.plotlines.map((p) => p.id);
   const beatIds = plot.beats.map((b) => b.id);
   const cells = groupCardsByCell(plot.cards);
@@ -164,6 +181,8 @@ export function PlotBoard({
               {plot.beats.map((beat) => (
                 <PlotCell
                   key={beat.id}
+                  cell={{ plotlineId: plotline.id, beatId: beat.id }}
+                  focusRequest={focusRequest}
                   cards={
                     cells.get(
                       cellKey({ plotlineId: plotline.id, beatId: beat.id })
@@ -171,21 +190,17 @@ export function PlotBoard({
                   }
                   color={plotline.color}
                   editable={editable}
-                  onAddCard={(trigger) =>
-                    openEditor(
-                      {
-                        card: null,
-                        plotlineId: plotline.id,
-                        beatId: beat.id,
-                      },
-                      trigger
-                    )
+                  onAddCard={() =>
+                    openEditor(null, {
+                      plotlineId: plotline.id,
+                      beatId: beat.id,
+                    })
                   }
-                  onOpenCard={(card, trigger) =>
-                    openEditor(
-                      { card, plotlineId: plotline.id, beatId: beat.id },
-                      trigger
-                    )
+                  onOpenCard={(card) =>
+                    openEditor(card, {
+                      plotlineId: plotline.id,
+                      beatId: beat.id,
+                    })
                   }
                 />
               ))}
@@ -204,26 +219,32 @@ export function PlotBoard({
           </Button>
         )}
       </div>
-      {editor && editorPlotline && editorBeat && (
+      {editor && (
         <CardEditorDialog
           key={editor.session}
           open={editorOpen}
           onOpenChange={setEditorOpen}
           card={editor.card}
-          plotline={editorPlotline}
-          beat={editorBeat}
+          placement={editor.placement}
+          plotlines={plot.plotlines}
+          beats={plot.beats}
           editable={editable}
-          onSave={(fields) =>
-            editor.card
-              ? updateCard(editor.card.id, fields)
-              : createCard(
-                  { plotlineId: editor.plotlineId, beatId: editor.beatId },
-                  fields
-                )
+          onSave={(fields, placement) =>
+            saveCard(editor.card, fields, placement)
           }
+          onDelete={async () => {
+            if (!editor.card) return;
+            await deleteCard(editor.card.id);
+            deletedRef.current = true;
+          }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            editorTriggerRef.current?.focus();
+            const nonce = sessionRef.current;
+            setFocusRequest(
+              editor.card && !deletedRef.current
+                ? { nonce, cardId: editor.card.id }
+                : { nonce, cellKey: cellKey(editor.placement) }
+            );
           }}
         />
       )}

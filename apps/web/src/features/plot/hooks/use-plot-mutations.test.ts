@@ -703,4 +703,74 @@ describe('usePlotMutations: cards', () => {
     await waitFor(() => expect(refetch.loads).toHaveBeenCalled());
     refetch.release();
   });
+
+  it('relocates a card to the end of another cell once the server confirms', async () => {
+    const variables = vi.fn();
+    const { gate, release } = deferred();
+    server.use(
+      graphql.mutation('MovePlotCard', async ({ variables: vars }) => {
+        variables(vars);
+        await gate;
+        return HttpResponse.json({
+          data: { movePlotCard: { clientMutationId: null } },
+        });
+      })
+    );
+    const { result } = await renderPlot();
+    const refetch = holdRefetch();
+
+    let moved!: Promise<unknown>;
+    act(() => {
+      moved = result.current.mutations.relocateCard(logbook.id, {
+        plotlineId: main.id,
+        beatId: middle.id,
+      });
+    });
+
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith({
+        id: logbook.id,
+        plotlineId: main.id,
+        beatId: middle.id,
+        orderedIds: [storm.id, logbook.id],
+      })
+    );
+    expect(
+      cardIdsIn(result.current.plot.data!.cards, main.id, beginning.id)
+    ).toEqual([logbook.id, untitled.id]);
+
+    release();
+    await act(() => moved);
+
+    await waitFor(() =>
+      expect(
+        cardIdsIn(result.current.plot.data!.cards, main.id, middle.id)
+      ).toEqual([storm.id, logbook.id])
+    );
+    expect(
+      cardIdsIn(result.current.plot.data!.cards, main.id, beginning.id)
+    ).toEqual([untitled.id]);
+    refetch.release();
+  });
+
+  it('rejects a failed relocation, shows the save error and keeps the card', async () => {
+    server.use(failing('MovePlotCard'));
+    const { result } = await renderPlot();
+
+    await act(() =>
+      expect(
+        result.current.mutations.relocateCard(ferry.id, {
+          plotlineId: main.id,
+          beatId: end.id,
+        })
+      ).rejects.toThrow()
+    );
+
+    expect(toast.error).toHaveBeenCalledWith(PLOT_SAVE_ERROR, {
+      id: PLOT_SAVE_ERROR_ID,
+    });
+    expect(cardIdsIn(result.current.plot.data!.cards, ada.id, end.id)).toEqual([
+      ferry.id,
+    ]);
+  });
 });
