@@ -20,17 +20,24 @@ const PLOT: Plot = {
   ],
 };
 
-type PlotResponse = 'populated' | 'empty' | 'pending' | 'failure';
+type PlotResponse =
+  | 'populated'
+  | 'empty'
+  | 'pending'
+  | 'failure'
+  | 'refresh-failure';
 
 // Storybook has no API, so the plot's requests are answered here. The client
 // reads globalThis.fetch per request, which makes a swap enough. Mutations
-// succeed, and the settle refetch then restores the fixture. matchMedia is
+// succeed, and the settle refetch then restores the fixture, except under
+// 'refresh-failure', where every load after the first fails. matchMedia is
 // pinned too, so the board's view-only switch ignores the canvas width.
 const stubPlot =
   (response: PlotResponse, { editable = true } = {}) =>
   () => {
     const realFetch = globalThis.fetch;
     const realMatchMedia = window.matchMedia;
+    let loads = 0;
     globalThis.fetch = async (_input, init) => {
       if (response === 'pending') return new Promise<Response>(() => {});
       if (response === 'failure') {
@@ -42,6 +49,13 @@ const stubPlot =
       const { query } = JSON.parse(String(init?.body));
       if (!String(query).includes('query GetPlot')) {
         return Response.json({ data: {} });
+      }
+      loads += 1;
+      if (response === 'refresh-failure' && loads > 1) {
+        return Response.json(
+          { errors: [{ message: 'Refresh failed' }] },
+          { status: 500 }
+        );
       }
       const plot = response === 'empty' ? { plotlines: [], beats: [] } : PLOT;
       return Response.json({
@@ -114,4 +128,13 @@ export const Loading: Story = {
 
 export const LoadError: Story = {
   beforeEach: stubPlot('failure'),
+};
+
+export const RefreshFailed: Story = {
+  beforeEach: stubPlot('refresh-failure'),
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Add beat' })
+    );
+  },
 };
