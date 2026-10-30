@@ -13,6 +13,10 @@ import { Label } from '@ui/components/ui/label';
 import { Textarea } from '@ui/components/ui/textarea';
 import { cn } from '@ui/lib/utils';
 import {
+  CardLocation,
+  type CardPlacement,
+} from '@web/features/plot/components/card-editor/card-location';
+import {
   PLOTLINE_COLOR_DOT_CLASS,
   PLOT_CARD_TITLE_MAX_LENGTH,
 } from '@web/features/plot/constants/plot.constants';
@@ -30,15 +34,19 @@ export interface CardFields {
 interface CardEditorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // null opens the dialog empty, to add a card to the plotline × beat cell.
+  // null opens the dialog empty, to add a card to `placement`.
   card: PlotCard | null;
-  plotline: Plotline;
-  beat: PlotBeat;
+  placement: CardPlacement;
+  plotlines: readonly Plotline[];
+  beats: readonly PlotBeat[];
   editable: boolean;
-  // Resolves when the card is saved; a rejection keeps the dialog open.
-  onSave: (fields: CardFields) => Promise<unknown>;
+  // Each resolves when saved; a rejection keeps the dialog open.
+  onSave: (fields: CardFields, placement: CardPlacement) => Promise<unknown>;
+  onDelete: () => Promise<unknown>;
   onCloseAutoFocus?: (event: Event) => void;
 }
+
+type FooterMode = 'edit' | 'discard' | 'delete';
 
 // Holds the form state for one opening; the board remounts it with a new key
 // each time, so it always starts from the card.
@@ -46,49 +54,80 @@ export function CardEditorDialog({
   open,
   onOpenChange,
   card,
-  plotline,
-  beat,
+  placement: initialPlacement,
+  plotlines,
+  beats,
   editable,
   onSave,
+  onDelete,
   onCloseAutoFocus,
 }: CardEditorDialogProps) {
   const initialTitle = card?.title ?? '';
   const initialDescription = card?.description ?? '';
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
+  const [placement, setPlacement] = useState(initialPlacement);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const [mode, setMode] = useState<FooterMode>('edit');
   const titleRef = useRef<HTMLInputElement>(null);
+  const deleteRef = useRef<HTMLButtonElement>(null);
+  // Where focus goes when a footer confirm closes. A name, not an element:
+  // the Delete button is unmounted while its confirm shows.
+  const returnFocusRef = useRef<'title' | 'delete' | null>(null);
   const titleId = useId();
   const descriptionId = useId();
   const errorId = useId();
 
-  const dirty = title !== initialTitle || description !== initialDescription;
+  const plotline = plotlines.find((p) => p.id === placement.plotlineId);
+  const beat = beats.find((b) => b.id === placement.beatId);
+  const dirty =
+    title !== initialTitle ||
+    description !== initialDescription ||
+    placement.plotlineId !== initialPlacement.plotlineId ||
+    placement.beatId !== initialPlacement.beatId;
+
+  useEffect(() => {
+    if (mode !== 'edit' || !returnFocusRef.current) return;
+    const target = returnFocusRef.current === 'title' ? titleRef : deleteRef;
+    target.current?.focus();
+    returnFocusRef.current = null;
+  }, [mode]);
 
   const close = () => onOpenChange(false);
+  const backToEdit = (focus: 'title' | 'delete') => {
+    returnFocusRef.current = focus;
+    setMode('edit');
+  };
   const requestClose = () => {
-    if (dirty) setConfirmingDiscard(true);
+    if (dirty) setMode('discard');
     else close();
   };
   const guardClose = (event: Event) => {
-    if (!dirty) return;
+    if (!dirty || mode === 'delete') return;
     event.preventDefault();
-    setConfirmingDiscard(true);
+    setMode('discard');
   };
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
+  const run = async (action: () => Promise<unknown>, failure: string) => {
     setError(null);
     setPending(true);
     try {
-      await onSave({ title: title.trim(), description });
+      await action();
       close();
     } catch {
       // The mutation's onError already toasts; this keeps the reason in view.
-      setError("Couldn't save the card — try again.");
+      setError(failure);
       setPending(false);
     }
+  };
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    void run(
+      () => onSave({ title: title.trim(), description }, placement),
+      "Couldn't save the card — try again."
+    );
   };
 
   return (
@@ -103,14 +142,16 @@ export function CardEditorDialog({
         <DialogHeader>
           <DialogTitle>Edit card</DialogTitle>
           <DialogDescription className="flex items-center gap-2">
-            <span
-              aria-hidden
-              className={cn(
-                'size-2.5 shrink-0 rounded-full',
-                PLOTLINE_COLOR_DOT_CLASS[plotline.color]
-              )}
-            />
-            {`${plotline.name} · ${beat.name}`}
+            {plotline && (
+              <span
+                aria-hidden
+                className={cn(
+                  'size-2.5 shrink-0 rounded-full',
+                  PLOTLINE_COLOR_DOT_CLASS[plotline.color]
+                )}
+              />
+            )}
+            {`${plotline?.name} · ${beat?.name}`}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} noValidate className="grid gap-4">
@@ -137,23 +178,56 @@ export function CardEditorDialog({
               className="max-h-80"
             />
           </div>
+          <CardLocation
+            plotlines={plotlines}
+            beats={beats}
+            value={placement}
+            onChange={setPlacement}
+            editable={editable}
+          />
           {error && (
             <p id={errorId} role="alert" className="text-sm text-destructive">
               {error}
             </p>
           )}
           <DialogFooter>
-            {confirmingDiscard ? (
-              <DiscardConfirm
-                onKeep={() => {
-                  // Before the confirm unmounts, or focus drops to <body>.
-                  titleRef.current?.focus();
-                  setConfirmingDiscard(false);
-                }}
-                onDiscard={close}
+            {mode === 'discard' && (
+              <InlineConfirm
+                message="Discard changes?"
+                keepLabel="Keep editing"
+                confirmLabel="Discard"
+                onKeep={() => backToEdit('title')}
+                onConfirm={close}
               />
-            ) : (
+            )}
+            {mode === 'delete' && (
+              <InlineConfirm
+                message="Delete this card? This can't be undone."
+                keepLabel="Keep"
+                confirmLabel={pending ? 'Deleting…' : 'Delete card'}
+                pending={pending}
+                onKeep={() => backToEdit('delete')}
+                onConfirm={() =>
+                  void run(onDelete, "Couldn't delete the card — try again.")
+                }
+              />
+            )}
+            {mode === 'edit' && (
               <>
+                {editable && card && (
+                  <Button
+                    ref={deleteRef}
+                    type="button"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive sm:mr-auto"
+                    onClick={() => {
+                      setError(null);
+                      setMode('delete');
+                    }}
+                  >
+                    Delete
+                  </Button>
+                )}
                 <Button type="button" variant="outline" onClick={requestClose}>
                   {editable ? 'Cancel' : 'Close'}
                 </Button>
@@ -175,30 +249,43 @@ export function CardEditorDialog({
   );
 }
 
-function DiscardConfirm({
+function InlineConfirm({
+  message,
+  keepLabel,
+  confirmLabel,
+  pending = false,
   onKeep,
-  onDiscard,
+  onConfirm,
 }: {
+  message: string;
+  keepLabel: string;
+  confirmLabel: string;
+  pending?: boolean;
   onKeep: () => void;
-  onDiscard: () => void;
+  onConfirm: () => void;
 }) {
   const keepRef = useRef<HTMLButtonElement>(null);
-  // Focus lands on the safe choice, so Enter does not lose the text. Not
+  // Focus lands on the safe choice, so Enter does not lose anything. Not
   // autoFocus: focusing mid-commit, after Escape, upsets Radix's focus trap.
   useEffect(() => keepRef.current?.focus(), []);
 
   return (
     <div
       role="group"
-      aria-label="Discard changes?"
+      aria-label={message}
       className="flex w-full items-center justify-end gap-2"
     >
-      <p className="mr-auto text-sm text-foreground">Discard changes?</p>
+      <p className="mr-auto text-sm text-foreground">{message}</p>
       <Button ref={keepRef} type="button" variant="outline" onClick={onKeep}>
-        Keep editing
+        {keepLabel}
       </Button>
-      <Button type="button" variant="destructive" onClick={onDiscard}>
-        Discard
+      <Button
+        type="button"
+        variant="destructive"
+        disabled={pending}
+        onClick={onConfirm}
+      >
+        {confirmLabel}
       </Button>
     </div>
   );

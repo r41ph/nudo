@@ -33,3 +33,11 @@ export interface Plot {
   beats: PlotBeat[];
   cards: PlotCard[];
 }
+
+// Asks the board to focus a card, or a cell's Add card, once it has rendered:
+// after a move or delete the element that opened the editor is gone. The
+// nonce makes a repeat request for the same target fire again.
+export type PlotFocusRequest = { nonce: number } & (
+  | { cardId: string }
+  | { cellKey: string }
+);

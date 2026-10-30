@@ -231,6 +231,20 @@ export function usePlotMutations(projectId: string) {
     (plot, id) => ({ ...plot, cards: plot.cards.filter((c) => c.id !== id) })
   );
 
+  // The editor's Location: confirmed like its other saves, so a failure keeps
+  // the dialog open instead of rolling back behind it.
+  const relocateCard = useConfirmedPlotMutation(
+    projectId,
+    ({ id, to, orderedIds }: CardMove) =>
+      graphqlClient.request(MOVE_PLOT_CARD, { id, ...to, orderedIds }),
+    (plot, { id, to, orderedIds }) => ({
+      ...plot,
+      cards:
+        applyCardMove(plot.cards, id, to, orderedIds.indexOf(id))?.cards ??
+        plot.cards,
+    })
+  );
+
   const moveCard = useOptimisticPlotMutation(
     projectId,
     ({ id, to, orderedIds }: CardMove) =>
@@ -287,6 +301,16 @@ export function usePlotMutations(projectId: string) {
     updateCard: (id: string, patch: PlotCardPatch) =>
       patchCard.mutateAsync({ id, patch }),
     deleteCard: (id: string) => deleteCard.mutateAsync(id),
+    relocateCard: async (id: string, to: PlotCell) => {
+      const move = applyCardMove(
+        currentPlot()?.cards ?? [],
+        id,
+        to,
+        Number.POSITIVE_INFINITY
+      );
+      if (!move) throw new Error(`Unknown plot card ${id}`);
+      return relocateCard.mutateAsync({ id, to, orderedIds: move.orderedIds });
+    },
     moveCard: (id: string, to: PlotCell, index: number) => {
       const move = applyCardMove(currentPlot()?.cards ?? [], id, to, index);
       if (move) moveCard.mutate({ id, to, orderedIds: move.orderedIds });
