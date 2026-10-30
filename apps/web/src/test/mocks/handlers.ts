@@ -9,6 +9,7 @@ import {
   MOCK_PROJECT,
   MOCK_PLOTLINES,
   MOCK_PLOT_BEATS,
+  MOCK_NEW_PROJECT_ID,
 } from '@web/test/mocks/fixtures';
 
 // Both mock documents live in MOCK_PROJECT; any other project is empty.
@@ -20,6 +21,32 @@ export const handlers = [
   graphql.query('GetProjects', () => {
     return HttpResponse.json({
       data: { allProjects: { nodes: [MOCK_PROJECT] } },
+    });
+  }),
+
+  graphql.mutation('CreateProject', ({ variables }) => {
+    return HttpResponse.json({
+      data: {
+        createProject: {
+          project: { id: MOCK_NEW_PROJECT_ID, title: variables.title },
+        },
+      },
+    });
+  }),
+
+  graphql.mutation('RenameProject', ({ variables }) => {
+    return HttpResponse.json({
+      data: {
+        updateProjectById: {
+          project: { id: variables.id, title: variables.title },
+        },
+      },
+    });
+  }),
+
+  graphql.mutation('DeleteProject', ({ variables }) => {
+    return HttpResponse.json({
+      data: { deleteProjectById: { deletedProjectId: variables.id } },
     });
   }),
 

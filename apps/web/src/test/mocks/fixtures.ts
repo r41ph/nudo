@@ -11,6 +11,8 @@ export const MOCK_PROJECT = {
   title: 'Test Project',
 };
 
+export const MOCK_NEW_PROJECT_ID = '11112222-3333-4444-5555-666677778888';
+
 export const MOCK_DOCUMENT = {
   id: '11111111-2222-3333-4444-555566667777',
   title: 'Test Document',
