@@ -19,6 +19,7 @@ interface DeleteProjectDialogProps {
   documentCount: number;
   // Resolves when the project is deleted; a rejection keeps the dialog open.
   onConfirm: () => Promise<unknown>;
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
 const normalise = (value: string) => value.trim().toLowerCase();
@@ -29,10 +30,11 @@ export function DeleteProjectDialog({
   title,
   documentCount,
   onConfirm,
+  onCloseAutoFocus,
 }: DeleteProjectDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent onCloseAutoFocus={onCloseAutoFocus}>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete “{title}”?</AlertDialogTitle>
           <AlertDialogDescription>
