@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { Active, ClientRect, Over } from '@dnd-kit/core';
 import {
-  cardAnnouncements,
+  acceptsDrop,
   cardDrop,
+  plotAnnouncements,
+  reorderedIds,
   cellDroppableId,
   plotCollision,
-  type PlotDragData,
 } from '@web/features/plot/lib/plot-dnd';
 import type { Plot, PlotCard, PlotCell } from '@web/features/plot/plot.types';
 
@@ -50,13 +51,13 @@ const cell = (plotlineId: string, beatId: string): PlotCell => ({
 
 function overCard(id: string) {
   const target = CARDS.find((c) => c.id === id)!;
-  return { id, data: { type: 'card', cell: target } as PlotDragData };
+  return { id, data: { type: 'card' as const, cell: target } };
 }
 
 function overCell(at: PlotCell) {
   return {
     id: cellDroppableId(at),
-    data: { type: 'cell', cell: at } as PlotDragData,
+    data: { type: 'cell' as const, cell: at },
   };
 }
 
@@ -106,10 +107,11 @@ describe('cardDrop', () => {
   });
 });
 
-describe('cardAnnouncements', () => {
-  const announce = cardAnnouncements(PLOT);
-  const active = (id: string) => ({ id }) as unknown as Active;
-  const over = (target: ReturnType<typeof overCard>) =>
+describe('plotAnnouncements: cards', () => {
+  const announce = plotAnnouncements(PLOT);
+  const active = (id: string) =>
+    ({ id, data: { current: { type: 'card' } } }) as unknown as Active;
+  const over = (target: { id: string; data: unknown }) =>
     ({ id: target.id, data: { current: target.data } }) as unknown as Over;
 
   it('names the card and where it was picked up', () => {
@@ -151,6 +153,80 @@ describe('cardAnnouncements', () => {
     expect(announce.onDragCancel({ active: active('d'), over: null })).toBe(
       "Moving card 'Discovery' was cancelled. It stays in Main plot, Middle."
     );
+  });
+});
+
+describe('plotAnnouncements: plotlines and beats', () => {
+  const announce = plotAnnouncements(PLOT);
+  const active = (id: string, type: 'plotline' | 'beat') =>
+    ({ id, data: { current: { type } } }) as unknown as Active;
+  const over = (id: string, type: 'plotline' | 'beat') =>
+    ({ id, data: { current: { type } } }) as unknown as Over;
+
+  it('names the plotline and its position', () => {
+    expect(announce.onDragStart({ active: active(MAIN, 'plotline') })).toBe(
+      "Picked up plotline 'Main plot', position 1 of 2."
+    );
+    expect(
+      announce.onDragOver({
+        active: active(MAIN, 'plotline'),
+        over: over(ADA, 'plotline'),
+      })
+    ).toBe("Plotline 'Main plot' is over position 2 of 2.");
+    expect(
+      announce.onDragEnd({
+        active: active(MAIN, 'plotline'),
+        over: over(ADA, 'plotline'),
+      })
+    ).toBe("Plotline 'Main plot' was dropped at position 2 of 2.");
+    expect(
+      announce.onDragCancel({ active: active(MAIN, 'plotline'), over: null })
+    ).toBe(
+      "Moving plotline 'Main plot' was cancelled. It stays at position 1 of 2."
+    );
+  });
+
+  it('names the beat and its position', () => {
+    expect(announce.onDragStart({ active: active(MIDDLE, 'beat') })).toBe(
+      "Picked up beat 'Middle', position 2 of 2."
+    );
+    expect(
+      announce.onDragEnd({
+        active: active(MIDDLE, 'beat'),
+        over: over(START, 'beat'),
+      })
+    ).toBe("Beat 'Middle' was dropped at position 1 of 2.");
+    expect(
+      announce.onDragEnd({ active: active(MIDDLE, 'beat'), over: null })
+    ).toBe("Beat 'Middle' was dropped back at position 2 of 2.");
+  });
+});
+
+describe('reorderedIds', () => {
+  it('moves the id onto the target’s slot', () => {
+    expect(reorderedIds(['a', 'b', 'c'], 'a', 'c')).toEqual(['b', 'c', 'a']);
+    expect(reorderedIds(['a', 'b', 'c'], 'c', 'a')).toEqual(['c', 'a', 'b']);
+  });
+
+  it('is null when nothing would change', () => {
+    expect(reorderedIds(['a', 'b'], 'a', 'a')).toBeNull();
+    expect(reorderedIds(['a', 'b'], 'a', 'zzz')).toBeNull();
+  });
+});
+
+describe('acceptsDrop', () => {
+  it('lets cards land on cards and cells, and rows and columns on their own kind', () => {
+    expect(acceptsDrop('card', 'card')).toBe(true);
+    expect(acceptsDrop('card', 'cell')).toBe(true);
+    expect(acceptsDrop('plotline', 'plotline')).toBe(true);
+    expect(acceptsDrop('beat', 'beat')).toBe(true);
+    expect(acceptsDrop('plotline', 'cell')).toBe(false);
+    expect(acceptsDrop('beat', 'plotline')).toBe(false);
+    expect(acceptsDrop('card', 'beat')).toBe(false);
+  });
+
+  it('accepts anything while nothing is dragged', () => {
+    expect(acceptsDrop(null, 'beat')).toBe(true);
   });
 });
 

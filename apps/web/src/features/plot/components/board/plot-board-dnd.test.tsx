@@ -15,8 +15,8 @@ import {
   MOCK_PLOT_CARDS,
 } from '@web/test/mocks/fixtures';
 
-const [MAIN] = MOCK_PLOTLINES;
-const [BEGINNING, MIDDLE] = MOCK_PLOT_BEATS;
+const [MAIN, ADA] = MOCK_PLOTLINES;
+const [BEGINNING, MIDDLE, END] = MOCK_PLOT_BEATS;
 const [LOGBOOK, UNTITLED, STORM] = MOCK_PLOT_CARDS;
 const CELL = { width: 240, height: 300 };
 
@@ -59,6 +59,8 @@ function layout(el: Element): DOMRect {
       parseFloat(style.height)
     );
   }
+  const header = el.closest('[role="rowheader"], [role="columnheader"]');
+  if (header) return headerRect(header);
   const cell = el.closest('[role="cell"]');
   if (!cell) return rect(0, 0, 0, 0);
   const row = cell.closest('[role="row"]')!;
@@ -74,6 +76,16 @@ function layout(el: Element): DOMRect {
   return index === -1
     ? rect(left + 8, top + CELL.height - 40, CELL.width - 16, 32)
     : rect(left + 8, top + 8 + index * 60, CELL.width - 16, 52);
+}
+
+// Labels sit left of their row's cells, beat headers above their column.
+function headerRect(header: Element): DOMRect {
+  const role = header.getAttribute('role');
+  const all = [...document.querySelectorAll(`[role="${role}"]`)];
+  const index = all.indexOf(header);
+  return role === 'rowheader'
+    ? rect(0, 50 + index * CELL.height, 200, CELL.height)
+    : rect(200 + index * CELL.width, 0, CELL.width, 50);
 }
 
 beforeEach(() => {
@@ -240,6 +252,100 @@ describe('PlotBoard — dragging cards with the keyboard', () => {
   });
 });
 
+describe('PlotBoard — dragging rows and columns with the keyboard', () => {
+  function rowNames() {
+    return screen
+      .getAllByRole('rowheader')
+      .map((h) => within(h).getByText(/^(Main plot|Ada)$/).textContent);
+  }
+
+  function columnNames() {
+    return screen.getAllByRole('columnheader').map((h) => h.textContent);
+  }
+
+  it('reorders plotlines from the label’s drag handle', async () => {
+    const user = userEvent.setup();
+    const { variables, release } = holdMutation('ReorderPlotlines');
+    renderBoard();
+
+    (await screen.findByRole('button', { name: 'Drag Main plot' })).focus();
+    await user.keyboard('[Space]');
+    expect(
+      await screen.findByText(
+        "Picked up plotline 'Main plot', position 1 of 2."
+      )
+    ).toBeInTheDocument();
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('[Space]');
+
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith(
+        expect.objectContaining({ ids: [ADA.id, MAIN.id] })
+      )
+    );
+    expect(rowNames()).toEqual(['Ada', 'Main plot']);
+    expect(
+      screen.getByText("Plotline 'Main plot' was dropped at position 2 of 2.")
+    ).toBeInTheDocument();
+    release();
+  });
+
+  it('reorders beats from the header’s drag handle', async () => {
+    const user = userEvent.setup();
+    const { variables, release } = holdMutation('ReorderPlotBeats');
+    renderBoard();
+
+    (await screen.findByRole('button', { name: 'Drag Beginning' })).focus();
+    await user.keyboard('[Space]');
+    await user.keyboard('{ArrowRight}');
+    await user.keyboard('[Space]');
+
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith(
+        expect.objectContaining({ ids: [MIDDLE.id, BEGINNING.id, END.id] })
+      )
+    );
+    expect(columnNames()).toEqual(['Middle', 'Beginning', 'End']);
+    release();
+  });
+
+  it('cancels a row drag with Escape', async () => {
+    const user = userEvent.setup();
+    const { variables } = holdMutation('ReorderPlotlines');
+    renderBoard();
+
+    (await screen.findByRole('button', { name: 'Drag Main plot' })).focus();
+    await user.keyboard('[Space]');
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{Escape}');
+
+    expect(
+      await screen.findByText(
+        "Moving plotline 'Main plot' was cancelled. It stays at position 1 of 2."
+      )
+    ).toBeInTheDocument();
+    expect(variables).not.toHaveBeenCalled();
+    expect(rowNames()).toEqual(['Main plot', 'Ada']);
+  });
+
+  it('keeps cards out of row targets: a card dragged left of its cell stays put', async () => {
+    const user = userEvent.setup();
+    const { variables } = holdMutation('MovePlotCard');
+    renderBoard();
+
+    await pickUp(user, "The keeper's logbook");
+    await user.keyboard('{ArrowLeft}');
+    await user.keyboard('[Space]');
+
+    expect(
+      await screen.findByText(
+        "Card 'The keeper's logbook' was dropped in Main plot, Beginning, position 1 of 2."
+      )
+    ).toBeInTheDocument();
+    expect(variables).not.toHaveBeenCalled();
+  });
+});
+
 describe('PlotBoard — view-only', () => {
   it('makes no card draggable', async () => {
     setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
@@ -249,5 +355,6 @@ describe('PlotBoard — view-only', () => {
       name: "The keeper's logbook",
     });
     expect(card).not.toHaveAttribute('aria-roledescription');
+    expect(screen.queryByRole('button', { name: /^Drag / })).toBeNull();
   });
 });

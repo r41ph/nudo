@@ -8,7 +8,7 @@ import {
   renderBoard,
 } from '@web/features/plot/test/plot-board-harness';
 import {
-  PLOT_CARD_DRAG_INSTRUCTIONS,
+  PLOT_DRAG_INSTRUCTIONS,
   PLOT_EDIT_MIN_WIDTH,
 } from '@web/features/plot/constants/plot.constants';
 import { setViewportWidth } from '@web/test/media';
@@ -124,7 +124,7 @@ describe('CardEditorDialog — saving', () => {
     expect(
       screen.getByRole('button', {
         name: 'The lamp goes dark',
-        description: `Who turned it off? ${PLOT_CARD_DRAG_INSTRUCTIONS}`,
+        description: `Who turned it off? ${PLOT_DRAG_INSTRUCTIONS}`,
       })
     ).toBeInTheDocument();
     await waitFor(() => expect(add).toHaveFocus());

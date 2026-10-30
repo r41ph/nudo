@@ -31,6 +31,8 @@ const meta = {
     onRename: noop,
     onMove: noop,
     onDelete: noop,
+    dragType: null,
+    isDropTarget: false,
   },
   argTypes: {
     beat: { control: 'object' },
@@ -41,6 +43,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const DropTarget: Story = {
+  args: { isDropTarget: true },
+};
 
 export const ViewOnly: Story = {
   args: { editable: false },

@@ -7,7 +7,12 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
@@ -19,8 +24,9 @@ import { PlotCell } from '@web/features/plot/components/board/plot-cell';
 import { PlotHeader } from '@web/features/plot/components/board/plot-header';
 import { PlotlineLabel } from '@web/features/plot/components/board/plotline-label';
 import {
-  PLOT_CARD_DRAG_INSTRUCTIONS,
-  PLOT_CARD_DRAG_KEYS,
+  PLOT_DRAG_INSTRUCTIONS,
+  PLOT_DRAG_KEYS,
+  PLOTLINE_COLOR_DOT_CLASS,
   PLOT_BEAT_COLUMN_WIDTH,
   PLOT_LABEL_COLUMN_WIDTH,
   PLOT_VIEW_ONLY_MESSAGE,
@@ -28,11 +34,13 @@ import {
 import { usePlotEditable } from '@web/features/plot/hooks/use-plot-editable';
 import { usePlotMutations } from '@web/features/plot/hooks/use-plot-mutations';
 import {
-  cardAnnouncements,
   cardDrop,
+  dragTypeOf,
   dropTargetOf,
+  plotAnnouncements,
   plotCollision,
-  type PlotDragData,
+  reorderedIds,
+  type PlotDragType,
 } from '@web/features/plot/lib/plot-dnd';
 import {
   cellKey,
@@ -97,24 +105,30 @@ export function PlotBoard({
     focusNonceRef.current += 1;
     setFocusRequest({ nonce: focusNonceRef.current, ...target });
   };
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [overCellKey, setOverCellKey] = useState<string | null>(null);
+  const [dragging, setDragging] = useState<{
+    id: string;
+    type: PlotDragType | null;
+  } | null>(null);
+  // A cell key while a card is dragged, else the hovered row or column id.
+  const [overKey, setOverKey] = useState<string | null>(null);
   const sensors = useSensors(
     // The distance keeps a click a click, so it still opens the editor.
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-      keyboardCodes: PLOT_CARD_DRAG_KEYS,
+      keyboardCodes: PLOT_DRAG_KEYS,
     })
   );
+  const dragType = dragging?.type ?? null;
   const endDrag = () => {
-    setDraggingId(null);
-    setOverCellKey(null);
+    setDragging(null);
+    setOverKey(null);
   };
-  const draggingCard = plot.cards.find((c) => c.id === draggingId);
-  const draggingColor = plot.plotlines.find(
-    (p) => p.id === draggingCard?.plotlineId
-  )?.color;
+  const draggingCard = plot.cards.find((c) => c.id === dragging?.id);
+  const draggingPlotline = plot.plotlines.find(
+    (p) => p.id === (draggingCard?.plotlineId ?? dragging?.id)
+  );
+  const draggingBeat = plot.beats.find((b) => b.id === dragging?.id);
 
   const openEditor = (card: PlotCard | null, placement: CardPlacement) => {
     sessionRef.current += 1;
@@ -175,24 +189,42 @@ export function PlotBoard({
           sensors={sensors}
           collisionDetection={plotCollision}
           accessibility={{
-            announcements: cardAnnouncements(plot),
+            announcements: plotAnnouncements(plot),
             screenReaderInstructions: {
-              draggable: PLOT_CARD_DRAG_INSTRUCTIONS,
+              draggable: PLOT_DRAG_INSTRUCTIONS,
             },
           }}
-          onDragStart={({ active }) => setDraggingId(String(active.id))}
-          onDragOver={({ over }) => {
-            const data = over?.data.current as PlotDragData | undefined;
-            setOverCellKey(data ? cellKey(data.cell) : null);
+          onDragStart={({ active }) =>
+            setDragging({ id: String(active.id), type: dragTypeOf(active) })
+          }
+          onDragOver={({ active, over }) => {
+            if (dragTypeOf(active) === 'card') {
+              const target = dropTargetOf(over);
+              setOverKey(target ? cellKey(target.data.cell) : null);
+            } else {
+              setOverKey(
+                over && over.id !== active.id ? String(over.id) : null
+              );
+            }
           }}
           onDragEnd={({ active, over }) => {
             endDrag();
             const id = String(active.id);
-            const drop = cardDrop(plot.cards, id, dropTargetOf(over));
-            if (!drop?.moved) return;
-            moveCard(id, drop.to, drop.orderedIds.indexOf(id));
-            // A card that changed cells remounts and would lose focus.
-            requestFocus({ cardId: id });
+            const type = dragTypeOf(active);
+            if (type === 'card') {
+              const drop = cardDrop(plot.cards, id, dropTargetOf(over));
+              if (!drop?.moved) return;
+              moveCard(id, drop.to, drop.orderedIds.indexOf(id));
+              // A card that changed cells remounts and would lose focus.
+              requestFocus({ cardId: id });
+              return;
+            }
+            if (!over) return;
+            const ids = type === 'plotline' ? plotlineIds : beatIds;
+            const reordered = reorderedIds(ids, id, over.id);
+            if (!reordered) return;
+            if (type === 'plotline') reorderPlotlines(reordered);
+            else reorderBeats(reordered);
           }}
           onDragCancel={endDrag}
         >
@@ -210,79 +242,118 @@ export function PlotBoard({
                   COVER_GUTTER
                 )}
               />
-              {plot.beats.map((beat, index) => (
-                <BeatHeader
-                  key={beat.id}
-                  beat={beat}
-                  editable={editable}
-                  hasCards={countBy('beatId', beat.id) > 0}
-                  isFirst={index === 0}
-                  isLast={index === plot.beats.length - 1}
-                  onRename={(name) => updateBeat(beat.id, { name })}
-                  onMove={(delta) =>
-                    reorderBeats(moveId(beatIds, beat.id, delta))
-                  }
-                  onDelete={() => deleteBeat(beat)}
-                  className="sticky top-0 z-10"
-                />
-              ))}
-            </div>
-            {plot.plotlines.map((plotline, index) => (
-              <div key={plotline.id} role="row" className="contents">
-                <PlotlineLabel
-                  plotline={plotline}
-                  cardCount={countBy('plotlineId', plotline.id)}
-                  editable={editable}
-                  isFirst={index === 0}
-                  isLast={index === plot.plotlines.length - 1}
-                  onRename={(name) => updatePlotline(plotline.id, { name })}
-                  onColorChange={(color) =>
-                    updatePlotline(plotline.id, { color })
-                  }
-                  onMove={(delta) =>
-                    reorderPlotlines(moveId(plotlineIds, plotline.id, delta))
-                  }
-                  onDelete={() => deletePlotline(plotline)}
-                  className={cn('sticky left-0 z-10 col-start-1', COVER_GUTTER)}
-                />
-                {plot.beats.map((beat) => (
-                  <PlotCell
+              <SortableContext
+                items={beatIds}
+                strategy={horizontalListSortingStrategy}
+              >
+                {plot.beats.map((beat, index) => (
+                  <BeatHeader
                     key={beat.id}
-                    cell={{ plotlineId: plotline.id, beatId: beat.id }}
-                    focusRequest={focusRequest}
-                    isDropTarget={
-                      overCellKey ===
-                      cellKey({ plotlineId: plotline.id, beatId: beat.id })
-                    }
-                    cards={
-                      cells.get(
-                        cellKey({ plotlineId: plotline.id, beatId: beat.id })
-                      ) ?? []
-                    }
-                    color={plotline.color}
+                    beat={beat}
                     editable={editable}
-                    onAddCard={() =>
-                      openEditor(null, {
-                        plotlineId: plotline.id,
-                        beatId: beat.id,
-                      })
+                    hasCards={countBy('beatId', beat.id) > 0}
+                    isFirst={index === 0}
+                    isLast={index === plot.beats.length - 1}
+                    onRename={(name) => updateBeat(beat.id, { name })}
+                    onMove={(delta) =>
+                      reorderBeats(moveId(beatIds, beat.id, delta))
                     }
-                    onOpenCard={(card) =>
-                      openEditor(card, {
-                        plotlineId: plotline.id,
-                        beatId: beat.id,
-                      })
-                    }
+                    onDelete={() => deleteBeat(beat)}
+                    dragType={dragType}
+                    isDropTarget={dragType === 'beat' && overKey === beat.id}
+                    className="sticky top-0 z-10"
                   />
                 ))}
-              </div>
-            ))}
+              </SortableContext>
+            </div>
+            <SortableContext
+              items={plotlineIds}
+              strategy={verticalListSortingStrategy}
+            >
+              {plot.plotlines.map((plotline, index) => (
+                <div key={plotline.id} role="row" className="contents">
+                  <PlotlineLabel
+                    plotline={plotline}
+                    cardCount={countBy('plotlineId', plotline.id)}
+                    editable={editable}
+                    isFirst={index === 0}
+                    isLast={index === plot.plotlines.length - 1}
+                    onRename={(name) => updatePlotline(plotline.id, { name })}
+                    onColorChange={(color) =>
+                      updatePlotline(plotline.id, { color })
+                    }
+                    onMove={(delta) =>
+                      reorderPlotlines(moveId(plotlineIds, plotline.id, delta))
+                    }
+                    onDelete={() => deletePlotline(plotline)}
+                    dragType={dragType}
+                    isDropTarget={
+                      dragType === 'plotline' && overKey === plotline.id
+                    }
+                    className={cn(
+                      'sticky left-0 z-10 col-start-1',
+                      COVER_GUTTER
+                    )}
+                  />
+                  {plot.beats.map((beat) => (
+                    <PlotCell
+                      key={beat.id}
+                      cell={{ plotlineId: plotline.id, beatId: beat.id }}
+                      focusRequest={focusRequest}
+                      dragType={dragType}
+                      isDropTarget={
+                        dragType === 'card' &&
+                        overKey ===
+                          cellKey({ plotlineId: plotline.id, beatId: beat.id })
+                      }
+                      cards={
+                        cells.get(
+                          cellKey({ plotlineId: plotline.id, beatId: beat.id })
+                        ) ?? []
+                      }
+                      color={plotline.color}
+                      editable={editable}
+                      onAddCard={() =>
+                        openEditor(null, {
+                          plotlineId: plotline.id,
+                          beatId: beat.id,
+                        })
+                      }
+                      onOpenCard={(card) =>
+                        openEditor(card, {
+                          plotlineId: plotline.id,
+                          beatId: beat.id,
+                        })
+                      }
+                    />
+                  ))}
+                </div>
+              ))}
+            </SortableContext>
           </div>
           <DragOverlay>
-            {draggingCard && draggingColor && (
+            {draggingCard && draggingPlotline ? (
               <div className="flex flex-col rounded-md border border-border bg-card p-3 shadow-lg">
-                <PlotCardFace card={draggingCard} color={draggingColor} />
+                <PlotCardFace
+                  card={draggingCard}
+                  color={draggingPlotline.color}
+                />
               </div>
+            ) : (
+              (draggingPlotline || draggingBeat) && (
+                <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground shadow-lg">
+                  {draggingPlotline && (
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'size-3 shrink-0 rounded-full',
+                        PLOTLINE_COLOR_DOT_CLASS[draggingPlotline.color]
+                      )}
+                    />
+                  )}
+                  {draggingPlotline?.name ?? draggingBeat?.name}
+                </div>
+              )
             )}
           </DragOverlay>
         </DndContext>

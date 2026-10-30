@@ -9,7 +9,12 @@ import {
   DropdownMenuTrigger,
 } from '@ui/components/ui/dropdown-menu';
 import { cn } from '@ui/lib/utils';
+import type { PlotDragType } from '@web/features/plot/lib/plot-dnd';
 import { InlineNameInput } from '@web/features/plot/components/board/inline-name-input';
+import {
+  ReorderHandle,
+  useReorderSortable,
+} from '@web/features/plot/components/board/reorder-handle';
 import { PLOT_DELETE_POPULATED_HINT } from '@web/features/plot/constants/plot.constants';
 import type { PlotBeat } from '@web/features/plot/plot.types';
 
@@ -22,6 +27,8 @@ interface BeatHeaderProps {
   onRename: (name: string) => void;
   onMove: (delta: -1 | 1) => void;
   onDelete: () => void;
+  dragType: PlotDragType | null;
+  isDropTarget: boolean;
   className?: string;
 }
 
@@ -40,6 +47,8 @@ export function BeatHeader({
   onRename,
   onMove,
   onDelete,
+  dragType,
+  isDropTarget,
   className,
 }: BeatHeaderProps) {
   const [isRenaming, setIsRenaming] = useState(false);
@@ -47,12 +56,22 @@ export function BeatHeader({
   // trigger would otherwise blur the new input and commit at once.
   const renamePendingRef = useRef(false);
   const deleteHintId = useId();
+  const { isDragging, containerProps, handleProps } = useReorderSortable({
+    id: beat.id,
+    type: 'beat',
+    editable,
+    dragType,
+    paused: isRenaming,
+  });
 
   return (
     <div
+      {...containerProps}
       role="columnheader"
       className={cn(
         'group/header flex items-center gap-2 border-b border-border bg-background px-3 py-2',
+        isDragging && 'opacity-40',
+        isDropTarget && 'bg-accent outline-2 -outline-offset-2 outline-ring',
         className
       )}
     >
@@ -68,6 +87,9 @@ export function BeatHeader({
         <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
           {beat.name}
         </span>
+      )}
+      {editable && (
+        <ReorderHandle {...handleProps} name={beat.name} className={TRIGGER} />
       )}
       {editable && (
         <DropdownMenu>

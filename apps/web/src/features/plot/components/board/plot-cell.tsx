@@ -9,8 +9,10 @@ import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { PlotCard } from '@web/features/plot/components/board/plot-card';
 import {
+  acceptsDrop,
   cellDroppableId,
   type PlotDragData,
+  type PlotDragType,
 } from '@web/features/plot/lib/plot-dnd';
 import { cellKey } from '@web/features/plot/lib/plot.utils';
 import type {
@@ -25,6 +27,7 @@ interface PlotCellProps {
   cards: readonly PlotCardData[];
   color: PlotlineColor;
   editable: boolean;
+  dragType: PlotDragType | null;
   isDropTarget: boolean;
   focusRequest: PlotFocusRequest | null;
   onAddCard: () => void;
@@ -42,6 +45,7 @@ export function PlotCell({
   cards,
   color,
   editable,
+  dragType,
   isDropTarget,
   focusRequest,
   onAddCard,
@@ -52,7 +56,7 @@ export function PlotCell({
   const { setNodeRef } = useDroppable({
     id: cellDroppableId(cell),
     data,
-    disabled: !editable,
+    disabled: !editable || !acceptsDrop(dragType, 'cell'),
   });
   const empty = cards.length === 0;
   const key = cellKey(cell);
@@ -86,6 +90,7 @@ export function PlotCell({
             cell={cell}
             color={color}
             editable={editable}
+            dragType={dragType}
             onOpen={() => onOpenCard(card)}
             focusNonce={
               focusRequest &&

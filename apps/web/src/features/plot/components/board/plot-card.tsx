@@ -4,7 +4,11 @@ import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { PLOTLINE_COLOR_DOT_CLASS } from '@web/features/plot/constants/plot.constants';
-import type { PlotDragData } from '@web/features/plot/lib/plot-dnd';
+import {
+  acceptsDrop,
+  type PlotDragData,
+  type PlotDragType,
+} from '@web/features/plot/lib/plot-dnd';
 import type {
   PlotCard as PlotCardData,
   PlotCell,
@@ -16,6 +20,7 @@ interface PlotCardProps {
   cell: PlotCell;
   color: PlotlineColor;
   editable: boolean;
+  dragType: PlotDragType | null;
   onOpen: () => void;
   focusNonce?: number;
 }
@@ -27,6 +32,7 @@ export function PlotCard({
   cell,
   color,
   editable,
+  dragType,
   onOpen,
   focusNonce,
 }: PlotCardProps) {
@@ -41,7 +47,14 @@ export function PlotCard({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: card.id, data, disabled: !editable });
+  } = useSortable({
+    id: card.id,
+    data,
+    disabled: {
+      draggable: !editable,
+      droppable: !editable || !acceptsDrop(dragType, 'card'),
+    },
+  });
   const describedBy = [
     card.description && descriptionId,
     editable && attributes['aria-describedby'],
