@@ -22,9 +22,9 @@ export function renderBoard() {
 }
 
 export function servePlot(
-  plotlines: unknown[],
-  beats: unknown[],
-  cards: unknown[] = []
+  plotlines: readonly unknown[],
+  beats: readonly unknown[],
+  cards: readonly unknown[] = []
 ) {
   server.use(
     graphql.query('GetPlot', () =>

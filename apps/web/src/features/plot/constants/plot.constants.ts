@@ -52,3 +52,7 @@ export const NEW_BEAT_NAME = 'Untitled beat';
 
 export const PLOT_SAVE_ERROR = "Couldn't save your plot. Try again.";
 export const PLOT_SAVE_ERROR_ID = 'plot-save-error';
+
+// Cards block the delete (ON DELETE RESTRICT) until the Unassigned choice
+// arrives in PR 3.
+export const PLOT_DELETE_POPULATED_HINT = 'Move or delete its cards first';

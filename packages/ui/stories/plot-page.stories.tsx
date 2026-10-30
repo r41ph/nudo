@@ -18,7 +18,43 @@ const PLOT: Plot = {
     { id: 'b4', name: 'Crisis', position: 3 },
     { id: 'b5', name: 'Climax', position: 4 },
   ],
-  cards: [],
+  cards: [
+    {
+      id: 'c1',
+      title: 'Mara cases the vault',
+      description: 'She counts the guards twice and gets two answers.',
+      plotlineId: 'p1',
+      beatId: 'b1',
+      position: 0,
+    },
+    {
+      id: 'c2',
+      title: '',
+      description: 'Does Teo already know about the second key?',
+      plotlineId: 'p1',
+      beatId: 'b1',
+      position: 1,
+    },
+    {
+      id: 'c3',
+      title: 'The alarm trips early and the crew splits up across the old town',
+      description:
+        'Nobody planned for this. Mara takes the river route, Teo the ' +
+        'rooftops, and the informant vanishes with the only map of the ' +
+        'tunnels. From here on every choice costs someone something.',
+      plotlineId: 'p1',
+      beatId: 'b3',
+      position: 0,
+    },
+    {
+      id: 'c4',
+      title: 'They argue on the tram',
+      description: '',
+      plotlineId: 'p2',
+      beatId: 'b2',
+      position: 0,
+    },
+  ],
 };
 
 type PlotResponse =

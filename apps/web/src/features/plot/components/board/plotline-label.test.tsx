@@ -4,8 +4,13 @@ import userEvent from '@testing-library/user-event';
 import {
   holdMutation,
   renderBoard,
+  servePlot,
 } from '@web/features/plot/test/plot-board-harness';
-import { MOCK_PLOTLINES } from '@web/test/mocks/fixtures';
+import {
+  MOCK_PLOTLINES,
+  MOCK_PLOT_BEATS,
+  MOCK_PLOT_CARDS,
+} from '@web/test/mocks/fixtures';
 
 const [MAIN, ADA] = MOCK_PLOTLINES;
 
@@ -139,16 +144,16 @@ describe('PlotlineLabel — menu', () => {
         expect.objectContaining({ ids: [ADA.id, MAIN.id] })
       )
     );
-    expect(rowNames().map((n) => String(n).replace('0 cards', ''))).toEqual([
-      'Ada',
-      'Main plot',
-    ]);
+    expect(rowNames().map((n) => String(n).replace(/\d+ cards?$/, ''))).toEqual(
+      ['Ada', 'Main plot']
+    );
     release();
   });
 
-  it('deletes the plotline at once and confirms with a toast', async () => {
+  it('deletes an empty plotline at once and confirms with a toast', async () => {
     const user = userEvent.setup();
     const { variables, release } = holdMutation('DeletePlotline');
+    servePlot(MOCK_PLOTLINES, MOCK_PLOT_BEATS);
     renderBoard();
 
     await choose(user, 'Main plot', 'Delete plotline');
@@ -160,6 +165,31 @@ describe('PlotlineLabel — menu', () => {
     expect(variables).toHaveBeenCalledWith({ id: MAIN.id });
     release();
     expect(await screen.findByText('Deleted "Main plot"')).toBeVisible();
+  });
+
+  it('disables Delete plotline on a row with cards, saying why', async () => {
+    const user = userEvent.setup();
+    const { variables } = holdMutation('DeletePlotline');
+    servePlot(MOCK_PLOTLINES, MOCK_PLOT_BEATS, [MOCK_PLOT_CARDS[3]]);
+    renderBoard();
+
+    const mainMenu = await openMenu(user, 'Main plot');
+    expect(
+      within(mainMenu).getByRole('menuitem', { name: 'Delete plotline' })
+    ).not.toHaveAttribute('aria-disabled');
+    await user.keyboard('{Escape}');
+
+    const adaMenu = await openMenu(user, 'Ada');
+    const item = within(adaMenu).getByRole('menuitem', {
+      name: 'Delete plotline',
+    });
+    expect(item).toHaveAttribute('aria-disabled', 'true');
+    expect(item).toHaveAccessibleDescription('Move or delete its cards first');
+
+    await user.click(item);
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('rowheader', { name: /Ada/ })).toBeInTheDocument();
+    expect(variables).not.toHaveBeenCalled();
   });
 });
 
@@ -252,7 +282,7 @@ describe('PlotlineLabel — inline rename', () => {
     await startRename(user);
 
     expect(
-      within(screen.getAllByRole('rowheader')[0]).getByText('0 cards')
+      within(screen.getAllByRole('rowheader')[0]).getByText('3 cards')
     ).toBeInTheDocument();
   });
 });

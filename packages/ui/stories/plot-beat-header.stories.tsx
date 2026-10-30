@@ -25,6 +25,7 @@ const meta = {
   args: {
     beat: { id: 'b1', name: 'Inciting incident', position: 0 },
     editable: true,
+    hasCards: false,
     isFirst: false,
     isLast: false,
     onRename: noop,
@@ -47,6 +48,11 @@ export const ViewOnly: Story = {
 
 export const MenuOpen: Story = {
   args: { isLast: true },
+  play: openMenu,
+};
+
+export const MenuOpenWithCards: Story = {
+  args: { hasCards: true },
   play: openMenu,
 };
 

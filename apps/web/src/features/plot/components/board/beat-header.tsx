@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Icon } from '@ui/components/icon/icon';
 import { Button } from '@ui/components/ui/button';
 import {
@@ -10,11 +10,13 @@ import {
 } from '@ui/components/ui/dropdown-menu';
 import { cn } from '@ui/lib/utils';
 import { InlineNameInput } from '@web/features/plot/components/board/inline-name-input';
+import { PLOT_DELETE_POPULATED_HINT } from '@web/features/plot/constants/plot.constants';
 import type { PlotBeat } from '@web/features/plot/plot.types';
 
 interface BeatHeaderProps {
   beat: PlotBeat;
   editable: boolean;
+  hasCards: boolean;
   isFirst: boolean;
   isLast: boolean;
   onRename: (name: string) => void;
@@ -32,6 +34,7 @@ const TRIGGER =
 export function BeatHeader({
   beat,
   editable,
+  hasCards,
   isFirst,
   isLast,
   onRename,
@@ -43,6 +46,7 @@ export function BeatHeader({
   // Rename waits for the menu to finish closing: its focus restore to the
   // trigger would otherwise blur the new input and commit at once.
   const renamePendingRef = useRef(false);
+  const deleteHintId = useId();
 
   return (
     <div
@@ -104,10 +108,23 @@ export function BeatHeader({
               Move right
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onSelect={onDelete}>
+            <DropdownMenuItem
+              variant="destructive"
+              disabled={hasCards}
+              aria-describedby={hasCards ? deleteHintId : undefined}
+              onSelect={onDelete}
+            >
               <Icon name="trash" decorative />
               Delete beat
             </DropdownMenuItem>
+            {hasCards && (
+              <p
+                id={deleteHintId}
+                className="px-2 pb-1.5 text-xs text-muted-foreground"
+              >
+                {PLOT_DELETE_POPULATED_HINT}
+              </p>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

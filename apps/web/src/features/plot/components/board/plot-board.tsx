@@ -2,6 +2,7 @@ import { PlusIcon } from 'lucide-react';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { BeatHeader } from '@web/features/plot/components/board/beat-header';
+import { PlotCell } from '@web/features/plot/components/board/plot-cell';
 import { PlotHeader } from '@web/features/plot/components/board/plot-header';
 import { PlotlineLabel } from '@web/features/plot/components/board/plotline-label';
 import {
@@ -11,7 +12,11 @@ import {
 } from '@web/features/plot/constants/plot.constants';
 import { usePlotEditable } from '@web/features/plot/hooks/use-plot-editable';
 import { usePlotMutations } from '@web/features/plot/hooks/use-plot-mutations';
-import { moveId } from '@web/features/plot/lib/plot.utils';
+import {
+  cellKey,
+  groupCardsByCell,
+  moveId,
+} from '@web/features/plot/lib/plot.utils';
 import type { Plot } from '@web/features/plot/plot.types';
 
 interface PlotBoardProps {
@@ -44,6 +49,9 @@ export function PlotBoard({
   const editable = usePlotEditable();
   const plotlineIds = plot.plotlines.map((p) => p.id);
   const beatIds = plot.beats.map((b) => b.id);
+  const cells = groupCardsByCell(plot.cards);
+  const countBy = (key: 'plotlineId' | 'beatId', id: string) =>
+    plot.cards.filter((card) => card[key] === id).length;
   const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${plot.beats.length}, ${PLOT_BEAT_COLUMN_WIDTH}px)`;
 
   return (
@@ -51,7 +59,7 @@ export function PlotBoard({
       <PlotHeader
         plotlineCount={plot.plotlines.length}
         beatCount={plot.beats.length}
-        cardCount={0}
+        cardCount={plot.cards.length}
         editable={editable}
         onAddBeat={addBeat}
         onAddPlotline={addPlotline}
@@ -92,6 +100,7 @@ export function PlotBoard({
                 key={beat.id}
                 beat={beat}
                 editable={editable}
+                hasCards={countBy('beatId', beat.id) > 0}
                 isFirst={index === 0}
                 isLast={index === plot.beats.length - 1}
                 onRename={(name) => updateBeat(beat.id, { name })}
@@ -107,6 +116,7 @@ export function PlotBoard({
             <div key={plotline.id} role="row" className="contents">
               <PlotlineLabel
                 plotline={plotline}
+                cardCount={countBy('plotlineId', plotline.id)}
                 editable={editable}
                 isFirst={index === 0}
                 isLast={index === plot.plotlines.length - 1}
@@ -120,6 +130,18 @@ export function PlotBoard({
                 onDelete={() => deletePlotline(plotline)}
                 className={cn('sticky left-0 z-10 col-start-1', COVER_GUTTER)}
               />
+              {plot.beats.map((beat) => (
+                <PlotCell
+                  key={beat.id}
+                  cards={
+                    cells.get(
+                      cellKey({ plotlineId: plotline.id, beatId: beat.id })
+                    ) ?? []
+                  }
+                  color={plotline.color}
+                  editable={editable}
+                />
+              ))}
             </div>
           ))}
         </div>
