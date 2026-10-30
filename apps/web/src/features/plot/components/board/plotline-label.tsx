@@ -14,7 +14,12 @@ import {
   DropdownMenuTrigger,
 } from '@ui/components/ui/dropdown-menu';
 import { cn } from '@ui/lib/utils';
+import type { PlotDragType } from '@web/features/plot/lib/plot-dnd';
 import { InlineNameInput } from '@web/features/plot/components/board/inline-name-input';
+import {
+  ReorderHandle,
+  useReorderSortable,
+} from '@web/features/plot/components/board/reorder-handle';
 import {
   PLOT_DELETE_POPULATED_HINT,
   PLOTLINE_COLORS,
@@ -34,6 +39,8 @@ interface PlotlineLabelProps {
   onColorChange: (color: PlotlineColor) => void;
   onMove: (delta: -1 | 1) => void;
   onDelete: () => void;
+  dragType: PlotDragType | null;
+  isDropTarget: boolean;
   className?: string;
 }
 
@@ -53,6 +60,8 @@ export function PlotlineLabel({
   onColorChange,
   onMove,
   onDelete,
+  dragType,
+  isDropTarget,
   className,
 }: PlotlineLabelProps) {
   const [isRenaming, setIsRenaming] = useState(false);
@@ -60,15 +69,34 @@ export function PlotlineLabel({
   // trigger would otherwise blur the new input and commit at once.
   const renamePendingRef = useRef(false);
   const deleteHintId = useId();
+  const { isDragging, containerProps, handleProps } = useReorderSortable({
+    id: plotline.id,
+    type: 'plotline',
+    editable,
+    dragType,
+    paused: isRenaming,
+  });
 
   return (
     <div
+      {...containerProps}
       role="rowheader"
       className={cn(
         'group/label flex min-h-24 items-start gap-2 border-b border-border bg-background py-3 pr-3',
+        isDragging && 'opacity-40',
+        isDropTarget && 'bg-accent outline-2 -outline-offset-2 outline-ring',
         className
       )}
     >
+      {editable && (
+        // In the scroller's left gutter, so the hidden handle takes no room
+        // from the name.
+        <ReorderHandle
+          {...handleProps}
+          name={plotline.name}
+          className={cn(TRIGGER, 'absolute top-2.5 -left-8')}
+        />
+      )}
       <span
         aria-hidden
         className={cn(

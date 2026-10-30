@@ -36,6 +36,8 @@ const meta = {
     onColorChange: noop,
     onMove: noop,
     onDelete: noop,
+    dragType: null,
+    isDropTarget: false,
   },
   argTypes: {
     plotline: { control: 'object' },
@@ -75,6 +77,10 @@ export const LongName: Story = {
       position: 0,
     },
   },
+};
+
+export const DropTarget: Story = {
+  args: { isDropTarget: true },
 };
 
 export const ViewOnly: Story = {

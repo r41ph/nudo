@@ -1,3 +1,4 @@
+import { arrayMove } from '@dnd-kit/sortable';
 import {
   closestCorners,
   pointerWithin,
@@ -14,16 +15,38 @@ import {
 } from '@web/features/plot/lib/plot.utils';
 import type { Plot, PlotCard, PlotCell } from '@web/features/plot/plot.types';
 
-// Attached to every card and cell, so a drop resolves to a cell without
-// looking the target up again.
-export interface PlotDragData {
-  type: 'card' | 'cell';
-  cell: PlotCell;
-}
+// Attached to every draggable and droppable. Cards and cells carry their
+// cell, so a drop resolves to one without looking the target up again.
+type CellDragData = { type: 'card' | 'cell'; cell: PlotCell };
+export type PlotDragData = CellDragData | { type: 'plotline' | 'beat' };
+export type PlotDragType = 'card' | 'plotline' | 'beat';
 
 interface DropTarget {
   id: UniqueIdentifier;
-  data: PlotDragData;
+  data: CellDragData;
+}
+
+// One DndContext serves cards, rows and columns; while one kind is dragged,
+// the other kinds' targets are disabled.
+export function acceptsDrop(
+  dragging: PlotDragType | null,
+  target: PlotDragData['type']
+): boolean {
+  if (dragging === null) return true;
+  return dragging === 'card'
+    ? target === 'card' || target === 'cell'
+    : target === dragging;
+}
+
+export function reorderedIds(
+  ids: readonly string[],
+  activeId: UniqueIdentifier,
+  overId: UniqueIdentifier
+): string[] | null {
+  const from = ids.indexOf(String(activeId));
+  const to = ids.indexOf(String(overId));
+  if (from === -1 || to === -1 || from === to) return null;
+  return arrayMove([...ids], from, to);
 }
 
 export function cellDroppableId(cell: PlotCell): string {
@@ -73,10 +96,64 @@ export const plotCollision: CollisionDetection = (args) => {
 
 export function dropTargetOf(over: Over | null): DropTarget | null {
   const data = over?.data.current as PlotDragData | undefined;
-  return over && data ? { id: over.id, data } : null;
+  if (!over || !data || !('cell' in data)) return null;
+  return { id: over.id, data };
 }
 
-export function cardAnnouncements(plot: Plot): Announcements {
+export function dragTypeOf(active: Active): PlotDragType | null {
+  const type = (active.data.current as PlotDragData | undefined)?.type;
+  return type === 'card' || type === 'plotline' || type === 'beat'
+    ? type
+    : null;
+}
+
+export function plotAnnouncements(plot: Plot): Announcements {
+  const cards = cardAnnouncements(plot);
+  const plotlines = orderAnnouncements('plotline', plot.plotlines);
+  const beats = orderAnnouncements('beat', plot.beats);
+  const pick = (active: Active) => {
+    const type = dragTypeOf(active);
+    return type === 'plotline' ? plotlines : type === 'beat' ? beats : cards;
+  };
+
+  return {
+    onDragStart: (args) => pick(args.active).onDragStart(args),
+    onDragOver: (args) => pick(args.active).onDragOver(args),
+    onDragEnd: (args) => pick(args.active).onDragEnd(args),
+    onDragCancel: (args) => pick(args.active).onDragCancel(args),
+  };
+}
+
+function orderAnnouncements(
+  noun: 'plotline' | 'beat',
+  rows: readonly { id: string; name: string }[]
+): Announcements {
+  const Noun = noun === 'plotline' ? 'Plotline' : 'Beat';
+  const ids = rows.map((r) => r.id);
+  const name = (active: Active) =>
+    `'${rows.find((r) => r.id === active.id)?.name}'`;
+  const at = (id: UniqueIdentifier) =>
+    `position ${ids.indexOf(String(id)) + 1} of ${ids.length}`;
+
+  return {
+    onDragStart: ({ active }) =>
+      `Picked up ${noun} ${name(active)}, ${at(active.id)}.`,
+    onDragOver: ({ active, over }) => {
+      if (over?.id === active.id) return undefined;
+      return over
+        ? `${Noun} ${name(active)} is over ${at(over.id)}.`
+        : `${Noun} ${name(active)} is not over a ${noun}.`;
+    },
+    onDragEnd: ({ active, over }) =>
+      over && over.id !== active.id
+        ? `${Noun} ${name(active)} was dropped at ${at(over.id)}.`
+        : `${Noun} ${name(active)} was dropped back at ${at(active.id)}.`,
+    onDragCancel: ({ active }) =>
+      `Moving ${noun} ${name(active)} was cancelled. It stays at ${at(active.id)}.`,
+  };
+}
+
+function cardAnnouncements(plot: Plot): Announcements {
   const find = (id: UniqueIdentifier) => plot.cards.find((c) => c.id === id);
   const name = (active: Active) =>
     `'${find(active.id)?.title || 'Untitled card'}'`;

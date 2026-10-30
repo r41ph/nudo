@@ -6,7 +6,7 @@ import {
   servePlot,
 } from '@web/features/plot/test/plot-board-harness';
 import {
-  PLOT_CARD_DRAG_INSTRUCTIONS,
+  PLOT_DRAG_INSTRUCTIONS,
   PLOT_EDIT_MIN_WIDTH,
 } from '@web/features/plot/constants/plot.constants';
 import { setViewportWidth } from '@web/test/media';
@@ -85,7 +85,7 @@ describe('PlotCard', () => {
     expect(
       await screen.findByRole('button', {
         name: "The keeper's logbook",
-        description: `Ada finds the last entry torn out. ${PLOT_CARD_DRAG_INSTRUCTIONS}`,
+        description: `Ada finds the last entry torn out. ${PLOT_DRAG_INSTRUCTIONS}`,
       })
     ).toBeVisible();
   });
@@ -96,7 +96,7 @@ describe('PlotCard', () => {
     expect(
       await screen.findByRole('button', {
         name: 'Untitled card',
-        description: `Mother already knew? Maybe before the inquiry. ${PLOT_CARD_DRAG_INSTRUCTIONS}`,
+        description: `Mother already knew? Maybe before the inquiry. ${PLOT_DRAG_INSTRUCTIONS}`,
       })
     ).toBeVisible();
   });
@@ -108,7 +108,7 @@ describe('PlotCard', () => {
       await screen.findByRole('button', {
         name: 'Ada leaves on the first ferry',
       })
-    ).toHaveAccessibleDescription(PLOT_CARD_DRAG_INSTRUCTIONS);
+    ).toHaveAccessibleDescription(PLOT_DRAG_INSTRUCTIONS);
   });
 
   it('has no description at all when view-only and without one', async () => {
