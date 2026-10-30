@@ -84,15 +84,16 @@ describe('PlotlineLabel — menu', () => {
 
     const swatches = await screen.findAllByRole('menuitemradio');
     expect(swatches.map((s) => s.textContent)).toEqual([
-      'Blue',
+      'Red',
+      'Orange',
+      'Brown',
       'Green',
-      'Plum',
-      'Ochre',
-      'Teal',
-      'Rose',
-      'Slate',
+      'Black',
+      'Blue',
+      'Violet',
+      'Pink',
     ]);
-    expect(screen.getByRole('menuitemradio', { name: 'Blue' })).toHaveAttribute(
+    expect(screen.getByRole('menuitemradio', { name: 'Red' })).toHaveAttribute(
       'aria-checked',
       'true'
     );
@@ -106,19 +107,19 @@ describe('PlotlineLabel — menu', () => {
     await choose(user, 'Main plot', 'Colour');
     // Under jsdom a click on a submenu item never selects it; the keyboard
     // path does.
-    (await screen.findByRole('menuitemradio', { name: 'Rose' })).focus();
+    (await screen.findByRole('menuitemradio', { name: 'Pink' })).focus();
     await user.keyboard('{Enter}');
 
     await waitFor(() =>
       expect(variables).toHaveBeenCalledWith({
         id: MAIN.id,
-        patch: { color: 'rose' },
+        patch: { color: 'color8' },
       })
     );
     await openMenu(user, 'Main plot');
     await user.click(screen.getByRole('menuitem', { name: 'Colour' }));
     expect(
-      await screen.findByRole('menuitemradio', { name: 'Rose' })
+      await screen.findByRole('menuitemradio', { name: 'Pink' })
     ).toHaveAttribute('aria-checked', 'true');
     release();
   });

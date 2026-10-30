@@ -51,14 +51,15 @@
   --status-done: #6f9c82; /* done / saved dot */
   --status-empty: #c7bca8; /* empty status ring */
   --row-hover: rgba(42, 37, 31, 0.035); /* neutral ink wash — row hover */
-  /* Plotline palette; keys stored in plotlines.color. Each is >=3:1 on --background. */
-  --plot-blue: #3f5f8f;
-  --plot-green: #5a7a4f;
-  --plot-plum: #7a4a78;
-  --plot-ochre: #9a6b1f;
-  --plot-teal: #2f6f6f;
-  --plot-rose: #a8466a;
-  --plot-slate: #5e6470;
+  /* Plotline palette; plot.constants.ts maps the stored keys (color1–color8) to these. */
+  --plot-red: #f04a4a;
+  --plot-orange: #faa916;
+  --plot-brown: #8b5e3c;
+  --plot-green: #34c759;
+  --plot-black: #000000;
+  --plot-blue: #00a3ff;
+  --plot-violet: #ab64f2;
+  --plot-pink: #ff69b4;
 }
 
 .dark {
@@ -108,14 +109,15 @@
   --status-done: #7fae91; /* done */
   --status-empty: #5a5246; /* empty status ring */
   --row-hover: rgba(232, 223, 208, 0.05); /* neutral ink wash — row hover */
-  /* Plotline palette — dark. */
-  --plot-blue: #8fa8d8;
-  --plot-green: #9cb88a;
-  --plot-plum: #c48fc0;
-  --plot-ochre: #d9b25a;
-  --plot-teal: #7ab8b0;
-  --plot-rose: #e08aa8;
-  --plot-slate: #a6abb5;
+  /* Plotline palette — dark. Black turns white so it stays visible. */
+  --plot-red: #f04a4a;
+  --plot-orange: #faa916;
+  --plot-brown: #8b5e3c;
+  --plot-green: #34c759;
+  --plot-black: #ffffff;
+  --plot-blue: #00a3ff;
+  --plot-violet: #ab64f2;
+  --plot-pink: #ff69b4;
 }
 
 @theme inline {
@@ -168,13 +170,14 @@
   --color-status-empty: var(--status-empty);
   --color-row-hover: var(--row-hover);
   --font-serif: 'Newsreader', 'EB Garamond', Georgia, serif;
-  --color-plot-blue: var(--plot-blue);
+  --color-plot-red: var(--plot-red);
+  --color-plot-orange: var(--plot-orange);
+  --color-plot-brown: var(--plot-brown);
   --color-plot-green: var(--plot-green);
-  --color-plot-plum: var(--plot-plum);
-  --color-plot-ochre: var(--plot-ochre);
-  --color-plot-teal: var(--plot-teal);
-  --color-plot-rose: var(--plot-rose);
-  --color-plot-slate: var(--plot-slate);
+  --color-plot-black: var(--plot-black);
+  --color-plot-blue: var(--plot-blue);
+  --color-plot-violet: var(--plot-violet);
+  --color-plot-pink: var(--plot-pink);
 }
 
 @layer base {

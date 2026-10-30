@@ -65,13 +65,13 @@ export const MOCK_PLOTLINES = [
   {
     id: '0a000000-0000-4000-8000-000000000001',
     name: 'Main plot',
-    color: 'blue',
+    color: 'color1',
     position: 0,
   },
   {
     id: '0a000000-0000-4000-8000-000000000002',
     name: 'Ada',
-    color: 'green',
+    color: 'color4',
     position: 1,
   },
 ] as const;

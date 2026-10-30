@@ -68,7 +68,7 @@ export function PlotlineLabel({
       <span
         aria-hidden
         className={cn(
-          'mt-1.5 size-2.5 shrink-0 rounded-full',
+          'mt-1.25 size-3 shrink-0 rounded-full',
           PLOTLINE_COLOR_DOT_CLASS[plotline.color]
         )}
       />
@@ -135,7 +135,7 @@ export function PlotlineLabel({
                       <span
                         aria-hidden
                         className={cn(
-                          'size-2.5 shrink-0 rounded-full',
+                          'size-3 shrink-0 rounded-full',
                           PLOTLINE_COLOR_DOT_CLASS[color]
                         )}
                       />

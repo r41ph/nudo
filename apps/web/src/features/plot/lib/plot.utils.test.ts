@@ -8,19 +8,19 @@ import { PLOTLINE_COLORS } from '@web/features/plot/constants/plot.constants';
 
 describe('nextPlotlineColor', () => {
   it('starts with the first key on an empty board', () => {
-    expect(nextPlotlineColor([])).toBe('blue');
+    expect(nextPlotlineColor([])).toBe('color1');
   });
 
   it('takes the first key not yet used, not the next in sequence', () => {
-    expect(nextPlotlineColor(['blue', 'plum'])).toBe('green');
+    expect(nextPlotlineColor(['color1', 'color3'])).toBe('color2');
   });
 
-  it('cycles round once all seven are used', () => {
-    expect(nextPlotlineColor([...PLOTLINE_COLORS])).toBe('blue');
+  it('cycles round once all eight are used', () => {
+    expect(nextPlotlineColor([...PLOTLINE_COLORS])).toBe('color1');
   });
 
   it('keeps cycling evenly past the first round', () => {
-    expect(nextPlotlineColor([...PLOTLINE_COLORS, 'blue'])).toBe('green');
+    expect(nextPlotlineColor([...PLOTLINE_COLORS, 'color1'])).toBe('color2');
   });
 });
 

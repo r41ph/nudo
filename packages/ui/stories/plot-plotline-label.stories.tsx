@@ -27,7 +27,7 @@ const meta = {
     ),
   ],
   args: {
-    plotline: { id: 'p1', name: 'The heist', color: 'blue', position: 0 },
+    plotline: { id: 'p1', name: 'The heist', color: 'color6', position: 0 },
     editable: true,
     isFirst: false,
     isLast: false,
@@ -70,7 +70,7 @@ export const LongName: Story = {
     plotline: {
       id: 'p1',
       name: 'Mara and Teo argue about whether to leave Lisbon',
-      color: 'plum',
+      color: 'color7',
       position: 0,
     },
   },

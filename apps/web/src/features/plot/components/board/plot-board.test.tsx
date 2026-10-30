@@ -83,7 +83,7 @@ describe('PlotBoard', () => {
       expect(variables).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Untitled plotline',
-          color: 'plum',
+          color: 'color2',
           position: 2,
         })
       );

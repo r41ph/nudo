@@ -7,9 +7,9 @@ import type { Plot } from '@web/features/plot/plot.types';
 
 const PLOT: Plot = {
   plotlines: [
-    { id: 'p1', name: 'The heist', color: 'blue', position: 0 },
-    { id: 'p2', name: 'Mara and Teo', color: 'rose', position: 1 },
-    { id: 'p3', name: 'The informant', color: 'ochre', position: 2 },
+    { id: 'p1', name: 'The heist', color: 'color6', position: 0 },
+    { id: 'p2', name: 'Mara and Teo', color: 'color8', position: 1 },
+    { id: 'p3', name: 'The informant', color: 'color2', position: 2 },
   ],
   beats: [
     { id: 'b1', name: 'Inciting incident', position: 0 },
