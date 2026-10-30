@@ -112,6 +112,29 @@ describe('PlotPage', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  it('keeps the board when a refetch after an edit fails', async () => {
+    renderPage();
+    await screen.findByRole('heading', { name: 'Plot' });
+
+    const refetched = vi.fn();
+    server.use(
+      graphql.mutation('CreatePlotBeat', () => HttpResponse.json({ data: {} })),
+      graphql.query('GetPlot', () => {
+        refetched();
+        return HttpResponse.json({ errors: [{ message: 'boom' }] });
+      })
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Add beat' }));
+
+    await waitFor(() => expect(refetched).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    );
+    expect(
+      screen.getByRole('table', { name: 'Plot board' })
+    ).toBeInTheDocument();
+  });
+
   it('shows the empty state when the project has no plotlines and no beats', async () => {
     renderPage(EMPTY_PROJECT_ID);
 
