@@ -37,25 +37,25 @@ a project, and a Plot card may only link to documents in its own project.
 
 ### Success criteria
 
-- [ ] Every document belongs to exactly one project. Existing users' documents
+- [x] Every document belongs to exactly one project. Existing users' documents
       are moved into one project each by the migration, and nothing is lost.
-- [ ] A user can create, rename, switch between and delete projects.
-- [ ] The sidebar header shows the active project's real title. The string
+- [x] A user can create, rename, switch between and delete projects.
+- [x] The sidebar header shows the active project's real title. The string
       `"Project Alpha"` no longer exists in the code.
-- [ ] The outline, the word counts (**total** is per project), the POV
+- [x] The outline, the word counts (**total** is per project), the POV
       suggestions and document creation are all limited to the active
       project.
-- [ ] URLs carry the project: `/project/:projectId/document/:documentId`.
-- [ ] `/` opens the last-used project. If there is none, it opens the most
+- [x] URLs carry the project: `/project/:projectId/document/:documentId`.
+- [x] `/` opens the last-used project. If there is none, it opens the most
       recently created project. With no projects at all, it shows an empty
       state with **Create a project**.
-- [ ] Deleting a project requires typing its title, removes all of its
+- [x] Deleting a project requires typing its title, removes all of its
       documents, versions and discussions, and moves the writer to another
       project or to the empty state.
-- [ ] The database enforces, on every write path, that a document's project
+- [x] The database enforces, on every write path, that a document's project
       belongs to the document's user and that a document's parent is in the
       same project. RLS isolates projects per user.
-- [ ] Sign-up creates the user, their first project and the starter
+- [x] Sign-up creates the user, their first project and the starter
       documents in one transaction.
 
 ## Repository facts this spec builds on
