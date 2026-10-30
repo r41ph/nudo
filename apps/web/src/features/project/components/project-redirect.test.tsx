@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { graphql, HttpResponse } from 'msw';
 import { Route, Routes, useParams } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { ProjectRedirect } from '@web/features/project/components/project-redire
 import { tokenAtom } from '@web/features/auth/state/auth.store';
 import { server } from '@web/test/mocks/server';
 import { renderWithProviders, createStore } from '@web/test/test-utils';
-import { MOCK_TOKEN } from '@web/test/mocks/fixtures';
+import { MOCK_NEW_PROJECT_ID, MOCK_TOKEN } from '@web/test/mocks/fixtures';
 
 const OLDER = { id: '00000000-0000-0000-0000-00000000000a', title: 'Older' };
 const NEWER = { id: '00000000-0000-0000-0000-00000000000b', title: 'Newer' };
@@ -68,7 +68,7 @@ describe('ProjectRedirect', () => {
     expect(await screen.findByText(`opened ${NEWER.id}`)).toBeInTheDocument();
   });
 
-  it('says so when there are no projects', async () => {
+  it('offers to create a project when there are none', async () => {
     serveProjects([]);
 
     renderRoot();
@@ -76,6 +76,35 @@ describe('ProjectRedirect', () => {
     expect(
       await screen.findByText('You have no projects yet.')
     ).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Create a project' })
+    );
+
+    const dialog = await screen.findByRole('dialog', { name: 'New project' });
+    await userEvent.type(within(dialog).getByLabelText('Title'), 'Saga');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    expect(
+      await screen.findByText(`opened ${MOCK_NEW_PROJECT_ID}`)
+    ).toBeInTheDocument();
+  });
+
+  it('returns focus to Create a project when the dialog is cancelled', async () => {
+    serveProjects([]);
+
+    renderRoot();
+
+    const create = await screen.findByRole('button', {
+      name: 'Create a project',
+    });
+    await userEvent.click(create);
+    await userEvent.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Cancel',
+      })
+    );
+
+    expect(create).toHaveFocus();
   });
 
   it('surfaces a load failure with a working retry', async () => {
