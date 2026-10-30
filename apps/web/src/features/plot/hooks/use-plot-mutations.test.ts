@@ -76,7 +76,7 @@ describe('usePlotMutations: plotlines', () => {
     const added = result.current.plot.data!.plotlines[2];
     expect(added).toMatchObject({
       name: 'Untitled plotline',
-      color: 'plum',
+      color: 'color2',
       position: 2,
     });
     await waitFor(() =>
@@ -84,7 +84,7 @@ describe('usePlotMutations: plotlines', () => {
         id: added.id,
         projectId: MOCK_PROJECT.id,
         name: 'Untitled plotline',
-        color: 'plum',
+        color: 'color2',
         position: 2,
       })
     );
@@ -108,7 +108,7 @@ describe('usePlotMutations: plotlines', () => {
     act(() =>
       result.current.mutations.updatePlotline(ada.id, {
         name: 'Romance',
-        color: 'rose',
+        color: 'color8',
       })
     );
 
@@ -116,13 +116,13 @@ describe('usePlotMutations: plotlines', () => {
       expect(result.current.plot.data!.plotlines[1]).toMatchObject({
         id: ada.id,
         name: 'Romance',
-        color: 'rose',
+        color: 'color8',
       })
     );
     await waitFor(() =>
       expect(variables).toHaveBeenCalledWith({
         id: ada.id,
-        patch: { name: 'Romance', color: 'rose' },
+        patch: { name: 'Romance', color: 'color8' },
       })
     );
     release();

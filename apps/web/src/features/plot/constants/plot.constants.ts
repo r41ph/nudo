@@ -1,33 +1,38 @@
-// Order matters: a new plotline takes the first key not yet used.
+// The database stores only these keys; the label and colour of each live here,
+// so the palette can change without a migration. Order matters: a new plotline
+// takes the first key not yet used.
 export const PLOTLINE_COLORS = [
-  'blue',
-  'green',
-  'plum',
-  'ochre',
-  'teal',
-  'rose',
-  'slate',
+  'color1',
+  'color2',
+  'color3',
+  'color4',
+  'color5',
+  'color6',
+  'color7',
+  'color8',
 ] as const;
 
 export const PLOTLINE_COLOR_LABELS = {
-  blue: 'Blue',
-  green: 'Green',
-  plum: 'Plum',
-  ochre: 'Ochre',
-  teal: 'Teal',
-  rose: 'Rose',
-  slate: 'Slate',
+  color1: 'Red',
+  color2: 'Orange',
+  color3: 'Brown',
+  color4: 'Green',
+  color5: 'Black',
+  color6: 'Blue',
+  color7: 'Violet',
+  color8: 'Pink',
 } as const satisfies Record<(typeof PLOTLINE_COLORS)[number], string>;
 
 // Literal class names so Tailwind's scanner sees every one of them.
 export const PLOTLINE_COLOR_DOT_CLASS = {
-  blue: 'bg-plot-blue',
-  green: 'bg-plot-green',
-  plum: 'bg-plot-plum',
-  ochre: 'bg-plot-ochre',
-  teal: 'bg-plot-teal',
-  rose: 'bg-plot-rose',
-  slate: 'bg-plot-slate',
+  color1: 'bg-plot-red',
+  color2: 'bg-plot-orange',
+  color3: 'bg-plot-brown',
+  color4: 'bg-plot-green',
+  color5: 'bg-plot-black',
+  color6: 'bg-plot-blue',
+  color7: 'bg-plot-violet',
+  color8: 'bg-plot-pink',
 } as const satisfies Record<(typeof PLOTLINE_COLORS)[number], string>;
 
 export const PLOT_LABEL_COLUMN_WIDTH = 200;

@@ -38,7 +38,7 @@ a mind map or a world-building suite.
 | 6 | One large implementation. | Ten small PRs ordered by dependency, each with its own tests (`plot.plan.md`). |
 | 7 | Route `/plot`, owned by the user. | `/project/:projectId/plot`, matching the project-scoped URLs from the projects spec. |
 | 8 | "Reuse the outline's `@dnd-kit` setup." | Repository fact: the outline uses `@headless-tree`. `@dnd-kit` is installed in `apps/web` but nothing imports it. Plot uses `@dnd-kit` (no new dependency) and sets the pattern itself. |
-| 9 | Plotline colour stored as a key with no palette defined. | It is still a key, but now with a defined 7-key palette (§6.2) taken from the mockups. |
+| 9 | Plotline colour stored as a key with no palette defined. | It is still a key, but a neutral one (`color1`–`color8`); the web app maps each key to a colour (§6.2). |
 
 ## 3. Domain model: one Plot, several views
 
@@ -135,29 +135,32 @@ Romance, 1987…). There is no type enum.
 | Column | Type |
 | --- | --- |
 | `name` | `text NOT NULL DEFAULT 'Untitled plotline'`, 1–120 chars after trim |
-| `color` | `text NOT NULL`, CHECK in the palette keys (§6.2) |
+| `color` | `text NOT NULL`, CHECK `color1`–`color8` (§6.2) |
 | `position` | among the project's plotlines |
 
 ### 6.2 Plotline palette
 
-Seven keys taken from the mockups. They become `--plot-<key>` tokens in
-`packages/ui/src/tailwind.css` (light and dark). Storing a key rather than a
-hex value means a colour can be retuned without a migration. Each value is
-checked for ≥3:1 contrast against `--background` in PR 1, and adjusted there
-if it fails.
+The database stores neutral keys, `color1` to `color8` (migration 026
+replaced 025's named keys). `plot.constants.ts` maps each key to its label and
+a `--plot-<colour>` token in `packages/ui/src/tailwind.css`, so the palette can
+be redesigned without a migration. The colours differ enough in hue and
+lightness to stay distinct as 12px dots. The ≥3:1 contrast rule does not apply
+to them: the dot is never the only cue, because the plotline's name is always
+shown beside it. Orange, green, blue and pink sit below 3:1 in light mode.
 
-| Key | Light | Dark |
-| --- | --- | --- |
-| `blue` | `#3f5f8f` | `#8fa8d8` |
-| `green` | `#5a7a4f` | `#9cb88a` |
-| `plum` | `#7a4a78` | `#c48fc0` |
-| `ochre` | `#9a6b1f` | `#d9b25a` |
-| `teal` | `#2f6f6f` | `#7ab8b0` |
-| `rose` | `#a8466a` | `#e08aa8` |
-| `slate` | `#5e6470` | `#a6abb5` |
+| Key | Label | Light | Dark |
+| --- | --- | --- | --- |
+| `color1` | Red | `#f04a4a` | `#f04a4a` |
+| `color2` | Orange | `#faa916` | `#faa916` |
+| `color3` | Brown | `#8b5e3c` | `#8b5e3c` |
+| `color4` | Green | `#34c759` | `#34c759` |
+| `color5` | Black | `#000000` | `#ffffff` |
+| `color6` | Blue | `#00a3ff` | `#00a3ff` |
+| `color7` | Violet | `#ab64f2` | `#ab64f2` |
+| `color8` | Pink | `#ff69b4` | `#ff69b4` |
 
 A new plotline takes the first key not yet used in the project, then cycles
-round once all seven are used.
+round once all eight are used.
 
 ### 6.3 Beat — `plot_beats`
 
@@ -246,7 +249,7 @@ The first view, and the one V1 delivers.
 The title is "Lay out your story" and the body is "Plotlines run across,
 beats run down the page. Pin each idea where it belongs, like index cards on
 a desk." The single action is **Start plot**, which creates one plotline
-("Main plot", `blue`) and three beats (Beginning, Middle, End) in one
+("Main plot", `color1`) and three beats (Beginning, Middle, End) in one
 transaction, then shows the board. ("Scene" in the mockup copy is replaced
 with "idea": cards are not scenes.)
 
@@ -375,7 +378,7 @@ nothing has to be kept in sync.
 
 - **Create:** in the card editor, **Connect to…** opens a filterable list of
   the other cards ("Title — Plotline · Beat"). Pick one, then optionally set
-  a label, colour (default `slate`) and direction. Everything works by
+  a label, colour (default `color5`) and direction. Everything works by
   keyboard. Dragging a line from one card to another is future exploration.
 - **Render:** a single absolutely positioned `<svg>` inside the grid's
   scroll container, `pointer-events: none`, drawing a cubic path from the

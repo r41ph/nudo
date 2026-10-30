@@ -128,7 +128,7 @@ async function insertPlotline(
       owner.id,
       projectId,
       opts.name ?? 'A plotline',
-      opts.color ?? 'blue',
+      opts.color ?? 'color1',
       opts.position ?? 0,
     ]
   );
@@ -192,7 +192,7 @@ describe('plotlines: generic CRUD', () => {
       };
     }>(
       CREATE_PLOTLINE,
-      { projectId, name: 'Main plot', color: 'plum', position: 0 },
+      { projectId, name: 'Main plot', color: 'color7', position: 0 },
       user.token
     );
 
@@ -201,7 +201,7 @@ describe('plotlines: generic CRUD', () => {
     expect(plotline).toMatchObject({
       userId: user.id,
       name: 'Main plot',
-      color: 'plum',
+      color: 'color7',
     });
     expect(await rowOf('plotlines', plotline.id)).toMatchObject({
       user_id: user.id,
@@ -215,7 +215,11 @@ describe('plotlines: generic CRUD', () => {
 
     const res = await graphql<{
       createPlotline: { plotline: { name: string } };
-    }>(CREATE_PLOTLINE, { projectId, color: 'blue', position: 0 }, user.token);
+    }>(
+      CREATE_PLOTLINE,
+      { projectId, color: 'color1', position: 0 },
+      user.token
+    );
 
     expect(res.errors).toBeUndefined();
     expect(res.data!.createPlotline.plotline.name).toBe('Untitled plotline');
@@ -228,14 +232,14 @@ describe('plotlines: generic CRUD', () => {
 
     const res = await graphql(
       UPDATE_PLOTLINE,
-      { id, patch: { name: 'Romance', color: 'rose' } },
+      { id, patch: { name: 'Romance', color: 'color8' } },
       user.token
     );
 
     expect(res.errors).toBeUndefined();
     expect(await rowOf('plotlines', id)).toMatchObject({
       name: 'Romance',
-      color: 'rose',
+      color: 'color8',
     });
   });
 
@@ -286,7 +290,7 @@ describe('plotlines: generic CRUD', () => {
   it('accepts every palette key', async () => {
     const user = await createUser();
     const projectId = await getProjectId(user);
-    const keys = ['blue', 'green', 'plum', 'ochre', 'teal', 'rose', 'slate'];
+    const keys = Array.from({ length: 8 }, (_, i) => `color${i + 1}`);
 
     for (const [position, color] of keys.entries()) {
       const res = await graphql(
@@ -297,6 +301,21 @@ describe('plotlines: generic CRUD', () => {
       expect(res.errors).toBeUndefined();
     }
     expect(await countIn('plotlines', projectId)).toBe(keys.length);
+  });
+
+  it('rejects colour names and keys outside color1-color8', async () => {
+    const user = await createUser();
+    const projectId = await getProjectId(user);
+
+    for (const color of ['blue', 'plum', 'color0', 'color9']) {
+      const res = await graphql(
+        CREATE_PLOTLINE,
+        { projectId, color, position: 0 },
+        user.token
+      );
+      expect(res.errors).toBeDefined();
+    }
+    expect(await countIn('plotlines', projectId)).toBe(0);
   });
 });
 
@@ -375,7 +394,7 @@ describe('start_plot', () => {
       [projectId]
     );
     expect(plotlines.rows).toEqual([
-      { name: 'Main plot', color: 'blue', position: 0, user_id: user.id },
+      { name: 'Main plot', color: 'color1', position: 0, user_id: user.id },
     ]);
     const beats = await pool.query(
       `SELECT name, position FROM plot_beats
@@ -653,13 +672,13 @@ describe('RLS: plotlines and beats', () => {
 
     await graphql(
       UPDATE_PLOTLINE,
-      { id, patch: { name: 'Hijacked', color: 'rose' } },
+      { id, patch: { name: 'Hijacked', color: 'color8' } },
       userB.token
     );
 
     expect(await rowOf('plotlines', id)).toMatchObject({
       name: 'Original',
-      color: 'blue',
+      color: 'color1',
     });
   });
 
@@ -699,7 +718,7 @@ describe('RLS: plotlines and beats', () => {
 
     const plotline = await graphql(
       CREATE_PLOTLINE,
-      { projectId, color: 'blue', position: 0 },
+      { projectId, color: 'color1', position: 0 },
       userB.token
     );
     const beat = await graphql(
