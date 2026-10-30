@@ -24,7 +24,7 @@ export function PlotPage() {
 
   // Falling through to the empty state would offer Start plot on a project
   // that may already have one. A failed refetch keeps its data, so the board
-  // stays up instead of vanishing after every edit's settle refetch.
+  // stays up with a notice instead of vanishing.
   if (isError && !plot) {
     return (
       <div
@@ -49,5 +49,12 @@ export function PlotPage() {
     );
   }
 
-  return <PlotBoard projectId={projectId} plot={plot} />;
+  return (
+    <PlotBoard
+      projectId={projectId}
+      plot={plot}
+      refreshFailed={isError}
+      onRetry={() => refetch()}
+    />
+  );
 }

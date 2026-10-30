@@ -112,21 +112,36 @@ describe('PlotPage', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('keeps the board when a refetch after an edit fails', async () => {
+  it('keeps the board when a refetch fails, and Retry clears the notice', async () => {
     renderPage();
     await screen.findByRole('heading', { name: 'Plot' });
 
-    const refetched = vi.fn();
+    let fail = true;
     server.use(
       graphql.mutation('CreatePlotBeat', () => HttpResponse.json({ data: {} })),
-      graphql.query('GetPlot', () => {
-        refetched();
-        return HttpResponse.json({ errors: [{ message: 'boom' }] });
-      })
+      graphql.query('GetPlot', () =>
+        fail
+          ? HttpResponse.json({ errors: [{ message: 'boom' }] })
+          : HttpResponse.json({
+              data: {
+                allPlotlines: { nodes: MOCK_PLOTLINES },
+                allPlotBeats: { nodes: MOCK_PLOT_BEATS },
+              },
+            })
+      )
     );
     await userEvent.click(screen.getByRole('button', { name: 'Add beat' }));
 
-    await waitFor(() => expect(refetched).toHaveBeenCalled());
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Couldn't refresh your plot."
+    );
+    expect(
+      screen.getByRole('table', { name: 'Plot board' })
+    ).toBeInTheDocument();
+
+    fail = false;
+    await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
+
     await waitFor(() =>
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     );

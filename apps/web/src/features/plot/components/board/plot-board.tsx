@@ -17,13 +17,20 @@ import type { Plot } from '@web/features/plot/plot.types';
 interface PlotBoardProps {
   projectId: string;
   plot: Plot;
+  refreshFailed?: boolean;
+  onRetry?: () => void;
 }
 
 // The scroller's left gutter would show cells sliding past the sticky label
 // column; this shadow paints the page background over it.
 const COVER_GUTTER = 'shadow-[-2.5rem_0_0_0_var(--background)]';
 
-export function PlotBoard({ projectId, plot }: PlotBoardProps) {
+export function PlotBoard({
+  projectId,
+  plot,
+  refreshFailed = false,
+  onRetry,
+}: PlotBoardProps) {
   const {
     addBeat,
     addPlotline,
@@ -49,6 +56,17 @@ export function PlotBoard({ projectId, plot }: PlotBoardProps) {
         onAddBeat={addBeat}
         onAddPlotline={addPlotline}
       />
+      {refreshFailed && (
+        <div
+          role="alert"
+          className="mx-10 mb-4 flex items-center justify-between gap-4 rounded-md border border-border bg-muted px-3 py-2 text-sm text-foreground"
+        >
+          Couldn&apos;t refresh your plot.
+          <Button variant="outline" size="sm" onClick={onRetry}>
+            Retry
+          </Button>
+        </div>
+      )}
       {!editable && (
         <p className="mx-10 mb-4 rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
           {PLOT_VIEW_ONLY_MESSAGE}
