@@ -6,6 +6,7 @@ import { SidebarProvider } from '@ui/components/ui/sidebar';
 import { userAtom } from '@web/features/auth/state/auth.store';
 import { themeAtom, type Theme } from '@web/shared/state/theme.atom';
 import { SidebarFooterActions } from '@web/features/sidebar/components/sidebar-footer-actions';
+import { PROJECTS_QUERY_KEY } from '@web/shared/api/project.api';
 
 function createStoryStore(theme: Theme = 'light') {
   const store = createStore();
@@ -18,13 +19,16 @@ function createStoryStore(theme: Theme = 'light') {
   return store;
 }
 
-// Seeded so the word counts render without a network.
+// Seeded so the menu renders without a network.
 function createStoryQueryClient() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
   });
   queryClient.setQueryData(['documents'], {
     allDocuments: { nodes: [{ id: 'd1', wordCount: 45 }] },
+  });
+  queryClient.setQueryData(PROJECTS_QUERY_KEY, {
+    allProjects: { nodes: [{ id: 'p1', title: 'The Lamp' }] },
   });
   return queryClient;
 }

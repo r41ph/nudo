@@ -56,6 +56,7 @@ describe('SidebarFooterActions — account menu', () => {
     ).map((el) => el.textContent?.trim());
     expect(labels).toEqual([
       'Dark mode',
+      'Projects',
       'Settings',
       'Trash',
       'Help',

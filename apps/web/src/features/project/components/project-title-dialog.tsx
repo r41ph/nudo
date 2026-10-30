@@ -19,6 +19,7 @@ interface ProjectTitleDialogProps {
   defaultTitle?: string;
   // Resolves when the title is saved; a rejection keeps the dialog open.
   onSave: (title: string) => Promise<unknown>;
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
 export function ProjectTitleDialog({
@@ -27,10 +28,15 @@ export function ProjectTitleDialog({
   heading,
   defaultTitle = '',
   onSave,
+  onCloseAutoFocus,
 }: ProjectTitleDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined} className="sm:max-w-md">
+      <DialogContent
+        aria-describedby={undefined}
+        className="sm:max-w-md"
+        onCloseAutoFocus={onCloseAutoFocus}
+      >
         <DialogHeader>
           <DialogTitle>{heading}</DialogTitle>
         </DialogHeader>

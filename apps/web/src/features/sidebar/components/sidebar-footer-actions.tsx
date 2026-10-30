@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { Icon, type IconName } from '@ui/components/icon/icon';
 import { Avatar, AvatarFallback } from '@ui/components/ui/avatar';
@@ -12,6 +13,12 @@ import {
 import { SidebarFooter } from '@ui/components/ui/sidebar';
 import { userAtom } from '@web/features/auth/state/auth.store';
 import { useLogout } from '@web/features/auth/hooks/use-logout';
+import {
+  ProjectDialogs,
+  ProjectsSubmenu,
+  type ProjectDialog,
+} from '@web/features/project/components/projects-submenu';
+import { ACCOUNT_MENU_ITEM } from '@web/features/sidebar/sidebar.constants';
 import { useDarkMode } from '@web/shared/hooks/use-theme';
 
 function initialsFor(displayName: string | null, email: string): string {
@@ -31,11 +38,6 @@ const UNWIRED: ReadonlyArray<{ label: string; icon: IconName }> = [
   { label: 'Keyboard shortcuts', icon: 'keyboard' },
 ];
 
-const ITEM =
-  'h-9 gap-2.5 rounded-lg px-[9px] py-0 text-[13.5px] text-foreground ' +
-  'focus:bg-sidebar-accent focus:text-foreground data-[disabled]:opacity-100 ' +
-  '[&_svg]:size-4 [&_svg]:text-prose';
-
 function DarkModeItem() {
   const { isDark, setDark } = useDarkMode();
 
@@ -45,7 +47,7 @@ function DarkModeItem() {
       onCheckedChange={setDark}
       // Toggling a setting shouldn't dismiss the menu.
       onSelect={(event) => event.preventDefault()}
-      className={`${ITEM} hover:cursor-pointer [&>span:first-child]:hidden`}
+      className={`${ACCOUNT_MENU_ITEM} hover:cursor-pointer [&>span:first-child]:hidden`}
     >
       <Icon name="moon" decorative />
       Dark mode
@@ -66,6 +68,14 @@ function DarkModeItem() {
 export function SidebarFooterActions() {
   const { logout } = useLogout();
   const user = useAtomValue(userAtom);
+  // Opening a dialog while the menu is still closing loses focus to the
+  // menu's trap, so the choice waits for close-autofocus. Focus is back on the
+  // account button by then, which is where the dialog returns it.
+  const pendingDialog = useRef<ProjectDialog | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [projectDialog, setProjectDialog] = useState<ProjectDialog | null>(
+    null
+  );
 
   return (
     <SidebarFooter className="gap-3 p-0">
@@ -73,6 +83,7 @@ export function SidebarFooterActions() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
+              ref={triggerRef}
               type="button"
               aria-label={`Account: ${user.email}`}
               className="group flex h-10 items-center gap-2.5 rounded-lg px-2.5 hover:cursor-pointer hover:bg-row-hover data-[state=open]:bg-sidebar-accent"
@@ -97,10 +108,23 @@ export function SidebarFooterActions() {
             side="top"
             sideOffset={6}
             className="w-[259px] rounded-xl border-border bg-popover p-1.5 shadow-[0_8px_28px_rgba(26,25,23,0.08)]"
+            onCloseAutoFocus={() => {
+              if (!pendingDialog.current) return;
+              setProjectDialog(pendingDialog.current);
+              pendingDialog.current = null;
+            }}
           >
             <DarkModeItem />
+            <ProjectsSubmenu
+              onAction={(dialog) => (pendingDialog.current = dialog)}
+              itemClassName={ACCOUNT_MENU_ITEM}
+            />
             {UNWIRED.map(({ label, icon }) => (
-              <DropdownMenuItem key={label} disabled className={ITEM}>
+              <DropdownMenuItem
+                key={label}
+                disabled
+                className={ACCOUNT_MENU_ITEM}
+              >
                 <Icon name={icon} decorative />
                 {label}
               </DropdownMenuItem>
@@ -108,7 +132,7 @@ export function SidebarFooterActions() {
             <DropdownMenuSeparator className="mx-1.5 my-[7px]" />
             <DropdownMenuItem
               onSelect={logout}
-              className={`${ITEM} hover:cursor-pointer`}
+              className={`${ACCOUNT_MENU_ITEM} hover:cursor-pointer`}
             >
               <Icon name="logOut" decorative />
               Sign out
@@ -116,6 +140,14 @@ export function SidebarFooterActions() {
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+      <ProjectDialogs
+        dialog={projectDialog}
+        onClose={() => setProjectDialog(null)}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          triggerRef.current?.focus();
+        }}
+      />
     </SidebarFooter>
   );
 }
