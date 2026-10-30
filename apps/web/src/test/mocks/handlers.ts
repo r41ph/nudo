@@ -10,6 +10,7 @@ import {
   MOCK_PLOTLINES,
   MOCK_PLOT_BEATS,
   MOCK_NEW_PROJECT_ID,
+  MOCK_PLOT_CARDS,
 } from '@web/test/mocks/fixtures';
 
 // Both mock documents live in MOCK_PROJECT; any other project is empty.
@@ -56,6 +57,7 @@ export const handlers = [
       data: {
         allPlotlines: { nodes: populated ? MOCK_PLOTLINES : [] },
         allPlotBeats: { nodes: populated ? MOCK_PLOT_BEATS : [] },
+        allPlotCards: { nodes: populated ? MOCK_PLOT_CARDS : [] },
       },
     });
   }),

@@ -1,7 +1,12 @@
 import { gql } from 'graphql-request';
 import { queryOptions } from '@tanstack/react-query';
 import { graphqlClient } from '@web/shared/lib/graphql-client';
-import type { Plot, PlotBeat, Plotline } from '@web/features/plot/plot.types';
+import type {
+  Plot,
+  PlotBeat,
+  PlotCard,
+  Plotline,
+} from '@web/features/plot/plot.types';
 
 export const GET_PLOT = gql`
   query GetPlot($projectId: UUID!) {
@@ -20,12 +25,23 @@ export const GET_PLOT = gql`
         position
       }
     }
+    allPlotCards(condition: { projectId: $projectId }, orderBy: POSITION_ASC) {
+      nodes {
+        id
+        title
+        description
+        plotlineId
+        beatId
+        position
+      }
+    }
   }
 `;
 
 interface GetPlotData {
   allPlotlines: { nodes: Plotline[] };
   allPlotBeats: { nodes: PlotBeat[] };
+  allPlotCards: { nodes: PlotCard[] };
 }
 
 export function plotQueryKey(projectId: string | undefined) {
@@ -44,6 +60,7 @@ export function plotQueryOptions(projectId: string | undefined) {
       return {
         plotlines: data.allPlotlines.nodes,
         beats: data.allPlotBeats.nodes,
+        cards: data.allPlotCards.nodes,
       };
     },
     enabled: !!projectId,

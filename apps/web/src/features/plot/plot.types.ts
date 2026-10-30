@@ -15,7 +15,21 @@ export interface PlotBeat {
   position: number;
 }
 
+// Both ids are null when the card is Unassigned; never just one.
+export interface PlotCell {
+  plotlineId: string | null;
+  beatId: string | null;
+}
+
+export interface PlotCard extends PlotCell {
+  id: string;
+  title: string;
+  description: string;
+  position: number;
+}
+
 export interface Plot {
   plotlines: Plotline[];
   beats: PlotBeat[];
+  cards: PlotCard[];
 }
