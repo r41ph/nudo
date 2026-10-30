@@ -1,63 +1,67 @@
 import { expect, type Page, test } from '@playwright/test';
+import { registerUser } from '../fixtures/auth';
 import { dragBefore } from '../fixtures/dnd';
 
-// Journey 3: create a folder and a document, reorder the root documents via
-// drag-and-drop, and confirm the new order survives a reload. Uses the
-// authenticated storageState from the setup project.
+// Journey 3: add a folder and a document at the root of the outline, drag the
+// document to the top, and confirm the new order survives a reload. A fresh
+// user keeps earlier runs' nodes out of the tree.
+test.use({ storageState: { cookies: [], origins: [] } });
 
-/** Root tree entries (documents + folders) in DOM order, by their title. */
-function treeOrder(page: Page) {
+const DOCUMENT_URL = /\/project\/[0-9a-f-]+\/document\/[0-9a-f-]+$/i;
+
+/** Root outline rows in DOM order, by their title. */
+function rootOrder(page: Page) {
   return page
-    .getByRole('treeitem')
+    .locator('[role="treeitem"][aria-level="1"]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
 }
 
-const docOrder = async (page: Page) =>
-  (await treeOrder(page)).filter((label) => label !== 'Untitled Folder');
+async function addToDraft(page: Page, kind: 'Document' | 'Folder') {
+  await page.getByRole('button', { name: 'Add to Draft' }).click();
+  await page.getByRole('menuitem', { name: kind }).click();
+}
 
-test('reordered documents persist across a reload', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForURL(/\/document\/[0-9a-f-]+$/i);
+test('reordered outline rows persist across a reload', async ({
+  page,
+  request,
+}) => {
+  const { creds } = await registerUser(request);
 
-  // Create a folder...
-  await page.getByRole('button', { name: 'Add New' }).click();
-  await page.getByRole('menuitem', { name: 'New Folder' }).click();
+  await page.goto('/login');
+  await page.getByLabel('Email').fill(creds.email);
+  await page.getByLabel('Password').fill(creds.password);
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.waitForURL(DOCUMENT_URL);
+
+  await addToDraft(page, 'Folder');
   await expect(
     page.getByRole('treeitem', { name: 'Untitled Folder' })
   ).toBeVisible();
 
-  // ...and a second document (creation navigates to it).
-  await page.getByRole('button', { name: 'Add New' }).click();
-  await page.getByRole('menuitem', { name: 'New Document' }).click();
-  await page.waitForURL(/\/document\/[0-9a-f-]+$/i);
-  await expect(
-    page.getByRole('treeitem', { name: 'Untitled Document' })
-  ).toBeVisible();
+  // The sign-up seed's only root row is the "Chapter One" folder, so this
+  // "Untitled" is the one just added.
+  await addToDraft(page, 'Document');
+  const added = page.getByRole('treeitem', { name: 'Untitled', exact: true });
+  await expect(added).toBeVisible();
 
-  expect(await docOrder(page)).toEqual([
-    'Welcome Document',
-    'Untitled Document',
-  ]);
+  await expect
+    .poll(() => rootOrder(page))
+    .toEqual(['Chapter One', 'Untitled Folder', 'Untitled']);
 
-  // Drag the second document above the first; wait for the persist round-trip.
   const saved = page.waitForResponse(
     (r) =>
       r.url().includes('/graphql') &&
-      (r.request().postData() ?? '').includes('moveAndReorderDocument')
+      (r.request().postData() ?? '').includes('moveAndReorderNode')
   );
   await dragBefore(
     page,
-    page.getByRole('treeitem', { name: 'Untitled Document' }),
-    page.getByRole('treeitem', { name: 'Welcome Document' })
+    added,
+    page.getByRole('treeitem', { name: 'Chapter One' })
   );
   await saved;
 
   await page.reload();
-  await expect(
-    page.getByRole('treeitem', { name: 'Untitled Folder' })
-  ).toBeVisible();
-  expect(await docOrder(page)).toEqual([
-    'Untitled Document',
-    'Welcome Document',
-  ]);
+  await expect
+    .poll(() => rootOrder(page))
+    .toEqual(['Untitled', 'Chapter One', 'Untitled Folder']);
 });
