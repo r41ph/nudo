@@ -1,8 +1,17 @@
 import { useEffect, useRef } from 'react';
+import { useDroppable } from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { PlotCard } from '@web/features/plot/components/board/plot-card';
+import {
+  cellDroppableId,
+  type PlotDragData,
+} from '@web/features/plot/lib/plot-dnd';
 import { cellKey } from '@web/features/plot/lib/plot.utils';
 import type {
   PlotCard as PlotCardData,
@@ -16,6 +25,7 @@ interface PlotCellProps {
   cards: readonly PlotCardData[];
   color: PlotlineColor;
   editable: boolean;
+  isDropTarget: boolean;
   focusRequest: PlotFocusRequest | null;
   onAddCard: () => void;
   onOpenCard: (card: PlotCardData) => void;
@@ -32,11 +42,18 @@ export function PlotCell({
   cards,
   color,
   editable,
+  isDropTarget,
   focusRequest,
   onAddCard,
   onOpenCard,
 }: PlotCellProps) {
   const addRef = useRef<HTMLButtonElement>(null);
+  const data: PlotDragData = { type: 'cell', cell };
+  const { setNodeRef } = useDroppable({
+    id: cellDroppableId(cell),
+    data,
+    disabled: !editable,
+  });
   const empty = cards.length === 0;
   const key = cellKey(cell);
   const focusesAdd =
@@ -48,29 +65,38 @@ export function PlotCell({
 
   return (
     <div
+      ref={setNodeRef}
       role="cell"
       className={cn(
         'group/cell flex min-h-24 flex-col gap-2 border-b border-border p-2',
         empty &&
           editable &&
-          'transition-colors hover:bg-muted/60 focus-within:bg-muted/60'
+          'transition-colors hover:bg-muted/60 focus-within:bg-muted/60',
+        isDropTarget && 'bg-accent outline-2 -outline-offset-2 outline-ring'
       )}
     >
-      {cards.map((card) => (
-        <PlotCard
-          key={card.id}
-          card={card}
-          color={color}
-          onOpen={() => onOpenCard(card)}
-          focusNonce={
-            focusRequest &&
-            'cardId' in focusRequest &&
-            focusRequest.cardId === card.id
-              ? focusRequest.nonce
-              : undefined
-          }
-        />
-      ))}
+      <SortableContext
+        items={cards.map((c) => c.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        {cards.map((card) => (
+          <PlotCard
+            key={card.id}
+            card={card}
+            cell={cell}
+            color={color}
+            editable={editable}
+            onOpen={() => onOpenCard(card)}
+            focusNonce={
+              focusRequest &&
+              'cardId' in focusRequest &&
+              focusRequest.cardId === card.id
+                ? focusRequest.nonce
+                : undefined
+            }
+          />
+        ))}
+      </SortableContext>
       {editable && (
         <Button
           ref={addRef}

@@ -1,25 +1,53 @@
 import { useEffect, useId, useRef } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { PLOTLINE_COLOR_DOT_CLASS } from '@web/features/plot/constants/plot.constants';
+import type { PlotDragData } from '@web/features/plot/lib/plot-dnd';
 import type {
   PlotCard as PlotCardData,
+  PlotCell,
   PlotlineColor,
 } from '@web/features/plot/plot.types';
 
 interface PlotCardProps {
   card: PlotCardData;
+  cell: PlotCell;
   color: PlotlineColor;
+  editable: boolean;
   onOpen: () => void;
   focusNonce?: number;
 }
 
 // Named and described by id: a heading inside a button is invalid, and
 // button content is flattened into one long name otherwise.
-export function PlotCard({ card, color, onOpen, focusNonce }: PlotCardProps) {
-  const ref = useRef<HTMLButtonElement>(null);
+export function PlotCard({
+  card,
+  cell,
+  color,
+  editable,
+  onOpen,
+  focusNonce,
+}: PlotCardProps) {
+  const ref = useRef<HTMLButtonElement | null>(null);
   const titleId = useId();
   const descriptionId = useId();
+  const data: PlotDragData = { type: 'card', cell };
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: card.id, data, disabled: !editable });
+  const describedBy = [
+    card.description && descriptionId,
+    editable && attributes['aria-describedby'],
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   // Also runs on mount, so a card that moved cells takes focus in its new one.
   useEffect(() => {
@@ -28,13 +56,48 @@ export function PlotCard({ card, color, onOpen, focusNonce }: PlotCardProps) {
 
   return (
     <Button
-      ref={ref}
+      ref={(node) => {
+        ref.current = node;
+        setNodeRef(node);
+      }}
       variant="outline"
+      {...(editable ? { ...attributes, ...listeners } : {})}
       aria-labelledby={titleId}
-      aria-describedby={card.description ? descriptionId : undefined}
+      aria-describedby={describedBy || undefined}
       onClick={onOpen}
-      className="h-auto w-full flex-col items-stretch gap-0 whitespace-normal bg-card p-3 text-left font-normal dark:bg-card"
+      // Space picks the card up; without this its keyup would also click it.
+      onKeyUp={(event) => {
+        if (editable && event.code === 'Space') event.preventDefault();
+      }}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+      className={cn(
+        'h-auto w-full flex-col items-stretch gap-0 whitespace-normal bg-card p-3 text-left font-normal dark:bg-card',
+        isDragging && 'opacity-40'
+      )}
     >
+      <PlotCardFace
+        card={card}
+        color={color}
+        titleId={titleId}
+        descriptionId={descriptionId}
+      />
+    </Button>
+  );
+}
+
+export function PlotCardFace({
+  card,
+  color,
+  titleId,
+  descriptionId,
+}: {
+  card: PlotCardData;
+  color: PlotlineColor;
+  titleId?: string;
+  descriptionId?: string;
+}) {
+  return (
+    <>
       <span
         id={titleId}
         className={cn(
@@ -59,6 +122,6 @@ export function PlotCard({ card, color, onOpen, focusNonce }: PlotCardProps) {
           {card.description}
         </span>
       )}
-    </Button>
+    </>
   );
 }
