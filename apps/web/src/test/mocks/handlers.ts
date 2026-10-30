@@ -108,6 +108,28 @@ export const handlers = [
     })
   ),
 
+  graphql.mutation('CreatePlotCard', ({ variables }) =>
+    HttpResponse.json({
+      data: { createPlotCard: { plotCard: { id: variables.id } } },
+    })
+  ),
+
+  graphql.mutation('UpdatePlotCard', ({ variables }) =>
+    HttpResponse.json({
+      data: { updatePlotCardById: { plotCard: { id: variables.id } } },
+    })
+  ),
+
+  graphql.mutation('DeletePlotCard', ({ variables }) =>
+    HttpResponse.json({
+      data: { deletePlotCardById: { deletedPlotCardId: variables.id } },
+    })
+  ),
+
+  graphql.mutation('MovePlotCard', () =>
+    HttpResponse.json({ data: { movePlotCard: { clientMutationId: null } } })
+  ),
+
   graphql.mutation('ReorderPlotBeats', () =>
     HttpResponse.json({
       data: { reorderPlotBeats: { clientMutationId: null } },

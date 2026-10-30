@@ -3,13 +3,17 @@ import { toast } from 'sonner';
 import {
   CREATE_PLOTLINE,
   CREATE_PLOT_BEAT,
+  CREATE_PLOT_CARD,
   DELETE_PLOTLINE,
   DELETE_PLOT_BEAT,
+  DELETE_PLOT_CARD,
+  MOVE_PLOT_CARD,
   REORDER_PLOTLINES,
   REORDER_PLOT_BEATS,
   START_PLOT,
   UPDATE_PLOTLINE,
   UPDATE_PLOT_BEAT,
+  UPDATE_PLOT_CARD,
   plotQueryKey,
 } from '@web/features/plot/api/plot.api';
 import {
@@ -18,10 +22,16 @@ import {
   PLOT_SAVE_ERROR,
   PLOT_SAVE_ERROR_ID,
 } from '@web/features/plot/constants/plot.constants';
-import { nextPlotlineColor } from '@web/features/plot/lib/plot.utils';
+import {
+  applyCardMove,
+  cellKey,
+  nextPlotlineColor,
+} from '@web/features/plot/lib/plot.utils';
 import type {
   Plot,
   PlotBeat,
+  PlotCard,
+  PlotCell,
   Plotline,
   PlotlineColor,
 } from '@web/features/plot/plot.types';
@@ -29,6 +39,14 @@ import { graphqlClient } from '@web/shared/lib/graphql-client';
 
 type PlotlinePatch = Partial<{ name: string; color: PlotlineColor }>;
 type PlotBeatPatch = Partial<{ name: string }>;
+// Placement changes go through moveCard, which keeps positions dense.
+type PlotCardPatch = Partial<{ title: string; description: string }>;
+
+interface CardMove {
+  id: string;
+  to: PlotCell;
+  orderedIds: string[];
+}
 
 interface Positioned {
   id: string;
@@ -76,6 +94,33 @@ function useOptimisticPlotMutation<TVars>(
     },
     onSuccess: (_data, vars) => onSuccess?.(vars),
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  });
+}
+
+// Pessimistic, for the card editor (spec §16): the cache changes only once
+// the server confirms, and the caller's promise rejects on failure so the
+// dialog can stay open with the text intact.
+function useConfirmedPlotMutation<TVars>(
+  projectId: string,
+  mutationFn: (vars: TVars) => Promise<unknown>,
+  apply: (plot: Plot, vars: TVars) => Plot
+) {
+  const queryClient = useQueryClient();
+  const queryKey = plotQueryKey(projectId);
+
+  return useMutation({
+    mutationFn,
+    onSuccess: (_data, vars) =>
+      queryClient.setQueryData<Plot>(
+        queryKey,
+        (plot) => plot && apply(plot, vars)
+      ),
+    onError: showSaveError,
+    // Not returned: the editor's promise would otherwise wait for the
+    // refetch too, keeping the dialog open for an extra round trip.
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey });
+    },
   });
 }
 
@@ -163,6 +208,41 @@ export function usePlotMutations(projectId: string) {
     (beat) => toast(`Deleted "${beat.name}"`)
   );
 
+  const createCard = useConfirmedPlotMutation(
+    projectId,
+    (card: PlotCard) =>
+      graphqlClient.request(CREATE_PLOT_CARD, { ...card, projectId }),
+    (plot, card) => ({ ...plot, cards: [...plot.cards, card] })
+  );
+
+  const patchCard = useConfirmedPlotMutation(
+    projectId,
+    ({ id, patch }: { id: string; patch: PlotCardPatch }) =>
+      graphqlClient.request(UPDATE_PLOT_CARD, { id, patch }),
+    (plot, { id, patch }) => ({
+      ...plot,
+      cards: plot.cards.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+    })
+  );
+
+  const deleteCard = useConfirmedPlotMutation(
+    projectId,
+    (id: string) => graphqlClient.request(DELETE_PLOT_CARD, { id }),
+    (plot, id) => ({ ...plot, cards: plot.cards.filter((c) => c.id !== id) })
+  );
+
+  const moveCard = useOptimisticPlotMutation(
+    projectId,
+    ({ id, to, orderedIds }: CardMove) =>
+      graphqlClient.request(MOVE_PLOT_CARD, { id, ...to, orderedIds }),
+    (plot, { id, to, orderedIds }) => ({
+      ...plot,
+      cards:
+        applyCardMove(plot.cards, id, to, orderedIds.indexOf(id))?.cards ??
+        plot.cards,
+    })
+  );
+
   return {
     startPlot,
     addPlotline: () => {
@@ -190,5 +270,26 @@ export function usePlotMutations(projectId: string) {
       patchBeat.mutate({ id, patch }),
     reorderBeats: (ids: string[]) => reorderBeats.mutate(ids),
     deleteBeat: (beat: PlotBeat) => deleteBeat.mutate(beat),
+    createCard: (
+      cell: PlotCell,
+      fields: { title: string; description: string }
+    ) => {
+      const inCell = (currentPlot()?.cards ?? []).filter(
+        (c) => cellKey(c) === cellKey(cell)
+      );
+      return createCard.mutateAsync({
+        id: crypto.randomUUID(),
+        ...cell,
+        ...fields,
+        position: nextPosition(inCell),
+      });
+    },
+    updateCard: (id: string, patch: PlotCardPatch) =>
+      patchCard.mutateAsync({ id, patch }),
+    deleteCard: (id: string) => deleteCard.mutateAsync(id),
+    moveCard: (id: string, to: PlotCell, index: number) => {
+      const move = applyCardMove(currentPlot()?.cards ?? [], id, to, index);
+      if (move) moveCard.mutate({ id, to, orderedIds: move.orderedIds });
+    },
   };
 }

@@ -8,8 +8,11 @@ import {
   PLOT_SAVE_ERROR,
   PLOT_SAVE_ERROR_ID,
 } from '@web/features/plot/constants/plot.constants';
+import { cellKey, groupCardsByCell } from '@web/features/plot/lib/plot.utils';
+import type { PlotCard } from '@web/features/plot/plot.types';
 import { server } from '@web/test/mocks/server';
 import {
+  MOCK_PLOT_CARDS,
   MOCK_PLOTLINES,
   MOCK_PLOT_BEATS,
   MOCK_PROJECT,
@@ -22,6 +25,7 @@ vi.mock('sonner', () => ({
 
 const [main, ada] = MOCK_PLOTLINES;
 const [beginning, middle, end] = MOCK_PLOT_BEATS;
+const [logbook, untitled, storm, ferry] = MOCK_PLOT_CARDS;
 
 // The test client has gcTime 0, so the plot query needs an observer for the
 // optimistic writes to land somewhere readable.
@@ -386,5 +390,317 @@ describe('usePlotMutations: start plot', () => {
       })
     );
     expect(result.current.mutations.startPlot.isError).toBe(true);
+  });
+});
+
+// The settle refetch would replace the cache with the unchanged fixture, so
+// it is held to keep what the mutation wrote readable.
+function holdRefetch() {
+  const loads = vi.fn();
+  const { gate, release } = deferred();
+  server.use(
+    graphql.query('GetPlot', async () => {
+      loads();
+      await gate;
+      return HttpResponse.json({ data: null });
+    })
+  );
+  return { loads, release };
+}
+
+function cardIdsIn(cards: PlotCard[], plotlineId: string, beatId: string) {
+  return (
+    groupCardsByCell(cards)
+      .get(cellKey({ plotlineId, beatId }))
+      ?.map((c) => c.id) ?? []
+  );
+}
+
+describe('usePlotMutations: cards', () => {
+  it('creates a card only once the server confirms, at the end of its cell', async () => {
+    const variables = vi.fn();
+    const { gate, release } = deferred();
+    server.use(
+      graphql.mutation('CreatePlotCard', async ({ variables: vars }) => {
+        variables(vars);
+        await gate;
+        return HttpResponse.json({
+          data: { createPlotCard: { plotCard: { id: vars.id } } },
+        });
+      })
+    );
+    const { result } = await renderPlot();
+    const refetch = holdRefetch();
+
+    let created!: Promise<unknown>;
+    act(() => {
+      created = result.current.mutations.createCard(
+        { plotlineId: main.id, beatId: beginning.id },
+        { title: 'A new idea', description: 'Maybe.' }
+      );
+    });
+
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith({
+        id: expect.any(String),
+        projectId: MOCK_PROJECT.id,
+        plotlineId: main.id,
+        beatId: beginning.id,
+        title: 'A new idea',
+        description: 'Maybe.',
+        position: 2,
+      })
+    );
+    expect(result.current.plot.data!.cards).toHaveLength(
+      MOCK_PLOT_CARDS.length
+    );
+
+    release();
+    await act(() => created);
+
+    const { id } = variables.mock.calls[0][0];
+    await waitFor(() =>
+      expect(
+        cardIdsIn(result.current.plot.data!.cards, main.id, beginning.id)
+      ).toEqual([logbook.id, untitled.id, id])
+    );
+    await waitFor(() => expect(refetch.loads).toHaveBeenCalled());
+    refetch.release();
+  });
+
+  it('starts an empty cell at position 0', async () => {
+    const variables = vi.fn();
+    server.use(
+      graphql.mutation('CreatePlotCard', ({ variables: vars }) => {
+        variables(vars);
+        return HttpResponse.json({
+          data: { createPlotCard: { plotCard: { id: vars.id } } },
+        });
+      })
+    );
+    const { result } = await renderPlot();
+
+    await act(() =>
+      result.current.mutations.createCard(
+        { plotlineId: ada.id, beatId: beginning.id },
+        { title: '', description: '' }
+      )
+    );
+
+    expect(variables).toHaveBeenCalledWith(
+      expect.objectContaining({ position: 0 })
+    );
+  });
+
+  it('rejects a failed create, shows the save error and adds nothing', async () => {
+    server.use(failing('CreatePlotCard'));
+    const { result } = await renderPlot();
+
+    await act(() =>
+      expect(
+        result.current.mutations.createCard(
+          { plotlineId: main.id, beatId: beginning.id },
+          { title: 'Lost?', description: '' }
+        )
+      ).rejects.toThrow()
+    );
+
+    expect(toast.error).toHaveBeenCalledWith(PLOT_SAVE_ERROR, {
+      id: PLOT_SAVE_ERROR_ID,
+    });
+    expect(result.current.plot.data!.cards).toHaveLength(
+      MOCK_PLOT_CARDS.length
+    );
+  });
+
+  it('updates a card only once the server confirms, sending only the patch', async () => {
+    const variables = vi.fn();
+    const { gate, release } = deferred();
+    server.use(
+      graphql.mutation('UpdatePlotCard', async ({ variables: vars }) => {
+        variables(vars);
+        await gate;
+        return HttpResponse.json({
+          data: { updatePlotCardById: { plotCard: { id: vars.id } } },
+        });
+      })
+    );
+    const { result } = await renderPlot();
+    const refetch = holdRefetch();
+
+    let updated!: Promise<unknown>;
+    act(() => {
+      updated = result.current.mutations.updateCard(untitled.id, {
+        title: 'Mother knew',
+      });
+    });
+
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith({
+        id: untitled.id,
+        patch: { title: 'Mother knew' },
+      })
+    );
+    const current = () =>
+      result.current.plot.data!.cards.find((c) => c.id === untitled.id);
+    expect(current()?.title).toBe('');
+
+    release();
+    await act(() => updated);
+
+    await waitFor(() =>
+      expect(current()).toMatchObject({
+        title: 'Mother knew',
+        description: untitled.description,
+      })
+    );
+    refetch.release();
+  });
+
+  it('rejects a failed update, shows the save error and keeps the card', async () => {
+    server.use(failing('UpdatePlotCard'));
+    const { result } = await renderPlot();
+
+    await act(() =>
+      expect(
+        result.current.mutations.updateCard(logbook.id, { title: 'Nope' })
+      ).rejects.toThrow()
+    );
+
+    expect(toast.error).toHaveBeenCalledWith(PLOT_SAVE_ERROR, {
+      id: PLOT_SAVE_ERROR_ID,
+    });
+    expect(
+      result.current.plot.data!.cards.find((c) => c.id === logbook.id)?.title
+    ).toBe(logbook.title);
+  });
+
+  it('deletes a card only once the server confirms', async () => {
+    const variables = vi.fn();
+    const { gate, release } = deferred();
+    server.use(
+      graphql.mutation('DeletePlotCard', async ({ variables: vars }) => {
+        variables(vars);
+        await gate;
+        return HttpResponse.json({
+          data: { deletePlotCardById: { deletedPlotCardId: vars.id } },
+        });
+      })
+    );
+    const { result } = await renderPlot();
+    const refetch = holdRefetch();
+    const ids = () => result.current.plot.data!.cards.map((c) => c.id);
+
+    let deleted!: Promise<unknown>;
+    act(() => {
+      deleted = result.current.mutations.deleteCard(ferry.id);
+    });
+
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith({ id: ferry.id })
+    );
+    expect(ids()).toContain(ferry.id);
+
+    release();
+    await act(() => deleted);
+
+    await waitFor(() => expect(ids()).not.toContain(ferry.id));
+    refetch.release();
+  });
+
+  it('rejects a failed delete, shows the save error and keeps the card', async () => {
+    server.use(failing('DeletePlotCard'));
+    const { result } = await renderPlot();
+
+    await act(() =>
+      expect(result.current.mutations.deleteCard(ferry.id)).rejects.toThrow()
+    );
+
+    expect(toast.error).toHaveBeenCalledWith(PLOT_SAVE_ERROR, {
+      id: PLOT_SAVE_ERROR_ID,
+    });
+    expect(result.current.plot.data!.cards.map((c) => c.id)).toContain(
+      ferry.id
+    );
+  });
+
+  it('moves optimistically and sends the full destination order', async () => {
+    const variables = vi.fn();
+    const { gate, release } = deferred();
+    server.use(
+      graphql.mutation('MovePlotCard', async ({ variables: vars }) => {
+        variables(vars);
+        await gate;
+        return HttpResponse.json({
+          data: { movePlotCard: { clientMutationId: null } },
+        });
+      })
+    );
+    const { result } = await renderPlot();
+
+    act(() =>
+      result.current.mutations.moveCard(
+        logbook.id,
+        { plotlineId: main.id, beatId: middle.id },
+        0
+      )
+    );
+
+    await waitFor(() =>
+      expect(
+        cardIdsIn(result.current.plot.data!.cards, main.id, middle.id)
+      ).toEqual([logbook.id, storm.id])
+    );
+    expect(
+      cardIdsIn(result.current.plot.data!.cards, main.id, beginning.id)
+    ).toEqual([untitled.id]);
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith({
+        id: logbook.id,
+        plotlineId: main.id,
+        beatId: middle.id,
+        orderedIds: [logbook.id, storm.id],
+      })
+    );
+    release();
+  });
+
+  it('rolls back a failed move, shows the save error and refetches', async () => {
+    const { gate, release } = deferred();
+    server.use(
+      graphql.mutation('MovePlotCard', async () => {
+        await gate;
+        return HttpResponse.json({ errors: [{ message: 'boom' }] });
+      })
+    );
+    const { result } = await renderPlot();
+    const refetch = holdRefetch();
+
+    act(() =>
+      result.current.mutations.moveCard(
+        untitled.id,
+        { plotlineId: main.id, beatId: beginning.id },
+        0
+      )
+    );
+    await waitFor(() =>
+      expect(
+        cardIdsIn(result.current.plot.data!.cards, main.id, beginning.id)
+      ).toEqual([untitled.id, logbook.id])
+    );
+    release();
+
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(PLOT_SAVE_ERROR, {
+        id: PLOT_SAVE_ERROR_ID,
+      })
+    );
+    await waitFor(() =>
+      expect(
+        cardIdsIn(result.current.plot.data!.cards, main.id, beginning.id)
+      ).toEqual([logbook.id, untitled.id])
+    );
+    await waitFor(() => expect(refetch.loads).toHaveBeenCalled());
+    refetch.release();
   });
 });

@@ -177,3 +177,71 @@ export const REORDER_PLOT_BEATS = gql`
     }
   }
 `;
+
+export const CREATE_PLOT_CARD = gql`
+  mutation CreatePlotCard(
+    $id: UUID!
+    $projectId: UUID!
+    $plotlineId: UUID
+    $beatId: UUID
+    $title: String!
+    $description: String!
+    $position: Int!
+  ) {
+    createPlotCard(
+      input: {
+        plotCard: {
+          id: $id
+          projectId: $projectId
+          plotlineId: $plotlineId
+          beatId: $beatId
+          title: $title
+          description: $description
+          position: $position
+        }
+      }
+    ) {
+      plotCard {
+        id
+      }
+    }
+  }
+`;
+
+export const UPDATE_PLOT_CARD = gql`
+  mutation UpdatePlotCard($id: UUID!, $patch: PlotCardPatch!) {
+    updatePlotCardById(input: { id: $id, plotCardPatch: $patch }) {
+      plotCard {
+        id
+      }
+    }
+  }
+`;
+
+export const DELETE_PLOT_CARD = gql`
+  mutation DeletePlotCard($id: UUID!) {
+    deletePlotCardById(input: { id: $id }) {
+      deletedPlotCardId
+    }
+  }
+`;
+
+export const MOVE_PLOT_CARD = gql`
+  mutation MovePlotCard(
+    $id: UUID!
+    $plotlineId: UUID
+    $beatId: UUID
+    $orderedIds: [UUID]!
+  ) {
+    movePlotCard(
+      input: {
+        plotCardId: $id
+        toPlotlineId: $plotlineId
+        toBeatId: $beatId
+        orderedIds: $orderedIds
+      }
+    ) {
+      clientMutationId
+    }
+  }
+`;
