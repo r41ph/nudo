@@ -47,13 +47,14 @@ if anything else lands in between.
 | # | File | PR | Contents |
 | --- | --- | --- | --- |
 | 025 | `025_plot-foundation.ts` | 1 | `plotlines`, `plot_beats`, RLS, `plot_check_owner()` + triggers, `start_plot`, `reorder_plotlines`, `reorder_plot_beats` |
-| 026 | `026_plot-cards.ts` | 2 | `plot_cards` (nullable pair, `RESTRICT`), trigger branch, `move_plot_card` |
-| 027 | `027_plot-structure-delete.ts` | 3 | `delete_plotline(id, keep_cards)`, `delete_plot_beat(id, keep_cards)` |
-| 028 | `028_plot-manuscript-links.ts` | 4 | `plot_cards.document_id`, `plot_beats.document_id` (`SET NULL`), trigger branch for same-project documents |
-| 029 | `029_fn-create-scene-from-card.ts` | 5 | `create_scene_from_card(card_id, parent_id)` |
-| 030 | `030_plot-connections.ts` | 6 | `plot_connections`, RLS, trigger branch (both cards in the same project) |
-| 031 | `031_fn-append-plot-beats.ts` | 7 | `append_plot_beats(project_id, names text[])` |
-| 032 | `032_plot-overview.ts` | 8 | `plot_overviews`, `plot_cards.key_beat` |
+| 026 | `026_plotline-palette.ts` | 1 | Neutral colour keys `color1`–`color8` (added after the plan) |
+| 027 | `027_plot-cards.ts` | 2 | `plot_cards` (nullable pair, `RESTRICT`), trigger branch, `move_plot_card` |
+| 028 | `028_plot-structure-delete.ts` | 3 | `delete_plotline(id, keep_cards)`, `delete_plot_beat(id, keep_cards)` |
+| 029 | `029_plot-manuscript-links.ts` | 4 | `plot_cards.document_id`, `plot_beats.document_id` (`SET NULL`), trigger branch for same-project documents |
+| 030 | `030_fn-create-scene-from-card.ts` | 5 | `create_scene_from_card(card_id, parent_id)` |
+| 031 | `031_plot-connections.ts` | 6 | `plot_connections`, RLS, trigger branch (both cards in the same project) |
+| 032 | `032_fn-append-plot-beats.ts` | 7 | `append_plot_beats(project_id, names text[])` |
+| 033 | `033_plot-overview.ts` | 8 | `plot_overviews`, `plot_cards.key_beat` |
 | — | none | 9 | Timeline is derived; no schema |
 | 0xx | decided by the storage spec | 10 | Card image reference |
 
@@ -99,7 +100,7 @@ sets the trigger pattern.
 
 **Depends on.** PR 1.
 
-**Schema/API.** Migration 026. `move_plot_card(card_id, plotline_id,
+**Schema/API.** Migration 027. `move_plot_card(card_id, plotline_id,
 beat_id, ordered_ids uuid[])` writes the destination order; a NULL pair is
 allowed by the schema but not used by the UI until PR 3. Generic card create,
 update and delete. Plotline and beat drag reuses the PR 1 reorder functions.
@@ -133,7 +134,7 @@ schema → cards CRUD → card drag and drop → row/column drag and drop.
 
 **Depends on.** PR 2.
 
-**Schema/API.** Migration 027. `delete_plotline` / `delete_plot_beat(id,
+**Schema/API.** Migration 028. `delete_plotline` / `delete_plot_beat(id,
 keep_cards)`: keeping cards nulls the pair and appends the cards to
 Unassigned in their current order; not keeping them deletes the cards. One
 transaction each.
@@ -158,7 +159,7 @@ drag into and out of the tray, Location set to Unassigned. Stories:
 
 **Depends on.** PR 2 (cards), Projects PR 1.
 
-**Schema/API.** Migration 028. `document_id` on cards and beats, `ON DELETE
+**Schema/API.** Migration 029. `document_id` on cards and beats, `ON DELETE
 SET NULL`, and a trigger branch requiring the document to be in the same
 project and not a separator. `GET_PLOT` selects the linked document's `id`
 and `title` through the relation, so the title is always live.
@@ -187,7 +188,7 @@ card.
 
 **Depends on.** PR 4.
 
-**Schema/API.** Migration 029. `create_scene_from_card(card_id, parent_id)`
+**Schema/API.** Migration 030. `create_scene_from_card(card_id, parent_id)`
 reuses `create_node`'s insert path in the card's project, sets the card's
 `document_id`, and runs atomically.
 
@@ -210,7 +211,7 @@ the dialog open.
 
 **Depends on.** PR 2.
 
-**Schema/API.** Migration 030. `plot_connections` (CASCADE on its endpoints,
+**Schema/API.** Migration 031. `plot_connections` (CASCADE on its endpoints,
 UNIQUE pair, no self-links), RLS, a trigger branch requiring both cards to be
 in the row's project.
 
@@ -236,7 +237,7 @@ scrolling and resizing.
 
 **Depends on.** PR 1.
 
-**Schema/API.** Migration 031. `append_plot_beats(project_id, names[])`.
+**Schema/API.** Migration 032. `append_plot_beats(project_id, names[])`.
 
 **UI.** Structure definitions in constants. "Or start from a structure…" on
 the empty state, and **Add structure…** in the header menu. Both append beats
@@ -255,7 +256,7 @@ structure on an empty and on a populated board.
 
 **Depends on.** PR 2.
 
-**Schema/API.** Migration 032. `plot_overviews` (`premise`,
+**Schema/API.** Migration 033. `plot_overviews` (`premise`,
 `dramatic_question`) and `plot_cards.key_beat`, with the 9-key-beat limit
 enforced in the UI and checked by a trigger.
 
