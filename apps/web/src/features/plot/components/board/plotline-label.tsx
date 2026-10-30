@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Icon } from '@ui/components/icon/icon';
 import { Button } from '@ui/components/ui/button';
 import {
@@ -16,6 +16,7 @@ import {
 import { cn } from '@ui/lib/utils';
 import { InlineNameInput } from '@web/features/plot/components/board/inline-name-input';
 import {
+  PLOT_DELETE_POPULATED_HINT,
   PLOTLINE_COLORS,
   PLOTLINE_COLOR_DOT_CLASS,
   PLOTLINE_COLOR_LABELS,
@@ -25,6 +26,7 @@ import type { Plotline, PlotlineColor } from '@web/features/plot/plot.types';
 
 interface PlotlineLabelProps {
   plotline: Plotline;
+  cardCount: number;
   editable: boolean;
   isFirst: boolean;
   isLast: boolean;
@@ -43,6 +45,7 @@ const TRIGGER =
 
 export function PlotlineLabel({
   plotline,
+  cardCount,
   editable,
   isFirst,
   isLast,
@@ -56,6 +59,7 @@ export function PlotlineLabel({
   // Rename waits for the menu to finish closing: its focus restore to the
   // trigger would otherwise blur the new input and commit at once.
   const renamePendingRef = useRef(false);
+  const deleteHintId = useId();
 
   return (
     <div
@@ -86,7 +90,7 @@ export function PlotlineLabel({
         </span>
       )}
       <span className="shrink-0 pt-0.5 text-xs text-muted-foreground">
-        {countLabel(0, 'card')}
+        {countLabel(cardCount, 'card')}
       </span>
       {editable && (
         <DropdownMenu>
@@ -154,10 +158,23 @@ export function PlotlineLabel({
               Move down
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onSelect={onDelete}>
+            <DropdownMenuItem
+              variant="destructive"
+              disabled={cardCount > 0}
+              aria-describedby={cardCount > 0 ? deleteHintId : undefined}
+              onSelect={onDelete}
+            >
               <Icon name="trash" decorative />
               Delete plotline
             </DropdownMenuItem>
+            {cardCount > 0 && (
+              <p
+                id={deleteHintId}
+                className="px-2 pb-1.5 text-xs text-muted-foreground"
+              >
+                {PLOT_DELETE_POPULATED_HINT}
+              </p>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

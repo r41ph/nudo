@@ -4,8 +4,13 @@ import userEvent from '@testing-library/user-event';
 import {
   holdMutation,
   renderBoard,
+  servePlot,
 } from '@web/features/plot/test/plot-board-harness';
-import { MOCK_PLOT_BEATS } from '@web/test/mocks/fixtures';
+import {
+  MOCK_PLOTLINES,
+  MOCK_PLOT_BEATS,
+  MOCK_PLOT_CARDS,
+} from '@web/test/mocks/fixtures';
 
 const [BEGINNING, MIDDLE, END] = MOCK_PLOT_BEATS;
 
@@ -94,9 +99,10 @@ describe('BeatHeader — menu', () => {
     release();
   });
 
-  it('deletes the beat at once and confirms with a toast', async () => {
+  it('deletes an empty beat at once and confirms with a toast', async () => {
     const user = userEvent.setup();
     const { variables, release } = holdMutation('DeletePlotBeat');
+    servePlot(MOCK_PLOTLINES, MOCK_PLOT_BEATS);
     renderBoard();
 
     await choose(user, 'Middle', 'Delete beat');
@@ -108,6 +114,31 @@ describe('BeatHeader — menu', () => {
     expect(variables).toHaveBeenCalledWith({ id: MIDDLE.id });
     release();
     expect(await screen.findByText('Deleted "Middle"')).toBeVisible();
+  });
+
+  it('disables Delete beat on a column with cards, saying why', async () => {
+    const user = userEvent.setup();
+    const { variables } = holdMutation('DeletePlotBeat');
+    servePlot(MOCK_PLOTLINES, MOCK_PLOT_BEATS, [MOCK_PLOT_CARDS[3]]);
+    renderBoard();
+
+    const middleMenu = await openMenu(user, 'Middle');
+    expect(
+      within(middleMenu).getByRole('menuitem', { name: 'Delete beat' })
+    ).not.toHaveAttribute('aria-disabled');
+    await user.keyboard('{Escape}');
+
+    const endMenu = await openMenu(user, 'End');
+    const item = within(endMenu).getByRole('menuitem', { name: 'Delete beat' });
+    expect(item).toHaveAttribute('aria-disabled', 'true');
+    expect(item).toHaveAccessibleDescription('Move or delete its cards first');
+
+    await user.click(item);
+    await user.keyboard('{Escape}');
+    expect(
+      screen.getByRole('columnheader', { name: /End/ })
+    ).toBeInTheDocument();
+    expect(variables).not.toHaveBeenCalled();
   });
 });
 

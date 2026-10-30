@@ -8,7 +8,11 @@ import {
 } from '@web/features/plot/test/plot-board-harness';
 import { PLOT_EDIT_MIN_WIDTH } from '@web/features/plot/constants/plot.constants';
 import { setViewportWidth } from '@web/test/media';
-import { MOCK_PLOTLINES, MOCK_PLOT_BEATS } from '@web/test/mocks/fixtures';
+import {
+  MOCK_PLOTLINES,
+  MOCK_PLOT_BEATS,
+  MOCK_PLOT_CARDS,
+} from '@web/test/mocks/fixtures';
 
 const VIEW_ONLY_BANNER =
   'View only — open nudo on a larger screen to edit the plot.';
@@ -20,15 +24,15 @@ describe('PlotBoard', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Plot' })
     ).toBeInTheDocument();
-    expect(screen.getByText('2 plotlines · 3 beats · 0 cards')).toBeVisible();
+    expect(screen.getByText('2 plotlines · 3 beats · 4 cards')).toBeVisible();
   });
 
-  it('uses the singular for one plotline and one beat', async () => {
-    servePlot([MOCK_PLOTLINES[0]], [MOCK_PLOT_BEATS[0]]);
+  it('uses the singular for one plotline, beat and card', async () => {
+    servePlot([MOCK_PLOTLINES[0]], [MOCK_PLOT_BEATS[0]], [MOCK_PLOT_CARDS[0]]);
     renderBoard();
 
     expect(
-      await screen.findByText('1 plotline · 1 beat · 0 cards')
+      await screen.findByText('1 plotline · 1 beat · 1 card')
     ).toBeVisible();
   });
 
@@ -44,9 +48,12 @@ describe('PlotBoard', () => {
 
     const labels = within(grid).getAllByRole('rowheader');
     expect(labels).toHaveLength(2);
-    ['Main plot', 'Ada'].forEach((name, i) => {
+    [
+      ['Main plot', '3 cards'],
+      ['Ada', '1 card'],
+    ].forEach(([name, count], i) => {
       expect(within(labels[i]).getByText(name)).toBeVisible();
-      expect(within(labels[i]).getByText('0 cards')).toBeVisible();
+      expect(within(labels[i]).getByText(count)).toBeVisible();
     });
   });
 

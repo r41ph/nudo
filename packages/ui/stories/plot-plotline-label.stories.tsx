@@ -28,6 +28,7 @@ const meta = {
   ],
   args: {
     plotline: { id: 'p1', name: 'The heist', color: 'color6', position: 0 },
+    cardCount: 0,
     editable: true,
     isFirst: false,
     isLast: false,
@@ -82,6 +83,11 @@ export const ViewOnly: Story = {
 
 export const MenuOpen: Story = {
   args: { isFirst: true },
+  play: openMenu,
+};
+
+export const MenuOpenWithCards: Story = {
+  args: { cardCount: 3 },
   play: openMenu,
 };
 
