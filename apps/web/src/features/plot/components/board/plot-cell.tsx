@@ -11,6 +11,8 @@ interface PlotCellProps {
   cards: readonly PlotCardData[];
   color: PlotlineColor;
   editable: boolean;
+  onAddCard: (trigger: HTMLElement) => void;
+  onOpenCard: (card: PlotCardData, trigger: HTMLElement) => void;
 }
 
 // Opacity rather than `hidden` so Add card stays in the tab order; touch
@@ -19,7 +21,13 @@ const ADD_CARD =
   'mt-auto w-full border border-dashed border-border text-muted-foreground opacity-0 transition-opacity ' +
   'group-hover/cell:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100';
 
-export function PlotCell({ cards, color, editable }: PlotCellProps) {
+export function PlotCell({
+  cards,
+  color,
+  editable,
+  onAddCard,
+  onOpenCard,
+}: PlotCellProps) {
   const empty = cards.length === 0;
 
   return (
@@ -33,10 +41,20 @@ export function PlotCell({ cards, color, editable }: PlotCellProps) {
       )}
     >
       {cards.map((card) => (
-        <PlotCard key={card.id} card={card} color={color} />
+        <PlotCard
+          key={card.id}
+          card={card}
+          color={color}
+          onOpen={(trigger) => onOpenCard(card, trigger)}
+        />
       ))}
       {editable && (
-        <Button variant="ghost" size="sm" className={ADD_CARD}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={ADD_CARD}
+          onClick={(event) => onAddCard(event.currentTarget)}
+        >
           <PlusIcon aria-hidden />
           Add card
         </Button>
