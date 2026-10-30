@@ -3,7 +3,14 @@
 import { describe, expect, it } from 'vitest';
 import { getTestPool } from './db.js';
 import { graphql } from './graphql.js';
-import { createUser, getProjectId, type SeededUser } from './seed.js';
+import {
+  createUser,
+  getProjectId,
+  insertBeat,
+  insertPlotline,
+  insertProject,
+  type SeededUser,
+} from './seed.js';
 
 const CREATE_PLOTLINE = `
   mutation ($projectId: UUID!, $name: String, $color: String!, $position: Int!) {
@@ -104,49 +111,6 @@ const REORDER_BEATS = `
     }
   }
 `;
-
-async function insertProject(
-  owner: Pick<SeededUser, 'id'>,
-  title = 'A project'
-): Promise<string> {
-  const { rows } = await getTestPool().query<{ id: string }>(
-    'INSERT INTO projects (user_id, title) VALUES ($1, $2) RETURNING id',
-    [owner.id, title]
-  );
-  return rows[0].id;
-}
-
-async function insertPlotline(
-  owner: Pick<SeededUser, 'id'>,
-  projectId: string,
-  opts: { name?: string; color?: string; position?: number } = {}
-): Promise<string> {
-  const { rows } = await getTestPool().query<{ id: string }>(
-    `INSERT INTO plotlines (user_id, project_id, name, color, position)
-     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-    [
-      owner.id,
-      projectId,
-      opts.name ?? 'A plotline',
-      opts.color ?? 'color1',
-      opts.position ?? 0,
-    ]
-  );
-  return rows[0].id;
-}
-
-async function insertBeat(
-  owner: Pick<SeededUser, 'id'>,
-  projectId: string,
-  opts: { name?: string; position?: number } = {}
-): Promise<string> {
-  const { rows } = await getTestPool().query<{ id: string }>(
-    `INSERT INTO plot_beats (user_id, project_id, name, position)
-     VALUES ($1, $2, $3, $4) RETURNING id`,
-    [owner.id, projectId, opts.name ?? 'A beat', opts.position ?? 0]
-  );
-  return rows[0].id;
-}
 
 type PlotTable = 'plotlines' | 'plot_beats';
 
