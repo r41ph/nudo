@@ -5,7 +5,10 @@ import {
   renderBoard,
   servePlot,
 } from '@web/features/plot/test/plot-board-harness';
-import { PLOT_EDIT_MIN_WIDTH } from '@web/features/plot/constants/plot.constants';
+import {
+  PLOT_CARD_DRAG_INSTRUCTIONS,
+  PLOT_EDIT_MIN_WIDTH,
+} from '@web/features/plot/constants/plot.constants';
 import { setViewportWidth } from '@web/test/media';
 import {
   MOCK_PLOTLINES,
@@ -82,7 +85,7 @@ describe('PlotCard', () => {
     expect(
       await screen.findByRole('button', {
         name: "The keeper's logbook",
-        description: 'Ada finds the last entry torn out.',
+        description: `Ada finds the last entry torn out. ${PLOT_CARD_DRAG_INSTRUCTIONS}`,
       })
     ).toBeVisible();
   });
@@ -93,12 +96,23 @@ describe('PlotCard', () => {
     expect(
       await screen.findByRole('button', {
         name: 'Untitled card',
-        description: 'Mother already knew? Maybe before the inquiry.',
+        description: `Mother already knew? Maybe before the inquiry. ${PLOT_CARD_DRAG_INSTRUCTIONS}`,
       })
     ).toBeVisible();
   });
 
-  it('has no description when there is none', async () => {
+  it('is described only by the drag instructions when it has no description', async () => {
+    renderBoard();
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'Ada leaves on the first ferry',
+      })
+    ).toHaveAccessibleDescription(PLOT_CARD_DRAG_INSTRUCTIONS);
+  });
+
+  it('has no description at all when view-only and without one', async () => {
+    setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
     renderBoard();
 
     expect(

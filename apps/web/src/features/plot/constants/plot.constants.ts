@@ -59,3 +59,13 @@ export const PLOT_SAVE_ERROR_ID = 'plot-save-error';
 // Cards block the delete (ON DELETE RESTRICT) until the Unassigned choice
 // arrives in PR 3.
 export const PLOT_DELETE_POPULATED_HINT = 'Move or delete its cards first';
+
+// Enter is left out: on a card it opens the editor.
+export const PLOT_CARD_DRAG_KEYS = {
+  start: ['Space'],
+  cancel: ['Escape'],
+  end: ['Space'],
+};
+export const PLOT_CARD_DRAG_INSTRUCTIONS =
+  'To move this card, press Space, use the arrow keys, then press Space ' +
+  'to drop it or Escape to cancel. Press Enter to edit it.';
