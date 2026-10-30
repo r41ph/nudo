@@ -54,3 +54,29 @@ export function holdMutation(operation: string) {
   );
   return { variables, release };
 }
+
+// Holds the settle refetch after a confirmed card mutation: the fixture never
+// changes, so letting it land would drop the card the test just saved. Call
+// once the board has loaded.
+export function holdPlotRefetch() {
+  let release!: () => void;
+  const gate = new Promise<void>((r) => (release = r));
+  server.use(
+    graphql.query('GetPlot', async () => {
+      await gate;
+      return HttpResponse.json({ data: null });
+    })
+  );
+  return { release };
+}
+
+export function failMutation(operation: string) {
+  const variables = vi.fn();
+  server.use(
+    graphql.mutation(operation, ({ variables: vars }) => {
+      variables(vars);
+      return HttpResponse.json({ errors: [{ message: 'boom' }] });
+    })
+  );
+  return { variables };
+}

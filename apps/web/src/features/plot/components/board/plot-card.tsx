@@ -10,11 +10,12 @@ import type {
 interface PlotCardProps {
   card: PlotCardData;
   color: PlotlineColor;
+  onOpen: (trigger: HTMLElement) => void;
 }
 
 // Named and described by id: a heading inside a button is invalid, and
 // button content is flattened into one long name otherwise.
-export function PlotCard({ card, color }: PlotCardProps) {
+export function PlotCard({ card, color, onOpen }: PlotCardProps) {
   const titleId = useId();
   const descriptionId = useId();
 
@@ -23,6 +24,7 @@ export function PlotCard({ card, color }: PlotCardProps) {
       variant="outline"
       aria-labelledby={titleId}
       aria-describedby={card.description ? descriptionId : undefined}
+      onClick={(event) => onOpen(event.currentTarget)}
       className="h-auto w-full flex-col items-stretch gap-0 whitespace-normal bg-card p-3 text-left font-normal dark:bg-card"
     >
       <span

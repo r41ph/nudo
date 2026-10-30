@@ -47,6 +47,9 @@ export const PLOT_VIEW_ONLY_MESSAGE =
 // Matches the CHECK on plotlines.name and plot_beats.name.
 export const PLOT_NAME_MAX_LENGTH = 120;
 
+// Matches the CHECK on plot_cards.title.
+export const PLOT_CARD_TITLE_MAX_LENGTH = 200;
+
 export const NEW_PLOTLINE_NAME = 'Untitled plotline';
 export const NEW_BEAT_NAME = 'Untitled beat';
 
