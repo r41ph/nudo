@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { PlotPage } from '@web/features/plot/components/plot-page';
+import { PLOTLINE_COLORS } from '@web/features/plot/constants/plot.constants';
 import type { Plot } from '@web/features/plot/plot.types';
 
 const PLOT: Plot = {
@@ -57,8 +58,61 @@ const PLOT: Plot = {
   ],
 };
 
+const DENSE_TITLES = [
+  'The vault plans go missing',
+  'Teo lies about the second key',
+  '',
+  'A tram strike strands the crew in the old town for a night',
+  'The informant asks for more money',
+  'Mara visits her sister',
+];
+
+// Every cell filled, some twice, to check scrolling and row height.
+const DENSE_PLOT: Plot = (() => {
+  const plotlines = [
+    'The heist',
+    'Mara and Teo',
+    'The informant',
+    'The police',
+    'Lisbon',
+    'Old debts',
+  ].map((name, position) => ({
+    id: `dp${position}`,
+    name,
+    color: PLOTLINE_COLORS[position % PLOTLINE_COLORS.length],
+    position,
+  }));
+  const beats = [
+    'Opening',
+    'Inciting incident',
+    'First turn',
+    'Pinch',
+    'Midpoint',
+    'Crisis',
+    'Climax',
+    'Ending',
+  ].map((name, position) => ({ id: `db${position}`, name, position }));
+  const cards = plotlines.flatMap((plotline, p) =>
+    beats.flatMap((beat, b) =>
+      Array.from({ length: (p + b) % 3 === 0 ? 2 : 1 }, (_, position) => ({
+        id: `dc${p}-${b}-${position}`,
+        title: DENSE_TITLES[(p + b + position) % DENSE_TITLES.length],
+        description:
+          (p + b) % 2 === 0
+            ? 'Something here has to change before the end.'
+            : '',
+        plotlineId: plotline.id,
+        beatId: beat.id,
+        position,
+      }))
+    )
+  );
+  return { plotlines, beats, cards };
+})();
+
 type PlotResponse =
   | 'populated'
+  | 'dense'
   | 'empty'
   | 'pending'
   | 'failure'
@@ -95,7 +149,11 @@ const stubPlot =
         );
       }
       const plot =
-        response === 'empty' ? { plotlines: [], beats: [], cards: [] } : PLOT;
+        response === 'empty'
+          ? { plotlines: [], beats: [], cards: [] }
+          : response === 'dense'
+            ? DENSE_PLOT
+            : PLOT;
       return Response.json({
         data: {
           allPlotlines: { nodes: plot.plotlines },
@@ -151,6 +209,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Populated: Story = {
   beforeEach: stubPlot('populated'),
+};
+
+export const Dense: Story = {
+  beforeEach: stubPlot('dense'),
 };
 
 export const ReadOnly: Story = {
