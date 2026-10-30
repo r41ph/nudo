@@ -1,6 +1,6 @@
 # Spec: Projects
 
-> Status: In progress — PR 1 in review (PR #44 — https://github.com/r41ph/nudo/pull/44); PR 2 not started
+> Status: In review — PR 1 merged (PR #44 — https://github.com/r41ph/nudo/pull/44); PR 2 in review (PR #47 — https://github.com/r41ph/nudo/pull/47)
 > Branch: `feat/projects`
 
 ## Objective
