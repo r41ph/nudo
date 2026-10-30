@@ -46,6 +46,7 @@ function serveStartablePlot(startPlot: () => Promise<Response> | Response) {
         data: {
           allPlotlines: { nodes: started ? MOCK_PLOTLINES : [] },
           allPlotBeats: { nodes: started ? MOCK_PLOT_BEATS : [] },
+          allPlotCards: { nodes: [] },
         },
       })
     ),
@@ -68,7 +69,11 @@ describe('PlotPage', () => {
       graphql.query('GetPlot', async () => {
         await gate;
         return HttpResponse.json({
-          data: { allPlotlines: { nodes: [] }, allPlotBeats: { nodes: [] } },
+          data: {
+            allPlotlines: { nodes: [] },
+            allPlotBeats: { nodes: [] },
+            allPlotCards: { nodes: [] },
+          },
         });
       })
     );
@@ -91,6 +96,7 @@ describe('PlotPage', () => {
               data: {
                 allPlotlines: { nodes: MOCK_PLOTLINES },
                 allPlotBeats: { nodes: MOCK_PLOT_BEATS },
+                allPlotCards: { nodes: [] },
               },
             })
       )
@@ -126,6 +132,7 @@ describe('PlotPage', () => {
               data: {
                 allPlotlines: { nodes: MOCK_PLOTLINES },
                 allPlotBeats: { nodes: MOCK_PLOT_BEATS },
+                allPlotCards: { nodes: [] },
               },
             })
       )

@@ -354,8 +354,13 @@ describe('usePlotMutations: start plot', () => {
             ? {
                 allPlotlines: { nodes: [main] },
                 allPlotBeats: { nodes: MOCK_PLOT_BEATS },
+                allPlotCards: { nodes: [] },
               }
-            : { allPlotlines: { nodes: [] }, allPlotBeats: { nodes: [] } },
+            : {
+                allPlotlines: { nodes: [] },
+                allPlotBeats: { nodes: [] },
+                allPlotCards: { nodes: [] },
+              },
         })
       )
     );

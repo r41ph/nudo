@@ -87,3 +87,45 @@ export const MOCK_PLOT_BEATS = [
   { id: '0b000000-0000-4000-8000-000000000002', name: 'Middle', position: 1 },
   { id: '0b000000-0000-4000-8000-000000000003', name: 'End', position: 2 },
 ] as const;
+
+// Main plot × Beginning holds two cards (one untitled), Main plot × Middle a
+// long one and Ada × End one; every other cell is empty.
+export const MOCK_PLOT_CARDS = [
+  {
+    id: '0c000000-0000-4000-8000-000000000001',
+    title: "The keeper's logbook",
+    description: 'Ada finds the last entry torn out.',
+    plotlineId: MOCK_PLOTLINES[0].id,
+    beatId: MOCK_PLOT_BEATS[0].id,
+    position: 0,
+  },
+  {
+    id: '0c000000-0000-4000-8000-000000000002',
+    title: '',
+    description: 'Mother already knew? Maybe before the inquiry.',
+    plotlineId: MOCK_PLOTLINES[0].id,
+    beatId: MOCK_PLOT_BEATS[0].id,
+    position: 1,
+  },
+  {
+    id: '0c000000-0000-4000-8000-000000000003',
+    title:
+      'The storm cuts the island off for three days and nobody can leave the lighthouse',
+    description:
+      'Everyone is stuck together. Tempers fray, alliances shift, and the ' +
+      'missing logbook page turns up somewhere it should never have been. ' +
+      'Ada starts to suspect the keeper was not alone that night, and the ' +
+      'longer the storm lasts the less anyone trusts anyone else.',
+    plotlineId: MOCK_PLOTLINES[0].id,
+    beatId: MOCK_PLOT_BEATS[1].id,
+    position: 0,
+  },
+  {
+    id: '0c000000-0000-4000-8000-000000000004',
+    title: 'Ada leaves on the first ferry',
+    description: '',
+    plotlineId: MOCK_PLOTLINES[1].id,
+    beatId: MOCK_PLOT_BEATS[2].id,
+    position: 0,
+  },
+] as const;

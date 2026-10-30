@@ -4,6 +4,7 @@ import { graphql, HttpResponse } from 'msw';
 import { usePlot } from '@web/features/plot/hooks/use-plot';
 import { server } from '@web/test/mocks/server';
 import {
+  MOCK_PLOT_CARDS,
   MOCK_PLOTLINES,
   MOCK_PLOT_BEATS,
   MOCK_PROJECT,
@@ -11,13 +12,14 @@ import {
 import { renderHookWithProviders } from '@web/test/test-utils';
 
 describe('usePlot', () => {
-  it("returns the project's plotlines and beats in order", async () => {
+  it("returns the project's plotlines, beats and cards in order", async () => {
     const { result } = renderHookWithProviders(() => usePlot(MOCK_PROJECT.id));
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual({
       plotlines: MOCK_PLOTLINES,
       beats: MOCK_PLOT_BEATS,
+      cards: MOCK_PLOT_CARDS,
     });
   });
 
@@ -27,7 +29,11 @@ describe('usePlot', () => {
       graphql.query('GetPlot', ({ variables: vars }) => {
         variables(vars);
         return HttpResponse.json({
-          data: { allPlotlines: { nodes: [] }, allPlotBeats: { nodes: [] } },
+          data: {
+            allPlotlines: { nodes: [] },
+            allPlotBeats: { nodes: [] },
+            allPlotCards: { nodes: [] },
+          },
         });
       })
     );
@@ -36,7 +42,11 @@ describe('usePlot', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(variables).toHaveBeenCalledWith({ projectId: 'other-project' });
-    expect(result.current.data).toEqual({ plotlines: [], beats: [] });
+    expect(result.current.data).toEqual({
+      plotlines: [],
+      beats: [],
+      cards: [],
+    });
   });
 
   it('does not fetch without a project', async () => {

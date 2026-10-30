@@ -21,13 +21,18 @@ export function renderBoard() {
   );
 }
 
-export function servePlot(plotlines: unknown[], beats: unknown[]) {
+export function servePlot(
+  plotlines: unknown[],
+  beats: unknown[],
+  cards: unknown[] = []
+) {
   server.use(
     graphql.query('GetPlot', () =>
       HttpResponse.json({
         data: {
           allPlotlines: { nodes: plotlines },
           allPlotBeats: { nodes: beats },
+          allPlotCards: { nodes: cards },
         },
       })
     )

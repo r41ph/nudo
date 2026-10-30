@@ -18,6 +18,7 @@ const PLOT: Plot = {
     { id: 'b4', name: 'Crisis', position: 3 },
     { id: 'b5', name: 'Climax', position: 4 },
   ],
+  cards: [],
 };
 
 type PlotResponse =
@@ -57,11 +58,13 @@ const stubPlot =
           { status: 500 }
         );
       }
-      const plot = response === 'empty' ? { plotlines: [], beats: [] } : PLOT;
+      const plot =
+        response === 'empty' ? { plotlines: [], beats: [], cards: [] } : PLOT;
       return Response.json({
         data: {
           allPlotlines: { nodes: plot.plotlines },
           allPlotBeats: { nodes: plot.beats },
+          allPlotCards: { nodes: plot.cards },
         },
       });
     };
