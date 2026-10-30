@@ -23,8 +23,9 @@ export function PlotPage() {
   }
 
   // Falling through to the empty state would offer Start plot on a project
-  // that may already have one.
-  if (isError) {
+  // that may already have one. A failed refetch keeps its data, so the board
+  // stays up instead of vanishing after every edit's settle refetch.
+  if (isError && !plot) {
     return (
       <div
         role="alert"
