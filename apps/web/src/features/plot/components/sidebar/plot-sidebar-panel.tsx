@@ -6,6 +6,7 @@ import {
   PlotFilterRow,
 } from '@web/features/plot/components/sidebar/plot-filter-row';
 import { PlotFilterSection } from '@web/features/plot/components/sidebar/plot-filter-section';
+import { PLOTLINE_COLOR_VAR } from '@web/features/plot/constants/plot.constants';
 import { usePlot } from '@web/features/plot/hooks/use-plot';
 import { usePlotEditable } from '@web/features/plot/hooks/use-plot-editable';
 import { usePlotMutations } from '@web/features/plot/hooks/use-plot-mutations';
@@ -16,7 +17,7 @@ import { useProjectId } from '@web/shared/hooks/use-project-id';
 export function PlotSidebarPanel() {
   const projectId = useProjectId()!;
   const { data: plot, isPending } = usePlot(projectId);
-  const { view, showAll } = usePlotView(projectId);
+  const { view, toggle, showAll, isHidden } = usePlotView(projectId);
   const { addPlotline, addBeat } = usePlotMutations(projectId);
   const editable = usePlotEditable();
   const [createdId, setCreatedId] = useState<string | null>(null);
@@ -50,13 +51,16 @@ export function PlotSidebarPanel() {
         <>
           <PlotFilterSection
             label="Plotlines"
-            canShowAll={view.hiddenPlotlineIds.length > 0}
+            canShowAll={plot.plotlines.some((p) => isHidden('plotline', p.id))}
             onShowAll={() => showAll('plotline')}
           >
             {plot.plotlines.map((plotline) => (
               <PlotFilterRow
                 key={plotline.id}
                 name={plotline.name}
+                visible={!isHidden('plotline', plotline.id)}
+                onToggle={() => toggle('plotline', plotline.id)}
+                color={PLOTLINE_COLOR_VAR[plotline.color]}
                 cardCount={cardCount(plotline.id)}
                 scrollIntoViewOnMount={plotline.id === createdId}
               />
@@ -70,13 +74,15 @@ export function PlotSidebarPanel() {
           </PlotFilterSection>
           <PlotFilterSection
             label="Beats"
-            canShowAll={view.hiddenBeatIds.length > 0}
+            canShowAll={plot.beats.some((b) => isHidden('beat', b.id))}
             onShowAll={() => showAll('beat')}
           >
             {plot.beats.map((beat) => (
               <PlotFilterRow
                 key={beat.id}
                 name={beat.name}
+                visible={!isHidden('beat', beat.id)}
+                onToggle={() => toggle('beat', beat.id)}
                 scrollIntoViewOnMount={beat.id === createdId}
               />
             ))}

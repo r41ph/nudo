@@ -2,6 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { PlotFilterRow } from '@web/features/plot/components/sidebar/plot-filter-row';
 import { PlotFilterSection } from '@web/features/plot/components/sidebar/plot-filter-section';
+import {
+  PLOTLINE_COLORS,
+  PLOTLINE_COLOR_VAR,
+} from '@web/features/plot/constants/plot.constants';
 
 const meta = {
   title: 'Plot/PlotFilterSection',
@@ -25,23 +29,35 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const row = (name: string, index: number, visible = true) => (
+  <PlotFilterRow
+    key={name}
+    name={name}
+    visible={visible}
+    onToggle={() => {}}
+    color={PLOTLINE_COLOR_VAR[PLOTLINE_COLORS[index % PLOTLINE_COLORS.length]]}
+    cardCount={index * 3}
+  />
+);
+
 export const Few: Story = {
   args: {
-    children: ['The heist', 'Mara and Teo'].map((name, i) => (
-      <PlotFilterRow key={name} name={name} cardCount={i * 3} />
-    )),
+    children: ['The heist', 'Mara and Teo'].map((name, i) => row(name, i)),
   },
 };
 
 // Taller than its box: the list scrolls under a header that stays put.
 export const Overflowing: Story = {
   args: {
-    children: Array.from({ length: 20 }, (_, i) => (
-      <PlotFilterRow key={i} name={`Plotline ${i + 1}`} cardCount={i} />
-    )),
+    children: Array.from({ length: 20 }, (_, i) => row(`Plotline ${i + 1}`, i)),
   },
 };
 
 export const ShowAllEnabled: Story = {
-  args: { ...Few.args, canShowAll: true },
+  args: {
+    canShowAll: true,
+    children: ['The heist', 'Mara and Teo'].map((name, i) =>
+      row(name, i, i === 0)
+    ),
+  },
 };

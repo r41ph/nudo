@@ -35,6 +35,18 @@ export const PLOTLINE_COLOR_DOT_CLASS = {
   color8: 'bg-plot-pink',
 } as const satisfies Record<(typeof PLOTLINE_COLORS)[number], string>;
 
+// For inline styles, where a class per colour would need its dark variant too.
+export const PLOTLINE_COLOR_VAR = {
+  color1: 'var(--plot-red)',
+  color2: 'var(--plot-orange)',
+  color3: 'var(--plot-brown)',
+  color4: 'var(--plot-green)',
+  color5: 'var(--plot-black)',
+  color6: 'var(--plot-blue)',
+  color7: 'var(--plot-violet)',
+  color8: 'var(--plot-pink)',
+} as const satisfies Record<(typeof PLOTLINE_COLORS)[number], string>;
+
 export const PLOT_LABEL_COLUMN_WIDTH = 200;
 export const PLOT_BEAT_COLUMN_WIDTH = 240;
 

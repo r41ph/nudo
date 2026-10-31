@@ -45,7 +45,9 @@ import {
   cellKey,
   groupCardsByCell,
   moveId,
+  visiblePlot,
 } from '@web/features/plot/lib/plot.utils';
+import { usePlotView } from '@web/features/plot/state/plot-view.store';
 import type {
   Plot,
   PlotCard,
@@ -90,6 +92,7 @@ export function PlotBoard({
     deleteCard,
     moveCard,
   } = usePlotMutations(projectId);
+  const { view } = usePlotView(projectId);
   const editable = usePlotEditable();
   const [editor, setEditor] = useState<EditorTarget | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -149,12 +152,15 @@ export function PlotBoard({
     )
       await relocateCard(card.id, placement);
   };
+  // Only visible rows and columns render, but every reorder (drag, Move,
+  // first/last) works on the full order so hidden items keep their places.
+  const visible = visiblePlot(plot, view);
   const plotlineIds = plot.plotlines.map((p) => p.id);
   const beatIds = plot.beats.map((b) => b.id);
   const cells = groupCardsByCell(plot.cards);
   const countBy = (key: 'plotlineId' | 'beatId', id: string) =>
     plot.cards.filter((card) => card[key] === id).length;
-  const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${plot.beats.length}, ${PLOT_BEAT_COLUMN_WIDTH}px)`;
+  const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${visible.beats.length}, ${PLOT_BEAT_COLUMN_WIDTH}px)`;
 
   return (
     <div className="flex h-svh min-w-0 flex-1 flex-col pt-10">
@@ -236,17 +242,17 @@ export function PlotBoard({
                 )}
               />
               <SortableContext
-                items={beatIds}
+                items={visible.beats.map((b) => b.id)}
                 strategy={horizontalListSortingStrategy}
               >
-                {plot.beats.map((beat, index) => (
+                {visible.beats.map((beat) => (
                   <BeatHeader
                     key={beat.id}
                     beat={beat}
                     editable={editable}
                     hasCards={countBy('beatId', beat.id) > 0}
-                    isFirst={index === 0}
-                    isLast={index === plot.beats.length - 1}
+                    isFirst={beat.id === beatIds[0]}
+                    isLast={beat.id === beatIds.at(-1)}
                     onRename={(name) => updateBeat(beat.id, { name })}
                     onMove={(delta) =>
                       reorderBeats(moveId(beatIds, beat.id, delta))
@@ -260,17 +266,17 @@ export function PlotBoard({
               </SortableContext>
             </div>
             <SortableContext
-              items={plotlineIds}
+              items={visible.plotlines.map((p) => p.id)}
               strategy={verticalListSortingStrategy}
             >
-              {plot.plotlines.map((plotline, index) => (
+              {visible.plotlines.map((plotline) => (
                 <div key={plotline.id} role="row" className="contents">
                   <PlotlineLabel
                     plotline={plotline}
                     cardCount={countBy('plotlineId', plotline.id)}
                     editable={editable}
-                    isFirst={index === 0}
-                    isLast={index === plot.plotlines.length - 1}
+                    isFirst={plotline.id === plotlineIds[0]}
+                    isLast={plotline.id === plotlineIds.at(-1)}
                     onRename={(name) => updatePlotline(plotline.id, { name })}
                     onColorChange={(color) =>
                       updatePlotline(plotline.id, { color })
@@ -288,7 +294,7 @@ export function PlotBoard({
                       COVER_GUTTER
                     )}
                   />
-                  {plot.beats.map((beat) => (
+                  {visible.beats.map((beat) => (
                     <PlotCell
                       key={beat.id}
                       cell={{ plotlineId: plotline.id, beatId: beat.id }}

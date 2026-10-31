@@ -7,12 +7,16 @@ import {
   holdPlotRefetch,
   renderBoard,
 } from '@web/features/plot/test/plot-board-harness';
-import { PLOT_EDIT_MIN_WIDTH } from '@web/features/plot/constants/plot.constants';
+import {
+  PLOT_EDIT_MIN_WIDTH,
+  PLOT_VIEW_STORAGE_PREFIX,
+} from '@web/features/plot/constants/plot.constants';
 import { setViewportWidth } from '@web/test/media';
 import {
   MOCK_PLOTLINES,
   MOCK_PLOT_BEATS,
   MOCK_PLOT_CARDS,
+  MOCK_PROJECT,
 } from '@web/test/mocks/fixtures';
 
 const [MAIN, ADA] = MOCK_PLOTLINES;
@@ -306,6 +310,31 @@ describe('PlotBoard — dragging rows and columns with the keyboard', () => {
       )
     );
     expect(columnNames()).toEqual(['Middle', 'Beginning', 'End']);
+    release();
+  });
+
+  // Dropping onto the next visible column moves past the hidden one between
+  // them, in the full order the server keeps.
+  it('reorders beats in the full order when one is hidden', async () => {
+    localStorage.setItem(
+      PLOT_VIEW_STORAGE_PREFIX + MOCK_PROJECT.id,
+      JSON.stringify({ hiddenPlotlineIds: [], hiddenBeatIds: [MIDDLE.id] })
+    );
+    const user = userEvent.setup();
+    const { variables, release } = holdMutation('ReorderPlotBeats');
+    renderBoard();
+
+    (await screen.findByRole('button', { name: 'Drag Beginning' })).focus();
+    await user.keyboard('[Space]');
+    await user.keyboard('{ArrowRight}');
+    await user.keyboard('[Space]');
+
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith(
+        expect.objectContaining({ ids: [MIDDLE.id, END.id, BEGINNING.id] })
+      )
+    );
+    expect(columnNames()).toEqual(['End', 'Beginning']);
     release();
   });
 

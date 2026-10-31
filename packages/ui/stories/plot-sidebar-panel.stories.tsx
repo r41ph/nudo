@@ -4,7 +4,10 @@ import { Provider as JotaiProvider, createStore } from 'jotai';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { plotQueryKey } from '@web/features/plot/api/plot.api';
 import { PlotSidebarPanel } from '@web/features/plot/components/sidebar/plot-sidebar-panel';
-import { PLOTLINE_COLORS } from '@web/features/plot/constants/plot.constants';
+import {
+  PLOTLINE_COLORS,
+  PLOT_VIEW_STORAGE_PREFIX,
+} from '@web/features/plot/constants/plot.constants';
 import type { Plot } from '@web/features/plot/plot.types';
 import { PLOT_ROUTE } from '@web/shared/lib/routes';
 
@@ -122,4 +125,18 @@ export const NotStarted: Story = { parameters: { plot: EMPTY_PLOT } };
 export const ViewOnly: Story = {
   parameters: { plot: PLOT },
   beforeEach: pinEditable(false),
+};
+
+// Stored like a real filter, and cleared afterwards so the other stories,
+// which share the project id, start with nothing hidden.
+export const Filtered: Story = {
+  parameters: { plot: PLOT },
+  beforeEach: () => {
+    const key = PLOT_VIEW_STORAGE_PREFIX + PROJECT_ID;
+    localStorage.setItem(
+      key,
+      JSON.stringify({ hiddenPlotlineIds: ['p2'], hiddenBeatIds: ['b3'] })
+    );
+    return () => localStorage.removeItem(key);
+  },
 };
