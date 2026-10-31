@@ -3,7 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { PlotPage } from '@web/features/plot/components/plot-page';
-import { PLOTLINE_COLORS } from '@web/features/plot/constants/plot.constants';
+import {
+  PLOTLINE_COLORS,
+  PLOT_VIEW_STORAGE_PREFIX,
+} from '@web/features/plot/constants/plot.constants';
 import type { Plot } from '@web/features/plot/plot.types';
 
 const PLOT: Plot = {
@@ -174,10 +177,15 @@ const stubPlot =
     };
   };
 
+const VIEW_KEY = `${PLOT_VIEW_STORAGE_PREFIX}northwater`;
+
 const meta = {
   title: 'Plot/PlotPage',
   component: PlotPage,
   parameters: { layout: 'fullscreen' },
+  // A story's own cleanup doesn't run when the preview reloads, so a filter
+  // stored by EverythingHidden would otherwise leak into the next story.
+  beforeEach: () => localStorage.removeItem(VIEW_KEY),
   decorators: [
     (Story) => {
       const queryClient = new QueryClient({
@@ -229,6 +237,21 @@ export const Loading: Story = {
 
 export const LoadError: Story = {
   beforeEach: stubPlot('failure'),
+};
+
+// Stored like a real filter that hides every plotline.
+export const EverythingHidden: Story = {
+  beforeEach: [
+    stubPlot('populated'),
+    () =>
+      localStorage.setItem(
+        VIEW_KEY,
+        JSON.stringify({
+          hiddenPlotlineIds: PLOT.plotlines.map((p) => p.id),
+          hiddenBeatIds: [],
+        })
+      ),
+  ],
 };
 
 export const RefreshFailed: Story = {

@@ -53,6 +53,15 @@ export const Overflowing: Story = {
   },
 };
 
+export const AllHidden: Story = {
+  args: {
+    canShowAll: true,
+    children: ['The heist', 'Mara and Teo', 'The informant'].map((name, i) =>
+      row(name, i, false)
+    ),
+  },
+};
+
 export const ShowAllEnabled: Story = {
   args: {
     canShowAll: true,
