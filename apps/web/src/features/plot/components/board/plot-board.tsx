@@ -21,7 +21,6 @@ import type { CardPlacement } from '@web/features/plot/components/card-editor/ca
 import { BeatHeader } from '@web/features/plot/components/board/beat-header';
 import { PlotCardFace } from '@web/features/plot/components/board/plot-card';
 import { PlotCell } from '@web/features/plot/components/board/plot-cell';
-import { PlotHeader } from '@web/features/plot/components/board/plot-header';
 import { PlotlineLabel } from '@web/features/plot/components/board/plotline-label';
 import {
   PLOT_DRAG_INSTRUCTIONS,
@@ -78,7 +77,6 @@ export function PlotBoard({
   onRetry,
 }: PlotBoardProps) {
   const {
-    addBeat,
     addPlotline,
     updatePlotline,
     reorderPlotlines,
@@ -159,15 +157,10 @@ export function PlotBoard({
   const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${plot.beats.length}, ${PLOT_BEAT_COLUMN_WIDTH}px)`;
 
   return (
-    <div className="flex h-svh min-w-0 flex-1 flex-col">
-      <PlotHeader
-        plotlineCount={plot.plotlines.length}
-        beatCount={plot.beats.length}
-        cardCount={plot.cards.length}
-        editable={editable}
-        onAddBeat={addBeat}
-        onAddPlotline={addPlotline}
-      />
+    <div className="flex h-svh min-w-0 flex-1 flex-col pt-10">
+      {/* The visible title and summary live in the sidebar now; the page
+          still needs a heading to navigate by. */}
+      <h1 className="sr-only">Plot</h1>
       {refreshFailed && (
         <div
           role="alert"

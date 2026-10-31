@@ -66,10 +66,28 @@ function withPlot(plot: Plot) {
   return queryClient;
 }
 
+// The panel reads the viewport to decide whether it is editable; pinned so the
+// canvas width doesn't decide for the story.
+const pinEditable =
+  (editable = true) =>
+  () => {
+    const realMatchMedia = window.matchMedia;
+    window.matchMedia = (query) => ({
+      ...realMatchMedia(query),
+      matches: editable,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    });
+    return () => {
+      window.matchMedia = realMatchMedia;
+    };
+  };
+
 const meta = {
   title: 'Plot/PlotSidebarPanel',
   component: PlotSidebarPanel,
   parameters: { layout: 'centered' },
+  beforeEach: pinEditable(),
   decorators: [
     (Story, { parameters }) => (
       <JotaiProvider store={createStore()}>
@@ -100,3 +118,8 @@ export const Default: Story = { parameters: { plot: PLOT } };
 export const Dense: Story = { parameters: { plot: DENSE_PLOT } };
 
 export const NotStarted: Story = { parameters: { plot: EMPTY_PLOT } };
+
+export const ViewOnly: Story = {
+  parameters: { plot: PLOT },
+  beforeEach: pinEditable(false),
+};

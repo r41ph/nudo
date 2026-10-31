@@ -124,7 +124,7 @@ describe('PlotPage', () => {
 
     let fail = true;
     server.use(
-      graphql.mutation('CreatePlotBeat', () => HttpResponse.json({ data: {} })),
+      graphql.mutation('CreatePlotline', () => HttpResponse.json({ data: {} })),
       graphql.query('GetPlot', () =>
         fail
           ? HttpResponse.json({ errors: [{ message: 'boom' }] })
@@ -137,7 +137,7 @@ describe('PlotPage', () => {
             })
       )
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Add beat' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Plotline' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       "Couldn't refresh your plot."
@@ -206,7 +206,7 @@ describe('PlotPage', () => {
         'View only — open nudo on a larger screen to edit the plot.'
       )
     ).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'Add beat' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Plotline' })).toBeNull();
   });
 
   it('Start plot shows a pending state, then the board', async () => {

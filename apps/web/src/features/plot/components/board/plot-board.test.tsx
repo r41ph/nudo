@@ -4,36 +4,26 @@ import userEvent from '@testing-library/user-event';
 import {
   holdMutation,
   renderBoard,
-  servePlot,
 } from '@web/features/plot/test/plot-board-harness';
 import { PLOT_EDIT_MIN_WIDTH } from '@web/features/plot/constants/plot.constants';
 import { setViewportWidth } from '@web/test/media';
-import {
-  MOCK_PLOTLINES,
-  MOCK_PLOT_BEATS,
-  MOCK_PLOT_CARDS,
-} from '@web/test/mocks/fixtures';
 
 const VIEW_ONLY_BANNER =
   'View only — open nudo on a larger screen to edit the plot.';
 
 describe('PlotBoard', () => {
-  it('shows the title and a plural summary', async () => {
+  // The summary and the add actions moved to the sidebar; the page keeps a
+  // heading for screen readers only.
+  it('has no visible header, summary or header add buttons', async () => {
     renderBoard();
 
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Plot' })
-    ).toBeInTheDocument();
-    expect(screen.getByText('2 plotlines · 3 beats · 4 cards')).toBeVisible();
-  });
-
-  it('uses the singular for one plotline, beat and card', async () => {
-    servePlot([MOCK_PLOTLINES[0]], [MOCK_PLOT_BEATS[0]], [MOCK_PLOT_CARDS[0]]);
-    renderBoard();
-
-    expect(
-      await screen.findByText('1 plotline · 1 beat · 1 card')
-    ).toBeVisible();
+    ).toHaveClass('sr-only');
+    expect(screen.queryByText(/plotlines · /)).toBeNull();
+    for (const name of ['Add beat', 'Add plotline']) {
+      expect(screen.queryByRole('button', { name })).toBeNull();
+    }
   });
 
   it('lays out beats as columns and plotlines as rows, in order', async () => {
@@ -57,46 +47,26 @@ describe('PlotBoard', () => {
     });
   });
 
-  it('adds an "Untitled beat" column from Add beat', async () => {
-    const { variables, release } = holdMutation('CreatePlotBeat');
+  it('adds an "Untitled plotline" row with the next colour from + Plotline', async () => {
+    const { variables, release } = holdMutation('CreatePlotline');
     renderBoard();
 
     await userEvent.click(
-      await screen.findByRole('button', { name: 'Add beat' })
+      await screen.findByRole('button', { name: 'Plotline' })
     );
 
     expect(
-      await screen.findByRole('columnheader', { name: 'Untitled beat' })
+      await screen.findByRole('rowheader', { name: /Untitled plotline/ })
     ).toBeInTheDocument();
     expect(variables).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Untitled beat', position: 3 })
+      expect.objectContaining({
+        name: 'Untitled plotline',
+        color: 'color2',
+        position: 2,
+      })
     );
     release();
   });
-
-  it.each(['Add plotline', 'Plotline'])(
-    'adds an "Untitled plotline" row with the next colour from %s',
-    async (button) => {
-      const { variables, release } = holdMutation('CreatePlotline');
-      renderBoard();
-
-      await userEvent.click(
-        await screen.findByRole('button', { name: button })
-      );
-
-      expect(
-        await screen.findByRole('rowheader', { name: /Untitled plotline/ })
-      ).toBeInTheDocument();
-      expect(variables).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'Untitled plotline',
-          color: 'color2',
-          position: 2,
-        })
-      );
-      release();
-    }
-  );
 });
 
 describe('PlotBoard — below PLOT_EDIT_MIN_WIDTH', () => {
@@ -106,9 +76,7 @@ describe('PlotBoard — below PLOT_EDIT_MIN_WIDTH', () => {
 
     const grid = await screen.findByRole('table', { name: 'Plot board' });
     expect(screen.getByText(VIEW_ONLY_BANNER)).toBeVisible();
-    for (const name of ['Add beat', 'Add plotline', 'Plotline']) {
-      expect(screen.queryByRole('button', { name })).toBeNull();
-    }
+    expect(screen.queryByRole('button', { name: 'Plotline' })).toBeNull();
     expect(screen.queryByRole('button', { name: /^Actions for/ })).toBeNull();
     expect(
       within(grid)
@@ -123,7 +91,7 @@ describe('PlotBoard — below PLOT_EDIT_MIN_WIDTH', () => {
     renderBoard();
 
     expect(
-      await screen.findByRole('button', { name: 'Add beat' })
+      await screen.findByRole('button', { name: 'Plotline' })
     ).toBeInTheDocument();
     expect(screen.queryByText(VIEW_ONLY_BANNER)).toBeNull();
   });
