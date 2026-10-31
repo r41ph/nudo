@@ -1,6 +1,6 @@
 # Tasks: Projects
 
-> Status: In review — PR 1 merged (PR #44 — https://github.com/r41ph/nudo/pull/44); PR 2 in review (PR #47 — https://github.com/r41ph/nudo/pull/47)
+> Status: Implemented — PR 1 merged (PR #44 — https://github.com/r41ph/nudo/pull/44); PR 2 merged (PR #47 — https://github.com/r41ph/nudo/pull/47)
 > Spec: [`projects.md`](./projects.md)
 > Plan: [`projects.plan.md`](./projects.plan.md)
 > Branch: `feat/projects`

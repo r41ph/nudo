@@ -1,6 +1,6 @@
 # Tasks: Plot
 
-> Status: In progress — PR 1 (Plot foundation) merged (PR #45 — https://github.com/r41ph/nudo/pull/45); PR 2 (Cards and drag and drop) in review (PR #49 — https://github.com/r41ph/nudo/pull/49)
+> Status: Implemented — PR 1 (Plot foundation) merged (PR #45 — https://github.com/r41ph/nudo/pull/45); PR 2 (Cards and drag and drop) merged (PR #49 — https://github.com/r41ph/nudo/pull/49)
 > Spec: [`plot.md`](./plot.md)
 > Plan: [`plot.plan.md`](./plot.plan.md)
 > Branches: `feat/plot-tool` (PR 1), `feat/plot-cards` (PR 2)
