@@ -3,6 +3,7 @@ import type { Active, ClientRect, Over } from '@dnd-kit/core';
 import {
   acceptsDrop,
   cardDrop,
+  orderAnnouncements,
   plotAnnouncements,
   reorderedIds,
   cellDroppableId,
@@ -211,6 +212,31 @@ describe('reorderedIds', () => {
   it('is null when nothing would change', () => {
     expect(reorderedIds(['a', 'b'], 'a', 'a')).toBeNull();
     expect(reorderedIds(['a', 'b'], 'a', 'zzz')).toBeNull();
+  });
+
+  // A filtered list renders a, c only; dropping a on c must use the full
+  // order so hidden b keeps its place relative to the others.
+  it('reorders the full list when a neighbour is hidden', () => {
+    expect(reorderedIds(['a', 'b', 'c', 'd'], 'a', 'c')).toEqual([
+      'b',
+      'c',
+      'a',
+      'd',
+    ]);
+  });
+});
+
+describe('orderAnnouncements', () => {
+  const announce = orderAnnouncements('beat', PLOT.beats);
+  const active = { id: START } as unknown as Active;
+
+  it('names the item and its position in the given rows', () => {
+    expect(announce.onDragStart({ active })).toBe(
+      "Picked up beat 'Beginning', position 1 of 2."
+    );
+    expect(
+      announce.onDragEnd({ active, over: { id: MIDDLE } as unknown as Over })
+    ).toBe("Beat 'Beginning' was dropped at position 2 of 2.");
   });
 });
 

@@ -6,9 +6,16 @@ import {
   groupCardsByCell,
   moveId,
   nextPlotlineColor,
+  plotCounterLabel,
+  visiblePlot,
 } from '@web/features/plot/lib/plot.utils';
 import { PLOTLINE_COLORS } from '@web/features/plot/constants/plot.constants';
-import type { PlotCard, PlotCell } from '@web/features/plot/plot.types';
+import type {
+  Plot,
+  PlotCard,
+  PlotCell,
+  PlotView,
+} from '@web/features/plot/plot.types';
 
 describe('nextPlotlineColor', () => {
   it('starts with the first key on an empty board', () => {
@@ -165,5 +172,93 @@ describe('applyCardMove', () => {
 
   it('returns null for an unknown card', () => {
     expect(applyCardMove(cards, 'zzz', A1, 0)).toBeNull();
+  });
+});
+
+describe('visiblePlot', () => {
+  const plot: Plot = {
+    plotlines: [
+      { id: 'p1', name: 'Main', color: 'color1', position: 0 },
+      { id: 'p2', name: 'Ada', color: 'color2', position: 1 },
+      { id: 'p3', name: 'Ben', color: 'color3', position: 2 },
+    ],
+    beats: [
+      { id: 'b1', name: 'Start', position: 0 },
+      { id: 'b2', name: 'Middle', position: 1 },
+    ],
+    cards: [
+      card('c1', { plotlineId: 'p1', beatId: 'b1' }, 0),
+      card('c2', { plotlineId: 'p2', beatId: 'b1' }, 0),
+      card('c3', { plotlineId: 'p3', beatId: 'b2' }, 0),
+      card('c4', { plotlineId: 'p1', beatId: 'b2' }, 0),
+      card('c5', UNASSIGNED, 0),
+    ],
+  };
+  const view = (
+    hiddenPlotlineIds: string[] = [],
+    hiddenBeatIds: string[] = []
+  ): PlotView => ({ hiddenPlotlineIds, hiddenBeatIds });
+  const ids = (items: readonly { id: string }[]) => items.map((i) => i.id);
+
+  it('keeps every plotline, beat and cell card when nothing is hidden', () => {
+    const visible = visiblePlot(plot, view());
+    expect(ids(visible.plotlines)).toEqual(['p1', 'p2', 'p3']);
+    expect(ids(visible.beats)).toEqual(['b1', 'b2']);
+    expect(ids(visible.cards)).toEqual(['c1', 'c2', 'c3', 'c4']);
+  });
+
+  it('drops hidden plotlines and beats and their cards, keeping order', () => {
+    const visible = visiblePlot(plot, view(['p2'], ['b2']));
+    expect(ids(visible.plotlines)).toEqual(['p1', 'p3']);
+    expect(ids(visible.beats)).toEqual(['b1']);
+    expect(ids(visible.cards)).toEqual(['c1']);
+  });
+
+  it('ignores ids that are not in the plot', () => {
+    const visible = visiblePlot(plot, view(['gone'], ['gone']));
+    expect(ids(visible.plotlines)).toEqual(['p1', 'p2', 'p3']);
+    expect(ids(visible.beats)).toEqual(['b1', 'b2']);
+  });
+
+  it('shows no cards when every plotline is hidden', () => {
+    const visible = visiblePlot(plot, view(['p1', 'p2', 'p3']));
+    expect(visible.plotlines).toEqual([]);
+    expect(visible.beats).toHaveLength(2);
+    expect(visible.cards).toEqual([]);
+  });
+});
+
+describe('plotCounterLabel', () => {
+  const plot: Plot = {
+    plotlines: [
+      { id: 'p1', name: 'Main', color: 'color1', position: 0 },
+      { id: 'p2', name: 'Ada', color: 'color2', position: 1 },
+    ],
+    beats: [{ id: 'b1', name: 'Start', position: 0 }],
+    cards: [
+      card('c1', { plotlineId: 'p1', beatId: 'b1' }, 0),
+      card('c2', { plotlineId: 'p2', beatId: 'b1' }, 0),
+    ],
+  };
+
+  it('reads as plain totals when nothing is hidden', () => {
+    expect(
+      plotCounterLabel(plot, { hiddenPlotlineIds: [], hiddenBeatIds: [] })
+    ).toBe('2 plotlines · 1 beat · 2 cards');
+  });
+
+  it('shows visible of total once something is hidden', () => {
+    expect(
+      plotCounterLabel(plot, { hiddenPlotlineIds: ['p2'], hiddenBeatIds: [] })
+    ).toBe('1 of 2 plotlines · 1 of 1 beat · 1 card');
+  });
+
+  it('counts only ids that are in the plot as hidden', () => {
+    expect(
+      plotCounterLabel(plot, {
+        hiddenPlotlineIds: ['gone'],
+        hiddenBeatIds: [],
+      })
+    ).toBe('2 plotlines · 1 beat · 2 cards');
   });
 });

@@ -1,8 +1,10 @@
 import { PLOTLINE_COLORS } from '@web/features/plot/constants/plot.constants';
 import type {
+  Plot,
   PlotCard,
   PlotCell,
   PlotlineColor,
+  PlotView,
 } from '@web/features/plot/plot.types';
 
 // Least-used key, earliest in palette order on a tie: on a board with fewer
@@ -25,6 +27,42 @@ export function nextPlotlineColor(
 
 export function countLabel(count: number, noun: string): string {
   return `${count} ${noun}${count === 1 ? '' : 's'}`;
+}
+
+// Unassigned cards sit in no plotline × beat cell, so they are never counted
+// as visible.
+export function visiblePlot(plot: Plot, view: PlotView): Plot {
+  const hiddenPlotlines = new Set(view.hiddenPlotlineIds);
+  const hiddenBeats = new Set(view.hiddenBeatIds);
+  const plotlines = plot.plotlines.filter((p) => !hiddenPlotlines.has(p.id));
+  const beats = plot.beats.filter((b) => !hiddenBeats.has(b.id));
+  const plotlineIds = new Set(plotlines.map((p) => p.id));
+  const beatIds = new Set(beats.map((b) => b.id));
+  const cards = plot.cards.filter(
+    (c) =>
+      c.plotlineId !== null &&
+      c.beatId !== null &&
+      plotlineIds.has(c.plotlineId) &&
+      beatIds.has(c.beatId)
+  );
+  return { plotlines, beats, cards };
+}
+
+export function plotCounterLabel(plot: Plot, view: PlotView): string {
+  const visible = visiblePlot(plot, view);
+  const filtered =
+    visible.plotlines.length < plot.plotlines.length ||
+    visible.beats.length < plot.beats.length;
+  const part = (shown: number, total: number, noun: string) =>
+    filtered
+      ? `${shown} of ${countLabel(total, noun)}`
+      : countLabel(total, noun);
+
+  return [
+    part(visible.plotlines.length, plot.plotlines.length, 'plotline'),
+    part(visible.beats.length, plot.beats.length, 'beat'),
+    countLabel(visible.cards.length, 'card'),
+  ].join(' · ');
 }
 
 export function moveId(ids: readonly string[], id: string, delta: -1 | 1) {
