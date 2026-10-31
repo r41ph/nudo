@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plot sidebar – prototype</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&amp;family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;display=swap">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+.grip{opacity:0;transition:opacity .15s}.frow:hover .grip,.frow:focus-within .grip{opacity:1}
+a{color:#1F1E1C}a:hover{color:#000}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; display: flex; background: #FCFBF9; color: #1F1E1C; font-family: Inter, system-ui, sans-serif; overflow: hidden">
+
+  <aside style="width: 300px; flex-shrink: 0; box-sizing: border-box; padding: 28px 16px 16px; display: flex; flex-direction: column; border-right: 1px solid #ECE8E2">
+    <div style="padding: 0 12px; display: flex; align-items: center; font-weight: 800; font-size: 26px; letter-spacing: -0.06em; line-height: 1">
+      <span style="display: block; width: 18px; height: 3px; background: #1F1E1C; margin-right: 1px; margin-top: 4px"></span>nudo<span style="color: #C4552B">.</span>
+    </div>
+    <div style="padding: 0 12px; margin-top: 34px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: #6B6862">MANUSCRIPT</div>
+    <div style="padding: 0 12px; margin-top: 6px; font-family: Newsreader, Georgia, serif; font-size: 22px; font-weight: 600; letter-spacing: -0.01em">The Saltmarsh Light</div>
+
+    <div style="position: relative; margin-top: 22px">
+      <button onClick="{{ toggle }}" aria-haspopup="listbox" aria-expanded="{{ open }}" style="width: 100%; height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 0 12px; border-radius: 10px; background: #F0ECE6; font-size: 15px; font-weight: 500">
+        <sc-if value="{{ isStory }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1F1E1C" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 2.5h5.5L12 5v8.5H4z"></path><path d="M6.5 8h3.5M6.5 10.5h3.5"></path></svg></sc-if>
+        <sc-if value="{{ isPlot }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#1F1E1C" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11"></path><circle cx="5" cy="4" r="1.3" fill="#1F1E1C"></circle><circle cx="10" cy="8" r="1.3" fill="#1F1E1C"></circle><circle cx="7" cy="12" r="1.3" fill="#1F1E1C"></circle></svg></sc-if>
+        <span style="flex: 1">{{ label }}</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6B6862" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 6l3-3 3 3M5 10l3 3 3-3"></path></svg>
+      </button>
+      <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
+        <div role="listbox" aria-label="Views" style="position: absolute; top: 50px; left: 0; right: 0; z-index: 3; padding: 6px; background: #FFFFFF; border: 1px solid #E6E1D9; border-radius: 12px; box-shadow: 0 14px 36px rgba(31, 30, 28, 0.12); display: flex; flex-direction: column; gap: 2px">
+          <button role="option" aria-selected="{{ isStory }}" onClick="{{ pickStory }}" style="height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px; font-size: 14px; background: {{ storyBg }}">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6B6862" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 2.5h5.5L12 5v8.5H4z"></path><path d="M6.5 8h3.5M6.5 10.5h3.5"></path></svg>
+            <span style="flex: 1">Story</span><span style="font-size: 12px; color: #6B6862">1 document</span>
+          </button>
+          <button role="option" aria-disabled="true" disabled style="height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px; font-size: 14px; color: #8A867F; cursor: default"><span style="width: 16px"></span><span style="flex: 1">Characters</span></button>
+          <button role="option" aria-selected="{{ isPlot }}" onClick="{{ pickPlot }}" style="height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px; font-size: 14px; background: {{ plotBg }}">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6B6862" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11"></path><circle cx="5" cy="4" r="1.3" fill="#6B6862"></circle><circle cx="10" cy="8" r="1.3" fill="#6B6862"></circle><circle cx="7" cy="12" r="1.3" fill="#6B6862"></circle></svg>
+            <span style="flex: 1">Plot</span><span style="font-size: 12px; color: #6B6862">33 cards</span>
+          </button>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ isStory }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 22px">
+        <div style="display: flex; align-items: center; justify-content: space-between; height: 32px; padding: 0 4px 0 12px">
+          <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: #6B6862">DRAFT</span>
+          <button aria-label="Add chapter" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #6B6862"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg></button>
+        </div>
+        <button style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 8px; border-radius: 8px; font-size: 15px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#6B6862" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg>Chapter One</button>
+        <div style="margin-left: 15px; padding-left: 6px; border-left: 1px solid #E4DFD8">
+          <button style="display: flex; align-items: center; width: 100%; height: 36px; padding: 0 12px; border-radius: 8px; background: #F0ECE6; font-size: 15px">Untitled</button>
+        </div>
+      </div>
+    </sc-if>
+
+
+    <sc-if value="{{ isPlot }}" hint-placeholder-val="{{ true }}">
+      <div style="flex: 1; min-height: 0; margin-top: 14px; display: flex; flex-direction: column; gap: 14px">
+        <section style="display: flex; flex-direction: column; flex: 0 1 auto; min-height: 136px">
+          <div style="display: flex; align-items: center; height: 32px; padding: 0 4px 0 12px">
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: #6B6862">PLOTLINES</span>
+            <button onClick="{{ showAllLines }}" style="margin-left: auto; height: 28px; padding: 0 8px; border-radius: 6px; font-size: 12px; color: #6B6862">Show all</button>
+          </div>
+          <div class="flist" style="min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 1px">
+          <sc-for list="{{ lines }}" as="l" hint-placeholder-count="5">
+            <div class="frow" style="display: flex; align-items: center"><span class="grip" aria-label="Drag {{ l.name }}" role="button" tabindex="0" style="width: 20px; height: 34px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8A867F; cursor: grab"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="6" cy="3.5" r="1.2"></circle><circle cx="10" cy="3.5" r="1.2"></circle><circle cx="6" cy="8" r="1.2"></circle><circle cx="10" cy="8" r="1.2"></circle><circle cx="6" cy="12.5" r="1.2"></circle><circle cx="10" cy="12.5" r="1.2"></circle></svg></span><button role="checkbox" aria-checked="{{ l.on }}" onClick="{{ l.toggle }}" style="flex: 1; min-width: 0; height: 34px; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 4px; border-radius: 8px; font-size: 14px; color: {{ l.fg }}">
+              <span style="width: 16px; height: 16px; box-sizing: border-box; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{ l.boxBg }}; border: 1.5px solid {{ l.color }}">
+                <sc-if value="{{ l.on }}" hint-placeholder-val="{{ true }}"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"></path></svg></sc-if>
+              </span>
+              <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ l.name }}</span>
+              <span style="font-size: 12px; color: #6B6862">{{ l.count }}</span>
+            </button></div>
+          </sc-for>
+          <button style="height: 34px; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 24px; border-radius: 8px; font-size: 14px; color: #6B6862"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg>New plotline</button>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; flex: 0 1 auto; min-height: 136px">
+          <div style="display: flex; align-items: center; height: 32px; padding: 0 4px 0 12px">
+            <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: #6B6862">BEATS</span>
+            <button onClick="{{ showAllBeats }}" style="margin-left: auto; height: 28px; padding: 0 8px; border-radius: 6px; font-size: 12px; color: #6B6862">Show all</button>
+          </div>
+          <div class="flist" style="min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 1px">
+          <sc-for list="{{ beats }}" as="b" hint-placeholder-count="8">
+            <div class="frow" style="display: flex; align-items: center"><span class="grip" aria-label="Drag {{ b.name }}" role="button" tabindex="0" style="width: 20px; height: 34px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8A867F; cursor: grab"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="6" cy="3.5" r="1.2"></circle><circle cx="10" cy="3.5" r="1.2"></circle><circle cx="6" cy="8" r="1.2"></circle><circle cx="10" cy="8" r="1.2"></circle><circle cx="6" cy="12.5" r="1.2"></circle><circle cx="10" cy="12.5" r="1.2"></circle></svg></span><button role="checkbox" aria-checked="{{ b.on }}" onClick="{{ b.toggle }}" style="flex: 1; min-width: 0; height: 34px; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 4px; border-radius: 8px; font-size: 14px; color: {{ b.fg }}">
+              <span style="width: 16px; height: 16px; box-sizing: border-box; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: {{ b.boxBg }}; border: 1.5px solid #57544E">
+                <sc-if value="{{ b.on }}" hint-placeholder-val="{{ true }}"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"></path></svg></sc-if>
+              </span>
+              <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ b.name }}</span>
+            </button></div>
+          </sc-for>
+          <button style="height: 34px; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 24px; border-radius: 8px; font-size: 14px; color: #6B6862"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg>New beat</button>
+          </div>
+        </section>
+      </div>
+      <div style="padding: 12px 12px 10px; font-size: 12px; line-height: 1.5; color: #6B6862">{{ plotSummary }}</div>
+    </sc-if>
+
+    <button style="margin-top: auto; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px; border-radius: 8px; font-size: 14px; flex-shrink: 0">
+      <span style="width: 28px; height: 28px; border-radius: 50%; background: #ECE8E2; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0">DE</span>
+      <span style="flex: 1">dev@rgalan.es</span>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#6B6862" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg>
+    </button>
+  </aside>
+
+  <main style="flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column">
+    <sc-if value="{{ isStory }}" hint-placeholder-val="{{ false }}">
+      <button aria-label="Focus mode" style="position: absolute; top: 20px; right: 24px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #6B6862"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5L9 7M6.5 13.5h-4v-4M2.5 13.5L7 9"></path></svg></button>
+      <div style="width: 100%; max-width: 680px; margin: 0 auto; padding-top: 64px; box-sizing: border-box">
+        <p style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 22px; line-height: 1.6; color: #8A867F">Type…</p>
+      </div>
+      <div style="margin-top: auto; align-self: flex-end; padding: 0 28px 20px; display: flex; gap: 22px; font-size: 13px; color: #6B6862">
+        <span><strong style="color: #1F1E1C; font-weight: 600">0</strong> document</span>
+        <span><strong style="color: #1F1E1C; font-weight: 600">0</strong> today</span>
+        <span><strong style="color: #1F1E1C; font-weight: 600">0</strong> total</span>
+      </div>
+    </sc-if>
+
+
+    <sc-if value="{{ isPlot }}" hint-placeholder-val="{{ true }}">
+      <div style="flex: 1; min-height: 0; overflow: auto; padding: 40px 40px 40px 40px">
+        <div style="display: flex; gap: 16px; height: 44px; align-items: center; border-bottom: 1px solid #ECE8E2; font-size: 15px; font-weight: 500; width: max-content">
+          <span style="width: 170px; flex-shrink: 0"></span>
+          <sc-for list="{{ beatHeads }}" as="h" hint-placeholder-count="5">
+            <span style="width: 236px; flex-shrink: 0">{{ h.name }}</span>
+          </sc-for>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+          <div style="display: flex; gap: 16px; padding: 14px 0 26px; border-bottom: 1px solid #ECE8E2; align-items: flex-start; width: max-content">
+            <div style="width: 170px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding-top: 12px; font-size: 14px; font-weight: 500"><span style="width: 9px; height: 9px; border-radius: 50%; background: {{ r.color }}"></span>{{ r.name }}</div>
+            <sc-for list="{{ r.cells }}" as="cell" hint-placeholder-count="5">
+              <div style="width: 236px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px">
+                <sc-for list="{{ cell.cards }}" as="k" hint-placeholder-count="1">
+                  <div style="padding: 14px 16px; background: #FFFEFC; border: 1px solid #ECE8E2; border-radius: 6px">
+                    <div style="font-family: Newsreader, Georgia, serif; font-size: 18px; font-weight: 600; line-height: 1.25; padding-bottom: 8px; border-bottom: 2px solid {{ k.color }}">{{ k.t }}</div>
+                    <sc-if value="{{ k.hasB }}" hint-placeholder-val="{{ true }}"><p style="margin: 10px 0 0; font-size: 13px; line-height: 1.55; color: #5E5B55">{{ k.b }}</p></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startView":{"editor":"enum","options":["story","plot"],"default":"plot"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+const s = this.state || {};
+const view = s.view || this.props.startView || 'plot';
+const open = !!s.open;
+const hiddenL = s.hiddenL || {};
+const hiddenB = s.hiddenB || {};
+const L = [
+{ id: 'p1', name: 'Main plot', color: '#1A9BE8', count: '11' },
+{ id: 'p2', name: 'Nell & Tomas', color: '#EE5C9C', count: '6' },
+{ id: 'p3', name: 'The Ashbys', color: '#F29F1C', count: '5' },
+{ id: 'p4', name: '[Plotline 4]', color: '#3FA66B', count: '–' },
+{ id: 'p5', name: '[Plotline 5]', color: '#8A6FD6', count: '–' }
+];
+const B = [
+{ id: 'b1', name: 'Opening image' }, { id: 'b2', name: 'Inciting incident' },
+{ id: 'b3', name: 'Break into act two' }, { id: 'b4', name: 'Fun and games' },
+{ id: 'b5', name: 'Midpoint' }, { id: 'b6', name: '[Beat 6]' },
+{ id: 'b7', name: '[Beat 7]' }, { id: 'b8', name: '[Beat 8]' }
+];
+const C = {
+'p1|b1': [
+{ t: 'Nell returns to Saltmarsh', b: "Ten years after leaving, Nell Ashby comes back for her grandmother's funeral. The lighthouse is dark fo…" },
+{ t: 'The logbook ends mid-sentence', b: 'Eamon’s last entry: “Third boat without lights tonight. I’m going down to”' }
+],
+'p1|b2': [{ t: "Grandmother's keeper is missing", b: 'Old Eamon, who kept the light for forty years, has not been seen since the night of the storm. The…' }],
+'p1|b3': [{ t: 'Nell decides to stay', b: 'She postpones her flight and takes over the cottage. No turning back now.' }],
+'p1|b4': [
+{ t: 'Questioning the harbour', b: 'Fishermen go quiet when she mentions the unlit boats.' },
+{ t: 'Night watch from the lamp room', b: '' }
+],
+'p2|b1': [{ t: 'Tomas at the funeral', b: 'Her old flame, now the harbour master. Awkward, warm, unresolved.' }],
+'p2|b4': [{ t: 'Rowing out to the reef', b: 'Tomas helps her reach the wreck. The first real laugh in years.' }],
+'p3|b2': [{ t: 'A letter in the will', b: 'Grandmother leaves Nell the lighthouse, plus a sealed letter “to be opened if Eamon ever goes”.' }],
+'p3|b4': [{ t: 'Mother refuses to talk about 1989', b: '' }]
+};
+const flip = (key, obj, id) => () => this.setState({ [key]: Object.assign({}, obj, { [id]: !obj[id] }) });
+const pick = (v) => () => this.setState({ view: v, open: false });
+const on = '#F4F1EC';
+const visB = B.filter((b) => !hiddenB[b.id]);
+const visL = L.filter((l) => !hiddenL[l.id]);
+return {
+open: open,
+toggle: () => this.setState({ open: !open }),
+isStory: view === 'story', isPlot: view === 'plot',
+label: view === 'story' ? 'Story' : 'Plot',
+pickStory: pick('story'), pickPlot: pick('plot'),
+storyBg: view === 'story' ? on : 'transparent',
+plotBg: view === 'plot' ? on : 'transparent',
+showAllLines: () => this.setState({ hiddenL: {} }),
+showAllBeats: () => this.setState({ hiddenB: {} }),
+lines: L.map((l) => {
+const v = !hiddenL[l.id];
+return { name: l.name, count: l.count, color: l.color, on: v, boxBg: v ? l.color : 'transparent', fg: v ? '#1F1E1C' : '#6B6862', toggle: flip('hiddenL', hiddenL, l.id) };
+}),
+beats: B.map((b) => {
+const v = !hiddenB[b.id];
+return { name: b.name, on: v, boxBg: v ? '#57544E' : 'transparent', fg: v ? '#1F1E1C' : '#6B6862', toggle: flip('hiddenB', hiddenB, b.id) };
+}),
+plotSummary: visL.length + ' of 5 plotlines · ' + visB.length + ' of 8 beats · 33 cards',
+beatHeads: visB.map((b) => ({ name: b.name })),
+rows: visL.map((l) => ({
+name: l.name, color: l.color,
+cells: visB.map((b) => ({
+cards: (C[l.id + '|' + b.id] || []).map((k) => ({ t: k.t, b: k.b, hasB: !!k.b, color: l.color }))
+}))
+}))
+};
+}
+}
+</script>
+</body>
+</html>
