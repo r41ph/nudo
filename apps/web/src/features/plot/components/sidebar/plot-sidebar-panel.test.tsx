@@ -146,6 +146,68 @@ describe('PlotSidebarPanel', () => {
     }
   );
 
+  it('shows every item ticked, named after what it shows', async () => {
+    renderPanel();
+
+    for (const { name } of [...MOCK_PLOTLINES, ...MOCK_PLOT_BEATS]) {
+      expect(
+        await screen.findByRole('checkbox', { name: `Show ${name}` })
+      ).toBeChecked();
+    }
+  });
+
+  it('hides an item from its checkbox, muting its name and the counter', async () => {
+    renderPanel();
+
+    await userEvent.click(
+      await screen.findByRole('checkbox', { name: 'Show Main plot' })
+    );
+
+    expect(
+      screen.getByRole('checkbox', { name: 'Show Main plot' })
+    ).not.toBeChecked();
+    const list = screen.getByRole('list', { name: 'Plotlines' });
+    expect(within(list).getByText('Main plot')).toHaveClass(
+      'text-muted-foreground'
+    );
+    expect(within(list).getByText('Ada')).toHaveClass('text-foreground');
+    // Only Ada × End is left on the board.
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '1 of 2 plotlines · 3 of 3 beats · 1 card'
+    );
+  });
+
+  it('toggles from anywhere on the name, not only the box', async () => {
+    renderPanel();
+    const list = await screen.findByRole('list', { name: 'Beats' });
+
+    await userEvent.click(within(list).getByText('Middle'));
+
+    expect(
+      screen.getByRole('checkbox', { name: 'Show Middle' })
+    ).not.toBeChecked();
+  });
+
+  it('Show all restores its own section only', async () => {
+    renderPanel();
+    await userEvent.click(
+      await screen.findByRole('checkbox', { name: 'Show Ada' })
+    );
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Show End' }));
+
+    const showAllPlotlines = screen.getByRole('button', {
+      name: 'Show all plotlines',
+    });
+    expect(showAllPlotlines).toBeEnabled();
+    await userEvent.click(showAllPlotlines);
+
+    expect(screen.getByRole('checkbox', { name: 'Show Ada' })).toBeChecked();
+    expect(showAllPlotlines).toBeDisabled();
+    expect(
+      screen.getByRole('checkbox', { name: 'Show End' })
+    ).not.toBeChecked();
+  });
+
   it('offers no New rows when the plot is view-only', async () => {
     setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
     renderPanel();
