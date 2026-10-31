@@ -342,6 +342,36 @@ describe('usePlotMutations: beats', () => {
   });
 });
 
+// The sidebar scrolls the new row into view, so it needs to know which one.
+describe('usePlotMutations: new ids', () => {
+  it('returns the id of the plotline or beat it adds', async () => {
+    // Held, so the settle refetch can't replace the optimistic rows.
+    const { gate, release } = deferred();
+    server.use(
+      ...['CreatePlotline', 'CreatePlotBeat'].map((operation) =>
+        graphql.mutation(operation, async () => {
+          await gate;
+          return HttpResponse.json({ data: {} });
+        })
+      )
+    );
+    const { result } = await renderPlot();
+
+    let plotlineId = '';
+    let beatId = '';
+    act(() => {
+      plotlineId = result.current.mutations.addPlotline();
+      beatId = result.current.mutations.addBeat();
+    });
+
+    await waitFor(() => {
+      expect(result.current.plot.data!.plotlines.at(-1)!.id).toBe(plotlineId);
+      expect(result.current.plot.data!.beats.at(-1)!.id).toBe(beatId);
+    });
+    release();
+  });
+});
+
 describe('usePlotMutations: start plot', () => {
   it('waits for the server, then shows the refetched board', async () => {
     let started = false;

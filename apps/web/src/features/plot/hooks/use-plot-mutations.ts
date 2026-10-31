@@ -261,12 +261,14 @@ export function usePlotMutations(projectId: string) {
     startPlot,
     addPlotline: () => {
       const plotlines = currentPlot()?.plotlines ?? [];
+      const id = crypto.randomUUID();
       createPlotline.mutate({
-        id: crypto.randomUUID(),
+        id,
         name: NEW_PLOTLINE_NAME,
         color: nextPlotlineColor(plotlines.map((p) => p.color)),
         position: nextPosition(plotlines),
       });
+      return id;
     },
     updatePlotline: (id: string, patch: PlotlinePatch) =>
       patchPlotline.mutate({ id, patch }),
@@ -274,11 +276,13 @@ export function usePlotMutations(projectId: string) {
     deletePlotline: (plotline: Plotline) => deletePlotline.mutate(plotline),
     addBeat: () => {
       const beats = currentPlot()?.beats ?? [];
+      const id = crypto.randomUUID();
       createBeat.mutate({
-        id: crypto.randomUUID(),
+        id,
         name: NEW_BEAT_NAME,
         position: nextPosition(beats),
       });
+      return id;
     },
     updateBeat: (id: string, patch: PlotBeatPatch) =>
       patchBeat.mutate({ id, patch }),

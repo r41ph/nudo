@@ -235,7 +235,7 @@ export const RefreshFailed: Story = {
   beforeEach: stubPlot('refresh-failure'),
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(
-      await canvas.findByRole('button', { name: 'Add beat' })
+      await canvas.findByRole('button', { name: 'Plotline' })
     );
   },
 };

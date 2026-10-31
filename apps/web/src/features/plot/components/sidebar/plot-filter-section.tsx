@@ -22,12 +22,12 @@ export function PlotFilterSection({
   return (
     <section className="flex min-h-[calc(2rem+3*2.125rem)] flex-initial flex-col">
       <div className="flex h-8 shrink-0 items-center justify-between gap-2 pr-0.5 pl-2.5">
-        <h2
+        <h3
           id={labelId}
           className="text-[10.5px] font-semibold tracking-[0.12em] text-muted-foreground uppercase"
         >
           {label}
-        </h2>
+        </h3>
         <Button
           variant="ghost"
           size="sm"
