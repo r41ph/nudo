@@ -92,7 +92,7 @@ export function PlotBoard({
     deleteCard,
     moveCard,
   } = usePlotMutations(projectId);
-  const { view } = usePlotView(projectId);
+  const { view, showAll } = usePlotView(projectId);
   const editable = usePlotEditable();
   const [editor, setEditor] = useState<EditorTarget | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -155,6 +155,11 @@ export function PlotBoard({
   // Only visible rows and columns render, but every reorder (drag, Move,
   // first/last) works on the full order so hidden items keep their places.
   const visible = visiblePlot(plot, view);
+  // A plot with no plotlines or no beats has nothing to hide; it keeps its
+  // usual empty layout.
+  const everythingHidden =
+    (plot.plotlines.length > 0 && visible.plotlines.length === 0) ||
+    (plot.beats.length > 0 && visible.beats.length === 0);
   const plotlineIds = plot.plotlines.map((p) => p.id);
   const beatIds = plot.beats.map((b) => b.id);
   const cells = groupCardsByCell(plot.cards);
@@ -183,191 +188,208 @@ export function PlotBoard({
           {PLOT_VIEW_ONLY_MESSAGE}
         </p>
       )}
-      <div className="min-h-0 flex-1 overflow-auto px-10 pb-8">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={plotCollision}
-          accessibility={{
-            announcements: plotAnnouncements(plot),
-            screenReaderInstructions: {
-              draggable: PLOT_DRAG_INSTRUCTIONS,
-            },
-          }}
-          onDragStart={({ active }) =>
-            setDragging({ id: String(active.id), type: dragTypeOf(active) })
-          }
-          onDragOver={({ active, over }) => {
-            if (dragTypeOf(active) === 'card') {
-              const target = dropTargetOf(over);
-              setOverKey(target ? cellKey(target.data.cell) : null);
-            } else {
-              setOverKey(
-                over && over.id !== active.id ? String(over.id) : null
-              );
+      {everythingHidden ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-10 py-16 text-center">
+          <p className="text-sm text-muted-foreground">Everything is hidden.</p>
+          <Button variant="outline" size="sm" onClick={() => showAll()}>
+            Show all
+          </Button>
+        </div>
+      ) : (
+        <div className="min-h-0 flex-1 overflow-auto px-10 pb-8">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={plotCollision}
+            accessibility={{
+              announcements: plotAnnouncements(plot),
+              screenReaderInstructions: {
+                draggable: PLOT_DRAG_INSTRUCTIONS,
+              },
+            }}
+            onDragStart={({ active }) =>
+              setDragging({ id: String(active.id), type: dragTypeOf(active) })
             }
-          }}
-          onDragEnd={({ active, over }) => {
-            endDrag();
-            const id = String(active.id);
-            const type = dragTypeOf(active);
-            if (type === 'card') {
-              const drop = cardDrop(plot.cards, id, dropTargetOf(over));
-              if (!drop?.moved) return;
-              moveCard(id, drop.to, drop.orderedIds.indexOf(id));
-              // A card that changed cells remounts and would lose focus.
-              requestFocus({ cardId: id });
-              return;
-            }
-            if (!over) return;
-            const ids = type === 'plotline' ? plotlineIds : beatIds;
-            const reordered = reorderedIds(ids, id, over.id);
-            if (!reordered) return;
-            if (type === 'plotline') reorderPlotlines(reordered);
-            else reorderBeats(reordered);
-          }}
-          onDragCancel={endDrag}
-        >
-          <div
-            role="table"
-            aria-label="Plot board"
-            className="grid w-max"
-            style={{ gridTemplateColumns }}
+            onDragOver={({ active, over }) => {
+              if (dragTypeOf(active) === 'card') {
+                const target = dropTargetOf(over);
+                setOverKey(target ? cellKey(target.data.cell) : null);
+              } else {
+                setOverKey(
+                  over && over.id !== active.id ? String(over.id) : null
+                );
+              }
+            }}
+            onDragEnd={({ active, over }) => {
+              endDrag();
+              const id = String(active.id);
+              const type = dragTypeOf(active);
+              if (type === 'card') {
+                const drop = cardDrop(plot.cards, id, dropTargetOf(over));
+                if (!drop?.moved) return;
+                moveCard(id, drop.to, drop.orderedIds.indexOf(id));
+                // A card that changed cells remounts and would lose focus.
+                requestFocus({ cardId: id });
+                return;
+              }
+              if (!over) return;
+              const ids = type === 'plotline' ? plotlineIds : beatIds;
+              const reordered = reorderedIds(ids, id, over.id);
+              if (!reordered) return;
+              if (type === 'plotline') reorderPlotlines(reordered);
+              else reorderBeats(reordered);
+            }}
+            onDragCancel={endDrag}
           >
-            <div role="row" className="contents">
-              <div
-                role="none"
-                className={cn(
-                  'sticky top-0 left-0 z-20 border-b border-border bg-background',
-                  COVER_GUTTER
-                )}
-              />
+            <div
+              role="table"
+              aria-label="Plot board"
+              className="grid w-max"
+              style={{ gridTemplateColumns }}
+            >
+              <div role="row" className="contents">
+                <div
+                  role="none"
+                  className={cn(
+                    'sticky top-0 left-0 z-20 border-b border-border bg-background',
+                    COVER_GUTTER
+                  )}
+                />
+                <SortableContext
+                  items={visible.beats.map((b) => b.id)}
+                  strategy={horizontalListSortingStrategy}
+                >
+                  {visible.beats.map((beat) => (
+                    <BeatHeader
+                      key={beat.id}
+                      beat={beat}
+                      editable={editable}
+                      hasCards={countBy('beatId', beat.id) > 0}
+                      isFirst={beat.id === beatIds[0]}
+                      isLast={beat.id === beatIds.at(-1)}
+                      onRename={(name) => updateBeat(beat.id, { name })}
+                      onMove={(delta) =>
+                        reorderBeats(moveId(beatIds, beat.id, delta))
+                      }
+                      onDelete={() => deleteBeat(beat)}
+                      dragType={dragType}
+                      isDropTarget={dragType === 'beat' && overKey === beat.id}
+                      className="sticky top-0 z-10"
+                    />
+                  ))}
+                </SortableContext>
+              </div>
               <SortableContext
-                items={visible.beats.map((b) => b.id)}
-                strategy={horizontalListSortingStrategy}
+                items={visible.plotlines.map((p) => p.id)}
+                strategy={verticalListSortingStrategy}
               >
-                {visible.beats.map((beat) => (
-                  <BeatHeader
-                    key={beat.id}
-                    beat={beat}
-                    editable={editable}
-                    hasCards={countBy('beatId', beat.id) > 0}
-                    isFirst={beat.id === beatIds[0]}
-                    isLast={beat.id === beatIds.at(-1)}
-                    onRename={(name) => updateBeat(beat.id, { name })}
-                    onMove={(delta) =>
-                      reorderBeats(moveId(beatIds, beat.id, delta))
-                    }
-                    onDelete={() => deleteBeat(beat)}
-                    dragType={dragType}
-                    isDropTarget={dragType === 'beat' && overKey === beat.id}
-                    className="sticky top-0 z-10"
-                  />
+                {visible.plotlines.map((plotline) => (
+                  <div key={plotline.id} role="row" className="contents">
+                    <PlotlineLabel
+                      plotline={plotline}
+                      cardCount={countBy('plotlineId', plotline.id)}
+                      editable={editable}
+                      isFirst={plotline.id === plotlineIds[0]}
+                      isLast={plotline.id === plotlineIds.at(-1)}
+                      onRename={(name) => updatePlotline(plotline.id, { name })}
+                      onColorChange={(color) =>
+                        updatePlotline(plotline.id, { color })
+                      }
+                      onMove={(delta) =>
+                        reorderPlotlines(
+                          moveId(plotlineIds, plotline.id, delta)
+                        )
+                      }
+                      onDelete={() => deletePlotline(plotline)}
+                      dragType={dragType}
+                      isDropTarget={
+                        dragType === 'plotline' && overKey === plotline.id
+                      }
+                      className={cn(
+                        'sticky left-0 z-10 col-start-1',
+                        COVER_GUTTER
+                      )}
+                    />
+                    {visible.beats.map((beat) => (
+                      <PlotCell
+                        key={beat.id}
+                        cell={{ plotlineId: plotline.id, beatId: beat.id }}
+                        focusRequest={focusRequest}
+                        dragType={dragType}
+                        isDropTarget={
+                          dragType === 'card' &&
+                          overKey ===
+                            cellKey({
+                              plotlineId: plotline.id,
+                              beatId: beat.id,
+                            })
+                        }
+                        cards={
+                          cells.get(
+                            cellKey({
+                              plotlineId: plotline.id,
+                              beatId: beat.id,
+                            })
+                          ) ?? []
+                        }
+                        color={plotline.color}
+                        editable={editable}
+                        onAddCard={() =>
+                          openEditor(null, {
+                            plotlineId: plotline.id,
+                            beatId: beat.id,
+                          })
+                        }
+                        onOpenCard={(card) =>
+                          openEditor(card, {
+                            plotlineId: plotline.id,
+                            beatId: beat.id,
+                          })
+                        }
+                      />
+                    ))}
+                  </div>
                 ))}
               </SortableContext>
             </div>
-            <SortableContext
-              items={visible.plotlines.map((p) => p.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {visible.plotlines.map((plotline) => (
-                <div key={plotline.id} role="row" className="contents">
-                  <PlotlineLabel
-                    plotline={plotline}
-                    cardCount={countBy('plotlineId', plotline.id)}
-                    editable={editable}
-                    isFirst={plotline.id === plotlineIds[0]}
-                    isLast={plotline.id === plotlineIds.at(-1)}
-                    onRename={(name) => updatePlotline(plotline.id, { name })}
-                    onColorChange={(color) =>
-                      updatePlotline(plotline.id, { color })
-                    }
-                    onMove={(delta) =>
-                      reorderPlotlines(moveId(plotlineIds, plotline.id, delta))
-                    }
-                    onDelete={() => deletePlotline(plotline)}
-                    dragType={dragType}
-                    isDropTarget={
-                      dragType === 'plotline' && overKey === plotline.id
-                    }
-                    className={cn(
-                      'sticky left-0 z-10 col-start-1',
-                      COVER_GUTTER
-                    )}
+            <DragOverlay>
+              {draggingCard && draggingPlotline ? (
+                <div className="flex flex-col rounded-md border border-border bg-card p-3 shadow-lg">
+                  <PlotCardFace
+                    card={draggingCard}
+                    color={draggingPlotline.color}
                   />
-                  {visible.beats.map((beat) => (
-                    <PlotCell
-                      key={beat.id}
-                      cell={{ plotlineId: plotline.id, beatId: beat.id }}
-                      focusRequest={focusRequest}
-                      dragType={dragType}
-                      isDropTarget={
-                        dragType === 'card' &&
-                        overKey ===
-                          cellKey({ plotlineId: plotline.id, beatId: beat.id })
-                      }
-                      cards={
-                        cells.get(
-                          cellKey({ plotlineId: plotline.id, beatId: beat.id })
-                        ) ?? []
-                      }
-                      color={plotline.color}
-                      editable={editable}
-                      onAddCard={() =>
-                        openEditor(null, {
-                          plotlineId: plotline.id,
-                          beatId: beat.id,
-                        })
-                      }
-                      onOpenCard={(card) =>
-                        openEditor(card, {
-                          plotlineId: plotline.id,
-                          beatId: beat.id,
-                        })
-                      }
-                    />
-                  ))}
                 </div>
-              ))}
-            </SortableContext>
-          </div>
-          <DragOverlay>
-            {draggingCard && draggingPlotline ? (
-              <div className="flex flex-col rounded-md border border-border bg-card p-3 shadow-lg">
-                <PlotCardFace
-                  card={draggingCard}
-                  color={draggingPlotline.color}
-                />
-              </div>
-            ) : (
-              (draggingPlotline || draggingBeat) && (
-                <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground shadow-lg">
-                  {draggingPlotline && (
-                    <span
-                      aria-hidden
-                      className={cn(
-                        'size-3 shrink-0 rounded-full',
-                        PLOTLINE_COLOR_DOT_CLASS[draggingPlotline.color]
-                      )}
-                    />
-                  )}
-                  {draggingPlotline?.name ?? draggingBeat?.name}
-                </div>
-              )
-            )}
-          </DragOverlay>
-        </DndContext>
-        {editable && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="sticky left-0 mt-2"
-            onClick={addPlotline}
-          >
-            <PlusIcon aria-hidden />
-            Plotline
-          </Button>
-        )}
-      </div>
+              ) : (
+                (draggingPlotline || draggingBeat) && (
+                  <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground shadow-lg">
+                    {draggingPlotline && (
+                      <span
+                        aria-hidden
+                        className={cn(
+                          'size-3 shrink-0 rounded-full',
+                          PLOTLINE_COLOR_DOT_CLASS[draggingPlotline.color]
+                        )}
+                      />
+                    )}
+                    {draggingPlotline?.name ?? draggingBeat?.name}
+                  </div>
+                )
+              )}
+            </DragOverlay>
+          </DndContext>
+          {editable && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="sticky left-0 mt-2"
+              onClick={addPlotline}
+            >
+              <PlusIcon aria-hidden />
+              Plotline
+            </Button>
+          )}
+        </div>
+      )}
       {editor && (
         <CardEditorDialog
           key={editor.session}

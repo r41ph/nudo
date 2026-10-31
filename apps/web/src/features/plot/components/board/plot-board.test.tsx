@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import {
   holdMutation,
   renderBoard,
+  servePlot,
 } from '@web/features/plot/test/plot-board-harness';
 import {
   PLOT_BEAT_COLUMN_WIDTH,
@@ -125,6 +126,53 @@ describe('PlotBoard — filtered from the sidebar', () => {
       PLOT_VIEW_STORAGE_PREFIX + MOCK_PROJECT.id,
       JSON.stringify({ hiddenPlotlineIds, hiddenBeatIds })
     );
+
+  const allPlotlineIds = MOCK_PLOTLINES.map((p) => p.id);
+  const allBeatIds = MOCK_PLOT_BEATS.map((b) => b.id);
+
+  it.each([
+    ['every plotline', allPlotlineIds, []],
+    ['every beat', [], allBeatIds],
+  ])(
+    'says everything is hidden when %s is',
+    async (_, hiddenPlotlineIds, hiddenBeatIds) => {
+      hide(hiddenPlotlineIds, hiddenBeatIds);
+      renderBoard();
+
+      expect(
+        await screen.findByText('Everything is hidden.')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('table', { name: 'Plot board' })
+      ).not.toBeInTheDocument();
+    }
+  );
+
+  it('Show all clears both filters and brings the board back', async () => {
+    hide(allPlotlineIds, [middle.id]);
+    renderBoard();
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Show all' })
+    );
+
+    const grid = await screen.findByRole('table', { name: 'Plot board' });
+    expect(within(grid).getAllByRole('rowheader')).toHaveLength(2);
+    expect(within(grid).getAllByRole('columnheader')).toHaveLength(3);
+  });
+
+  // With no beats there is nothing to hide; the board keeps its usual
+  // empty layout even if a stale hidden id is still stored.
+  it('keeps the usual board for a plot with no beats', async () => {
+    servePlot(MOCK_PLOTLINES, []);
+    hide([], [middle.id]);
+    renderBoard();
+
+    expect(
+      await screen.findByRole('table', { name: 'Plot board' })
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Everything is hidden.')).toBeNull();
+  });
 
   it('leaves out hidden plotline rows and beat columns', async () => {
     hide([ada.id], [middle.id]);

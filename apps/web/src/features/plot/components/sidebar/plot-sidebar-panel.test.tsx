@@ -208,6 +208,56 @@ describe('PlotSidebarPanel', () => {
     ).not.toBeChecked();
   });
 
+  // A fresh render starts a new Jotai store, so this is the reload path:
+  // the filter comes back from storage.
+  it('keeps the filter after the panel unmounts and mounts again', async () => {
+    const { unmount } = renderPanel();
+    await userEvent.click(
+      await screen.findByRole('checkbox', { name: 'Show Ada' })
+    );
+    unmount();
+
+    renderPanel();
+
+    expect(
+      await screen.findByRole('checkbox', { name: 'Show Ada' })
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole('checkbox', { name: 'Show Main plot' })
+    ).toBeChecked();
+  });
+
+  it('keeps the filter per project', async () => {
+    const { unmount } = renderPanel();
+    await userEvent.click(
+      await screen.findByRole('checkbox', { name: 'Show Ada' })
+    );
+    unmount();
+
+    renderPanel(EMPTY_PROJECT_ID);
+
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      '0 plotlines · 0 beats · 0 cards'
+    );
+  });
+
+  it('still filters when the plot is view-only', async () => {
+    setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
+    renderPanel();
+
+    await userEvent.click(
+      await screen.findByRole('checkbox', { name: 'Show Ada' })
+    );
+    expect(
+      screen.getByRole('checkbox', { name: 'Show Ada' })
+    ).not.toBeChecked();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Show all plotlines' })
+    );
+    expect(screen.getByRole('checkbox', { name: 'Show Ada' })).toBeChecked();
+  });
+
   it('offers no New rows when the plot is view-only', async () => {
     setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);
     renderPanel();

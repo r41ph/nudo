@@ -12,6 +12,7 @@ import type { Plot } from '@web/features/plot/plot.types';
 import { PLOT_ROUTE } from '@web/shared/lib/routes';
 
 const PROJECT_ID = 'story-project';
+const VIEW_KEY = PLOT_VIEW_STORAGE_PREFIX + PROJECT_ID;
 
 const PLOT: Plot = {
   plotlines: [
@@ -90,7 +91,9 @@ const meta = {
   title: 'Plot/PlotSidebarPanel',
   component: PlotSidebarPanel,
   parameters: { layout: 'centered' },
-  beforeEach: pinEditable(),
+  // A story's own cleanup doesn't run when the preview reloads, so a filter
+  // stored by Filtered would otherwise leak into the next story.
+  beforeEach: [pinEditable(), () => localStorage.removeItem(VIEW_KEY)],
   decorators: [
     (Story, { parameters }) => (
       <JotaiProvider store={createStore()}>
@@ -127,16 +130,12 @@ export const ViewOnly: Story = {
   beforeEach: pinEditable(false),
 };
 
-// Stored like a real filter, and cleared afterwards so the other stories,
-// which share the project id, start with nothing hidden.
+// Stored like a real filter.
 export const Filtered: Story = {
   parameters: { plot: PLOT },
-  beforeEach: () => {
-    const key = PLOT_VIEW_STORAGE_PREFIX + PROJECT_ID;
+  beforeEach: () =>
     localStorage.setItem(
-      key,
+      VIEW_KEY,
       JSON.stringify({ hiddenPlotlineIds: ['p2'], hiddenBeatIds: ['b3'] })
-    );
-    return () => localStorage.removeItem(key);
-  },
+    ),
 };
