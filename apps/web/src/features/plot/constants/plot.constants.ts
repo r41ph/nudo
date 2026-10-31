@@ -69,3 +69,5 @@ export const PLOT_DRAG_KEYS = {
 export const PLOT_DRAG_INSTRUCTIONS =
   'To move it, press Space, use the arrow keys, then press Space to drop ' +
   'it or Escape to cancel.';
+
+export const PLOT_VIEW_STORAGE_PREFIX = 'nudo:plot-view:';
