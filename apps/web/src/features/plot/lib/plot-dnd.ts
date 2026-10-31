@@ -124,7 +124,7 @@ export function plotAnnouncements(plot: Plot): Announcements {
   };
 }
 
-function orderAnnouncements(
+export function orderAnnouncements(
   noun: 'plotline' | 'beat',
   rows: readonly { id: string; name: string }[]
 ): Announcements {
