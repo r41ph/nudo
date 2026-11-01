@@ -27,8 +27,8 @@ import {
 import { markRect, minimapScale } from '@web/features/plot/lib/plot-minimap';
 import type { Plot, PlotlineColor } from '@web/features/plot/plot.types';
 
-// w-64 is PLOT_MINIMAP_WIDTH; the content box loses px-3 and the 1px border
-// on each side.
+// The box is w-fit around the miniature, so PLOT_MINIMAP_WIDTH is its widest:
+// the miniature's limit is that minus px-3 and the 1px border on each side.
 const INNER_WIDTH = PLOT_MINIMAP_WIDTH - 2 * 12 - 2 * 1;
 
 interface PlotMinimapProps {
@@ -76,7 +76,7 @@ export function PlotMinimap({
       ref={boxRef}
       data-testid="plot-minimap"
       className={cn(
-        'absolute right-6 bottom-5 z-30 w-64 rounded-lg border border-border bg-popover px-3 py-2.5 shadow-lg select-none dark:border-foreground/15 dark:bg-[color-mix(in_oklab,var(--card),var(--foreground)_10%)] dark:shadow-black/45',
+        'absolute right-6 bottom-5 z-30 w-fit rounded-lg border border-border bg-popover px-3 py-2.5 shadow-lg select-none dark:border-foreground/15 dark:bg-[color-mix(in_oklab,var(--card),var(--foreground)_10%)] dark:shadow-black/45',
         // Keeps drops possible under the minimap.
         dragging && 'pointer-events-none opacity-40'
       )}
