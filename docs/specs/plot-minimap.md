@@ -41,7 +41,6 @@ The cards drawn in the minimap for beats 5–15 in these images are placeholder 
 | Plotline colours | `PLOTLINE_COLOR_VAR[color]` → `var(--plot-*)` (for inline styles; black turns white in dark mode) |
 | Theme | `.dark` class on `<html>` (`useApplyTheme`); Tailwind `dark:` variant; tokens in `packages/ui/src/tailwind.css` |
 | Card drag | `DndContext` in `PlotBoard`; `dragging` state is non-null during a drag |
-| Tooltip | `@ui/components/ui/tooltip` exists |
 | Reduced motion | `matchMedia('(prefers-reduced-motion: reduce)')` (already mocked in `src/test/media.test.ts`) |
 
 ## 3. When it shows
@@ -119,7 +118,6 @@ All navigation sets `scrollLeft` and `scrollTop` on the board's scroll container
 
 - **Position text:** "Beats 2–4 of 15 · Plotlines 1–3 of 4".
   - It counts only visible beats and plotlines, and includes any that are at least partly on screen.
-  - It is shown in a `Tooltip` on frame hover and focus.
   - It is announced through a visually hidden `role="status"` region after keyboard moves, debounced by 300ms. It isn't announced on ordinary scrolling.
 
 ## 9. Constants
@@ -160,7 +158,7 @@ apps/web/src/features/plot/
 ├── hooks/use-plot-minimap.ts              ← measuring, scroll sync, pointer/wheel/keys
 └── components/board/
     ├── plot-board.tsx                     ← wrapper + refs + renders <PlotMinimap>
-    └── plot-minimap.tsx (+ .test.tsx)     ← box, marks, frame, tooltip, status
+    └── plot-minimap.tsx (+ .test.tsx)     ← box, marks, frame, status
 packages/ui/stories/plot-minimap.stories.tsx
 e2e/tests/plot.spec.ts                     ← extended (§14)
 ```
@@ -219,7 +217,7 @@ It measures from these rectangles, never from hard-coded padding, so padding cha
 
 Rules:
 - Scroll position is never React state. A passive `scroll` listener schedules one `requestAnimationFrame`, which writes the frame's `transform` and size directly through a ref. Scrolling never re-renders the board or the marks.
-- Use `@ui/components/ui/*` first (`Tooltip`).
+- Use `@ui/components/ui/*` first.
 - Use path aliases. Files are kebab-case, components PascalCase.
 - Comments explain why, never what.
 
