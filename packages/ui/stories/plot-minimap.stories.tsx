@@ -97,6 +97,17 @@ export const FrameScrolledToMiddleDark: Story = {
   decorators: [dark],
 };
 
+export const FrameFocused: Story = {
+  args: { plot: makePlot(8, 15) },
+  play: async ({ canvas }) => {
+    (await canvas.findByRole('group', { name: 'Board position' })).focus();
+  },
+};
+export const FrameFocusedDark: Story = {
+  ...FrameFocused,
+  decorators: [dark],
+};
+
 // A card picked up with the keyboard: the minimap fades and lets drops through.
 export const CardDragInProgress: Story = {
   args: { plot: makePlot(8, 15) },

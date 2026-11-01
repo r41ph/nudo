@@ -102,14 +102,14 @@ without React state.
 position shown and announced.
 
 **Acceptance criteria:**
-- [ ] The frame has `tabIndex={0}`, `role="group"`, `aria-roledescription="minimap"`, `aria-label="Board position"` and `aria-controls={scrollContainerId}`. It comes after the board in tab order.
-- [ ] Each key in §8 scrolls through `keyTarget` and prevents the default (⌘ on macOS, Ctrl elsewhere).
-- [ ] `Tooltip` shows the position text on hover and focus. A visually hidden `role="status"` announces it 300ms after the last key move, never on plain scroll.
-- [ ] Component tests: every key gives the expected `scrollLeft`/`scrollTop`; the status text after a key move (fake timers); no announcement after a plain scroll; after hiding beats or plotlines, the counts use only visible items ("of 12", not "of 15") and ←/→ skip the hidden columns.
-- [ ] Story: frame focused (`play` focusing the frame).
+- [x] The frame has `tabIndex={0}`, `role="group"`, `aria-roledescription="minimap"`, `aria-label="Board position"` and `aria-controls={scrollContainerId}`. It comes after the board in tab order.
+- [x] Each key in §8 scrolls through `keyTarget` and prevents the default (⌘ on macOS, Ctrl elsewhere).
+- [x] `Tooltip` shows the position text on hover and focus. A visually hidden `role="status"` announces it 300ms after the last key move, never on plain scroll.
+- [x] Component tests: every key gives the expected `scrollLeft`/`scrollTop`; the status text after a key move (fake timers); no announcement after a plain scroll; after hiding beats or plotlines, the counts use only visible items ("of 12", not "of 15") and ←/→ skip the hidden columns.
+- [x] Story: frame focused (`play` focusing the frame).
 
 **Verification:**
-- [ ] `pnpm test:web plot-minimap`
+- [x] `pnpm test:web plot-minimap`
 - [ ] Manual check with a screen reader in `pnpm dev:web` (Orca or VoiceOver)
 
 **Dependencies:** Task 3 (and Task 1's `keyTarget`)

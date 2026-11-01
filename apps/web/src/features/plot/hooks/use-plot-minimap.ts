@@ -4,18 +4,24 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from 'react';
 import {
+  PLOT_MINIMAP_ANNOUNCE_DELAY,
   PLOT_MINIMAP_MIN_FRAME,
   PLOT_MINIMAP_WHEEL_LINE_HEIGHT,
 } from '@web/features/plot/constants/plot.constants';
 import {
   frameRect,
+  keyTarget,
+  positionLabel,
   scrollForFrameAt,
   scrollToCentreOn,
   viewFromScroll,
+  visibleRange,
   type Extent,
   type MinimapLayout,
   type Rect,
@@ -334,4 +340,93 @@ export function usePlotMinimapWheel(
     box.addEventListener('wheel', onWheel, { passive: false });
     return () => box.removeEventListener('wheel', onWheel);
   }, [containerRef, boxRef, mounted]);
+}
+
+// The snapshot only holds visible beats and plotlines, so hidden ones are
+// neither counted nor stepped through.
+export function positionText(
+  snapshot: MinimapSnapshot,
+  scrollLeft: number,
+  scrollTop: number
+) {
+  const m = viewFromScroll(snapshot.layout, scrollLeft, scrollTop);
+  const beats = visibleRange(snapshot.columns, m.viewX, m.viewX + m.viewWidth);
+  const plotlines = visibleRange(
+    snapshot.rows,
+    m.viewY,
+    m.viewY + m.viewHeight
+  );
+  // Unreachable while measuring requires a non-empty region.
+  if (!beats || !plotlines) return '';
+  return positionLabel(
+    beats,
+    snapshot.columns.length,
+    plotlines,
+    snapshot.rows.length
+  );
+}
+
+// Re-renders only its caller, and only when the text changes, so it belongs
+// in a component that is mounted while the text is on screen.
+export function usePlotMinimapPosition(
+  containerRef: RefObject<HTMLElement | null>,
+  snapshot: MinimapSnapshot
+) {
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      const container = containerRef.current;
+      container?.addEventListener('scroll', onChange, { passive: true });
+      return () => container?.removeEventListener('scroll', onChange);
+    },
+    [containerRef]
+  );
+  return useSyncExternalStore(subscribe, () => {
+    const container = containerRef.current;
+    return container
+      ? positionText(snapshot, container.scrollLeft, container.scrollTop)
+      : '';
+  });
+}
+
+const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform);
+
+export function usePlotMinimapKeys(
+  containerRef: RefObject<HTMLElement | null>,
+  snapshot: MinimapSnapshot | null
+) {
+  const [announcement, setAnnouncement] = useState('');
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timerRef.current), []);
+
+  const onKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
+    const container = containerRef.current;
+    if (!container || !snapshot) return;
+    const target = keyTarget(
+      {
+        key: event.key,
+        shiftKey: event.shiftKey,
+        primary: isMac() ? event.metaKey : event.ctrlKey,
+      },
+      viewFromScroll(
+        snapshot.layout,
+        container.scrollLeft,
+        container.scrollTop
+      ),
+      snapshot.columns,
+      snapshot.rows
+    );
+    if (!target) return;
+    event.preventDefault();
+    container.scrollTo({ ...target, behavior: jumpBehavior() });
+    // Taken from the target: a smooth scroll may still be moving when the
+    // announcement is made.
+    const text = positionText(snapshot, target.left, target.top);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(
+      () => setAnnouncement(text),
+      PLOT_MINIMAP_ANNOUNCE_DELAY
+    );
+  };
+
+  return { onKeyDown, announcement };
 }

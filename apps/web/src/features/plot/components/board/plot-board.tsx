@@ -405,6 +405,7 @@ export function PlotBoard({
           </div>
           <PlotMinimap
             containerRef={scrollRef}
+            scrollContainerId={scrollContainerId}
             gridRef={gridRef}
             plot={visible}
             dragging={dragging !== null}
