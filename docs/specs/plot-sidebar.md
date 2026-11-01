@@ -251,14 +251,14 @@ Don't write jsdom tests for hover-only visibility (testing rule). Scrolling is c
 
 ## 20. Success criteria
 
-- [ ] The Plot route shows the Plot panel in the sidebar; other routes show Draft, unchanged.
-- [ ] The board has no header. New plotline / New beat in the sidebar create items as Add plotline / Add beat did.
-- [ ] Checkboxes hide/show board rows and columns, Show all restores them, and the state survives a reload, per project.
-- [ ] Plotlines and beats reorder from the sidebar by pointer and keyboard. Board and sidebar orders always match and persist, and failures roll back with the existing toast.
-- [ ] The Plotlines and Beats lists scroll independently. Section headers, the counter and the account button never scroll.
-- [ ] The counter is correct for every filter combination.
-- [ ] Below 1024px there are no handles or New rows, and filters still work.
-- [ ] Tests and stories in §18 exist and pass; lint is clean and the pre-push typecheck passes.
+- [x] The Plot route shows the Plot panel in the sidebar; other routes show Draft, unchanged.
+- [x] The board has no header. New plotline / New beat in the sidebar create items as Add plotline / Add beat did.
+- [x] Checkboxes hide/show board rows and columns, Show all restores them, and the state survives a reload, per project.
+- [x] Plotlines and beats reorder from the sidebar by pointer and keyboard. Board and sidebar orders always match and persist, and failures roll back with the existing toast.
+- [x] The Plotlines and Beats lists scroll independently. Section headers, the counter and the account button never scroll.
+- [x] The counter is correct for every filter combination.
+- [x] Below 1024px there are no handles or New rows, and filters still work.
+- [x] Tests and stories in §18 exist and pass; lint is clean and the pre-push typecheck passes.
 
 ## 21. Resolved questions
 
