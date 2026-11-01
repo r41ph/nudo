@@ -50,6 +50,13 @@ export const PLOTLINE_COLOR_VAR = {
 export const PLOT_LABEL_COLUMN_WIDTH = 180;
 export const PLOT_BEAT_COLUMN_WIDTH = 240;
 
+export const PLOT_MINIMAP_WIDTH = 256;
+export const PLOT_MINIMAP_MAX_HEIGHT = 120;
+export const PLOT_MINIMAP_MIN_FRAME = 12;
+export const PLOT_MINIMAP_MARK_MIN_HEIGHT = 2;
+export const PLOT_MINIMAP_MARK_MIN_WIDTH = 4;
+export const PLOT_MINIMAP_ANNOUNCE_DELAY = 300;
+
 // Below this the board is view-only; the sidebar has already collapsed at
 // 1280px, leaving room for the label column and about three beats.
 export const PLOT_EDIT_MIN_WIDTH = 1024;
