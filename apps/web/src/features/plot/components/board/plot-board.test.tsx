@@ -78,6 +78,56 @@ describe('PlotBoard', () => {
   });
 });
 
+describe('PlotBoard — focus mode', () => {
+  it('enters focus mode from the top bar button and leaves it again', async () => {
+    const user = userEvent.setup();
+    renderBoard();
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Enter focus mode' })
+    );
+    await user.click(screen.getByRole('button', { name: 'Leave focus mode' }));
+
+    expect(
+      screen.getByRole('button', { name: 'Enter focus mode' })
+    ).toBeInTheDocument();
+  });
+
+  it('leaves focus mode on Escape', async () => {
+    const user = userEvent.setup();
+    renderBoard();
+    await user.click(
+      await screen.findByRole('button', { name: 'Enter focus mode' })
+    );
+
+    await user.keyboard('{Escape}');
+
+    expect(
+      screen.getByRole('button', { name: 'Enter focus mode' })
+    ).toBeInTheDocument();
+  });
+
+  it('stays in focus mode when Escape cancels a rename', async () => {
+    const user = userEvent.setup();
+    renderBoard();
+    await user.click(
+      await screen.findByRole('button', { name: 'Enter focus mode' })
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Middle' })
+    );
+    await user.click(await screen.findByRole('menuitem', { name: 'Rename' }));
+    await screen.findByRole('textbox', { name: 'Beat name' });
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('textbox', { name: 'Beat name' })).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Leave focus mode' })
+    ).toBeInTheDocument();
+  });
+});
+
 describe('PlotBoard — below PLOT_EDIT_MIN_WIDTH', () => {
   it('is view-only: a banner, no add buttons and no menus', async () => {
     setViewportWidth(PLOT_EDIT_MIN_WIDTH - 1);

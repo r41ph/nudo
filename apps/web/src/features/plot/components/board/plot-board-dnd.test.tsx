@@ -387,6 +387,26 @@ describe('PlotBoard — dragging rows and columns with the keyboard', () => {
     expect(rowNames()).toEqual(['Main plot', 'Ada']);
   });
 
+  it('stays in focus mode when Escape cancels a drag', async () => {
+    const user = userEvent.setup();
+    renderBoard();
+    await user.click(
+      await screen.findByRole('button', { name: 'Enter focus mode' })
+    );
+
+    screen.getByRole('button', { name: 'Drag Main plot' }).focus();
+    await user.keyboard('[Space]');
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{Escape}');
+
+    expect(
+      await screen.findByText(/Moving plotline 'Main plot' was cancelled/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Leave focus mode' })
+    ).toBeInTheDocument();
+  });
+
   it('keeps cards out of row targets: a card dragged left of its cell stays put', async () => {
     const user = userEvent.setup();
     const { variables } = holdMutation('MovePlotCard');

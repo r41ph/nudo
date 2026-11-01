@@ -51,6 +51,8 @@ import {
   visiblePlot,
 } from '@web/features/plot/lib/plot.utils';
 import { usePlotView } from '@web/features/plot/state/plot-view.store';
+import { FocusModeButton } from '@web/shared/components/focus-mode-button';
+import { useFocusModeEscape } from '@web/shared/hooks/use-focus-mode-escape';
 import type {
   Plot,
   PlotCard,
@@ -97,6 +99,7 @@ export function PlotBoard({
   } = usePlotMutations(projectId);
   const { view, showAll } = usePlotView(projectId);
   const editable = usePlotEditable();
+  useFocusModeEscape();
   const [editor, setEditor] = useState<EditorTarget | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const sessionRef = useRef(0);
@@ -178,10 +181,14 @@ export function PlotBoard({
   const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${presence.beats.length}, auto)`;
 
   return (
-    <div className="flex h-svh min-w-0 flex-1 flex-col pt-10">
+    <div className="flex h-svh min-w-0 flex-1 flex-col">
       {/* The visible title and summary live in the sidebar now; the page
           still needs a heading to navigate by. */}
       <h1 className="sr-only">Plot</h1>
+      {/* Matches the manuscript's top bar, so focus mode sits in one place. */}
+      <header className="flex h-[62px] shrink-0 items-center justify-end px-[26px]">
+        <FocusModeButton />
+      </header>
       {refreshFailed && (
         <div
           role="alert"

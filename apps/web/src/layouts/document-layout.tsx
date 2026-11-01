@@ -1,6 +1,7 @@
-import { useEffect, type CSSProperties, type ReactNode } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import type { CSSProperties, ReactNode } from 'react';
+import { useAtomValue } from 'jotai';
 import { PANEL_MOTION_MS } from '@web/shared/components/side-panel';
+import { useFocusModeEscape } from '@web/shared/hooks/use-focus-mode-escape';
 import { usePanels } from '@web/shared/hooks/use-panels';
 import { isFocusModeAtom } from '@web/shared/state/focus-mode.atom';
 import { inspectorAtom } from '@web/shared/state/panels.atom';
@@ -31,7 +32,7 @@ export function DocumentLayout({
   children: ReactNode;
   details: DocumentDetails;
 }) {
-  const [isFocusMode, setFocusMode] = useAtom(isFocusModeAtom);
+  const isFocusMode = useAtomValue(isFocusModeAtom);
   const { isOpen: isInspectorOpen } = useAtomValue(inspectorAtom);
   const { isDesktop } = usePanels();
   // Mirrors when InspectorHost docks the panel beside the text.
@@ -40,16 +41,7 @@ export function DocumentLayout({
     '--inspector-inset': isInspectorDocked ? INSPECTOR_WIDTH : '0px',
   } as CSSProperties;
 
-  useEffect(() => {
-    if (!isFocusMode) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      // A menu or dialog closing on Escape shouldn't also exit focus mode.
-      if (event.key !== 'Escape' || event.defaultPrevented) return;
-      setFocusMode(false);
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [isFocusMode, setFocusMode]);
+  useFocusModeEscape();
 
   return (
     <div className="flex min-w-0 flex-1" style={insetStyle}>

@@ -48,7 +48,11 @@ export function InlineNameInput({
       onBlur={() => finish(true)}
       onKeyDown={(e) => {
         if (e.key === 'Enter') finish(true);
-        if (e.key === 'Escape') finish(false);
+        if (e.key === 'Escape') {
+          // Handled, so it doesn't also leave focus mode.
+          e.preventDefault();
+          finish(false);
+        }
       }}
       className={cn(
         'h-auto min-w-0 rounded-sm border-0 bg-transparent px-1 py-0 text-sm font-medium text-foreground shadow-none md:text-sm',
