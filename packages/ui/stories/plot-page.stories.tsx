@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { PlotPage } from '@web/features/plot/components/plot-page';
+import { PlotSidebarPanel } from '@web/features/plot/components/sidebar/plot-sidebar-panel';
 import {
   PLOTLINE_COLORS,
   PLOT_VIEW_STORAGE_PREFIX,
@@ -165,9 +166,12 @@ const stubPlot =
         },
       });
     };
+    // Only width queries: reduced motion and colour scheme stay the reader's.
     window.matchMedia = (query) => ({
       ...realMatchMedia(query),
-      matches: editable,
+      matches: query.includes('width')
+        ? editable
+        : realMatchMedia(query).matches,
       addEventListener: () => {},
       removeEventListener: () => {},
     });
@@ -221,6 +225,18 @@ export const Populated: Story = {
 
 export const Dense: Story = {
   beforeEach: stubPlot('dense'),
+};
+
+export const FilteredFromTheSidebar: Story = {
+  beforeEach: stubPlot('populated'),
+  render: () => (
+    <>
+      <div className="flex w-[260px] shrink-0 flex-col bg-sidebar px-4 pt-6 pb-5">
+        <PlotSidebarPanel />
+      </div>
+      <PlotPage />
+    </>
+  ),
 };
 
 export const ReadOnly: Story = {

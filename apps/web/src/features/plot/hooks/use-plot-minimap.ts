@@ -62,8 +62,15 @@ export function minimapSignature(plot: Plot, editable: boolean) {
   ]);
 }
 
+// Hidden rows and columns stay in the board, inert, while they fold away;
+// the minimap only draws the visible plot.
+const visibleIn = <T extends Element>(root: Element, selector: string) =>
+  [...root.querySelectorAll<T>(selector)].filter(
+    (el) => el.closest('[inert]') === null
+  );
+
 const rects = (root: Element, selector: string) =>
-  [...root.querySelectorAll(selector)].map((el) => el.getBoundingClientRect());
+  visibleIn(root, selector).map((el) => el.getBoundingClientRect());
 
 // Sticky header cells move with scrollTop and sticky labels with scrollLeft,
 // so each is only read along the axis it doesn't stick on.
@@ -109,20 +116,18 @@ function measure(
       maxScrollLeft: container.scrollWidth - container.clientWidth,
       maxScrollTop: container.scrollHeight - container.clientHeight,
     },
-    marks: [...grid.querySelectorAll<HTMLElement>('[data-card-id]')].map(
-      (el) => {
-        const r = el.getBoundingClientRect();
-        return {
-          cardId: el.dataset.cardId!,
-          rect: {
-            x: r.left - regionLeft,
-            y: r.top - regionTop,
-            width: r.width,
-            height: r.height,
-          },
-        };
-      }
-    ),
+    marks: visibleIn<HTMLElement>(grid, '[data-card-id]').map((el) => {
+      const r = el.getBoundingClientRect();
+      return {
+        cardId: el.dataset.cardId!,
+        rect: {
+          x: r.left - regionLeft,
+          y: r.top - regionTop,
+          width: r.width,
+          height: r.height,
+        },
+      };
+    }),
     columns: headers.map((h) => ({
       start: h.left - regionLeft,
       end: h.right - regionLeft,

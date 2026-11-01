@@ -1,14 +1,16 @@
-import { describe, expect, it } from 'vitest';
-import { act, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   holdMutation,
   renderBoard,
   servePlot,
+  view,
+  ViewHandle,
 } from '@web/features/plot/test/plot-board-harness';
 import {
-  PLOT_BEAT_COLUMN_WIDTH,
   PLOT_EDIT_MIN_WIDTH,
+  PLOT_FILTER_SETTLE_MS,
   PLOT_LABEL_COLUMN_WIDTH,
   PLOT_VIEW_STORAGE_PREFIX,
 } from '@web/features/plot/constants/plot.constants';
@@ -175,16 +177,23 @@ describe('PlotBoard — filtered from the sidebar', () => {
     renderBoard();
 
     const grid = await screen.findByRole('table', { name: 'Plot board' });
-    expect(
-      within(grid)
-        .getAllByRole('columnheader')
-        .map((h) => h.textContent)
-    ).toEqual(['Beginning', 'End']);
+    // The view atom outlives a test: it mounts holding the last test's view,
+    // then reads storage, which the board animates like any filter change.
+    await waitFor(
+      () =>
+        expect(
+          within(grid)
+            .getAllByRole('columnheader')
+            .map((h) => h.textContent)
+        ).toEqual(['Beginning', 'End']),
+      { timeout: PLOT_FILTER_SETTLE_MS * 2 }
+    );
     const labels = within(grid).getAllByRole('rowheader');
     expect(labels).toHaveLength(1);
     expect(labels[0]).toHaveTextContent('Main plot');
+    // Each column takes its width from its cells, which animate it.
     expect(grid.style.gridTemplateColumns).toBe(
-      `${PLOT_LABEL_COLUMN_WIDTH}px repeat(2, ${PLOT_BEAT_COLUMN_WIDTH}px)`
+      `${PLOT_LABEL_COLUMN_WIDTH}px repeat(2, auto)`
     );
   });
 
@@ -206,6 +215,87 @@ describe('PlotBoard — filtered from the sidebar', () => {
       expect.objectContaining({ ids: [middle.id, beginning.id, end.id] })
     );
     release();
+  });
+
+  describe('animating a filter change', () => {
+    afterEach(() => vi.useRealTimers());
+
+    async function renderFilterableBoard() {
+      renderBoard(<ViewHandle />);
+      await screen.findByRole('table', { name: 'Plot board' });
+      vi.useFakeTimers();
+    }
+    const rowHeader = (name: string) =>
+      screen.queryByRole('rowheader', { name: new RegExp(name) });
+    const columnHeader = (name: string) =>
+      screen.queryByRole('columnheader', { name });
+    const isInert = (el: HTMLElement | null) => {
+      expect(el).not.toBeNull();
+      return el!.closest('[inert]') !== null;
+    };
+    const settle = () =>
+      act(() => vi.advanceTimersByTime(PLOT_FILTER_SETTLE_MS));
+
+    it('keeps a hidden plotline in place, out of reach, until it has folded away', async () => {
+      await renderFilterableBoard();
+
+      act(() => view.toggle('plotline', ada.id));
+
+      expect(isInert(rowHeader('Ada'))).toBe(true);
+      expect(isInert(rowHeader('Main plot'))).toBe(false);
+      settle();
+      expect(rowHeader('Ada')).toBeNull();
+    });
+
+    it('keeps a hidden beat in place, out of reach, until it has folded away', async () => {
+      await renderFilterableBoard();
+
+      act(() => view.toggle('beat', middle.id));
+
+      expect(isInert(columnHeader('Middle'))).toBe(true);
+      expect(isInert(columnHeader('End'))).toBe(false);
+      expect(screen.getAllByRole('cell').filter(isInert)).toHaveLength(
+        MOCK_PLOTLINES.length
+      );
+      settle();
+      expect(columnHeader('Middle')).toBeNull();
+    });
+
+    // Content that changed as the fold began made the rows below jump.
+    it('keeps a folding row exactly as it was', async () => {
+      await renderFilterableBoard();
+      const row = rowHeader('Ada')!.closest('[role="row"]') as HTMLElement;
+      const before = within(row).getAllByRole('button').length;
+
+      act(() => view.toggle('plotline', ada.id));
+
+      expect(within(row).getAllByRole('button')).toHaveLength(before);
+    });
+
+    it('brings back a plotline shown again before it has folded away', async () => {
+      await renderFilterableBoard();
+
+      act(() => view.toggle('plotline', ada.id));
+      act(() => view.toggle('plotline', ada.id));
+
+      expect(screen.getAllByRole('rowheader', { name: /Ada/ })).toHaveLength(1);
+      expect(isInert(rowHeader('Ada'))).toBe(false);
+      settle();
+      expect(isInert(rowHeader('Ada'))).toBe(false);
+    });
+
+    it('hides at once when the reader prefers reduced motion', async () => {
+      const matchMedia = window.matchMedia;
+      window.matchMedia = (query: string) =>
+        query.includes('prefers-reduced-motion')
+          ? ({ matches: true } as MediaQueryList)
+          : matchMedia(query);
+      await renderFilterableBoard();
+
+      act(() => view.toggle('beat', middle.id));
+
+      expect(columnHeader('Middle')).toBeNull();
+    });
   });
 
   it('judges first and last by the full order', async () => {

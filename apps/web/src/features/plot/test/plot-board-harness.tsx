@@ -1,12 +1,35 @@
-import { Profiler, type ProfilerOnRenderCallback, type ReactNode } from 'react';
+import {
+  Profiler,
+  useEffect,
+  type ProfilerOnRenderCallback,
+  type ReactNode,
+} from 'react';
 import { vi } from 'vitest';
 import { graphql, HttpResponse } from 'msw';
 import { Toaster } from 'sonner';
 import { PlotBoard } from '@web/features/plot/components/board/plot-board';
 import { usePlot } from '@web/features/plot/hooks/use-plot';
+import { usePlotView } from '@web/features/plot/state/plot-view.store';
 import { server } from '@web/test/mocks/server';
 import { MOCK_PROJECT } from '@web/test/mocks/fixtures';
 import { renderWithProviders } from '@web/test/test-utils';
+
+type PlotViewApi = ReturnType<typeof usePlotView>;
+const viewRef: { current: PlotViewApi | null } = { current: null };
+
+// Render it next to the board to drive the filters the way the sidebar does.
+export function ViewHandle() {
+  const plotView = usePlotView(MOCK_PROJECT.id);
+  useEffect(() => {
+    viewRef.current = plotView;
+  });
+  return null;
+}
+
+export const view = {
+  toggle: (...args: Parameters<PlotViewApi['toggle']>) =>
+    viewRef.current!.toggle(...args),
+};
 
 function Board() {
   const { data } = usePlot(MOCK_PROJECT.id);

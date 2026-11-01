@@ -170,6 +170,8 @@
   --color-status-empty: var(--status-empty);
   --color-row-hover: var(--row-hover);
   --font-serif: 'Newsreader', 'EB Garamond', Georgia, serif;
+  /* Soft in-out with no overshoot, for space opening and closing. */
+  --ease-fold: cubic-bezier(0.45, 0.05, 0.25, 1);
   --color-plot-red: var(--plot-red);
   --color-plot-orange: var(--plot-orange);
   --color-plot-brown: var(--plot-brown);

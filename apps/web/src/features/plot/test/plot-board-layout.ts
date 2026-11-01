@@ -39,10 +39,21 @@ const rect = (x: number, y: number, width: number, height: number) =>
 const gridOf = (el: Element) =>
   el.querySelector<HTMLElement>(':scope > [role="table"]');
 
+// Hidden rows and columns linger, inert, while they fold away. This layout
+// skips the animation and treats them as already gone.
+const settled = (el: Element) => el.closest('[inert]') === null;
+
+const columnHeaders = (grid: Element) =>
+  [...grid.querySelectorAll('[role="columnheader"]')].filter(settled);
+
 const plotlineRows = (grid: Element) =>
-  [...grid.querySelectorAll(':scope > [role="row"]')].filter((row) =>
-    row.querySelector(':scope > [role="rowheader"]')
-  );
+  [...grid.querySelectorAll(':scope > [role="row"]')].filter((row) => {
+    const label = row.querySelector('[role="rowheader"]');
+    return label !== null && settled(label);
+  });
+
+const cellsOf = (row: Element) =>
+  [...row.querySelectorAll('[role="cell"]')].filter(settled);
 
 export function stubBoardLayout(initial: Viewport) {
   let viewport = { scrollbar: 0, ...initial };
@@ -51,7 +62,7 @@ export function stubBoardLayout(initial: Viewport) {
 
   const content = (container: Element) => {
     const grid = gridOf(container)!;
-    const beats = grid.querySelectorAll('[role="columnheader"]').length;
+    const beats = columnHeaders(grid).length;
     const rows = plotlineRows(grid).length;
     const addButton = container.querySelector(':scope > button')
       ? LAYOUT.addPlotline
@@ -98,12 +109,13 @@ export function stubBoardLayout(initial: Viewport) {
     const gx = LAYOUT.gutter - left;
     const gy = -top;
     const role = el.getAttribute('role');
+    if (!settled(el)) return rect(0, 0, 0, 0);
     if (el === grid) {
       const size = content(container);
       return rect(gx, gy, size.gridWidth, size.gridHeight);
     }
     if (role === 'columnheader') {
-      const i = [...grid.querySelectorAll('[role="columnheader"]')].indexOf(el);
+      const i = columnHeaders(grid).indexOf(el);
       return rect(
         gx + LAYOUT.label + i * LAYOUT.beat,
         Math.max(gy, 0),
@@ -112,7 +124,7 @@ export function stubBoardLayout(initial: Viewport) {
       );
     }
     if (role === 'rowheader') {
-      const j = plotlineRows(grid).indexOf(el.parentElement!);
+      const j = plotlineRows(grid).indexOf(el.closest('[role="row"]')!);
       // Sticky left-0 sticks at the scroller's padding edge, inside the gutter.
       return rect(
         Math.max(gx, LAYOUT.gutter),
@@ -123,10 +135,8 @@ export function stubBoardLayout(initial: Viewport) {
     }
     if (el instanceof HTMLElement && el.dataset.cardId) {
       const cell = el.closest('[role="cell"]')!;
-      const row = cell.parentElement!;
-      const i = [...row.querySelectorAll(':scope > [role="cell"]')].indexOf(
-        cell
-      );
+      const row = cell.closest('[role="row"]')!;
+      const i = cellsOf(row).indexOf(cell);
       const j = plotlineRows(grid).indexOf(row);
       const k = [...cell.querySelectorAll('[data-card-id]')].indexOf(el);
       return rect(
