@@ -74,6 +74,7 @@ export function PlotCard({
         setNodeRef(node);
       }}
       variant="outline"
+      data-card-id={card.id}
       {...(editable ? { ...attributes, ...listeners } : {})}
       aria-labelledby={titleId}
       aria-describedby={describedBy || undefined}

@@ -48,4 +48,14 @@ if (!Element.prototype.setPointerCapture) {
   Element.prototype.hasPointerCapture = vi.fn(() => false);
 }
 
+// jsdom has no ResizeObserver either; the plot minimap observes the board.
+// Its tests swap in one they can trigger (stubBoardLayout).
+if (!globalThis.ResizeObserver) {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 vi.stubEnv('VITE_API_URL', 'http://localhost:3000');

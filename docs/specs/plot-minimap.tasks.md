@@ -35,19 +35,19 @@ minimap box with one mark per visible card. It only appears when the board
 overflows. No frame yet.
 
 **Acceptance criteria:**
-- [ ] `plot-board.tsx` gets only the §12 changes: wrapper, refs, scroll container `id`, `<PlotMinimap>`. `plot-card.tsx` gets `data-card-id` (approved, see the plan).
-- [ ] `use-plot-minimap.ts` measures on `ResizeObserver` (grid + container) and on a stable visible-plot signature (visible beat ids, plotline ids, `cardId@cell`, colours), never on scroll and never on every render. It reports overflow, the layout snapshot and the scrollbar offsets.
-- [ ] The box matches §4 (position, `w-64`, padding, `bg-popover`, border, `shadow-lg dark:shadow-black/45`, `z-30`, scrollbar offsets). The miniature is `aria-hidden` and sized by §5.
-- [ ] Marks: plotline colour via `PLOTLINE_COLOR_VAR`, `opacity-55 dark:opacity-80`, minimum 4×2px, `rounded-[1px]`.
-- [ ] Not rendered without overflow, in "Everything is hidden.", or when there are no visible cards and no overflow. Works in view-only mode.
-- [ ] Component tests (`plot-minimap.test.tsx`, using the board harness and a layout-stub helper): no minimap without overflow; present with X-only and with Y-only overflow; one mark per visible card; hidden plotlines and beats give no marks; adding a card adds a mark.
-- [ ] Sidebar filters (via `usePlotView` toggles in the test): hiding beats until nothing overflows removes the minimap; showing them again brings it back; hiding a plotline removes its marks and re-scales the miniature; a board that loads with items already hidden (persisted view) is measured correctly the first time.
-- [ ] Story `plot-minimap.stories.tsx`: wide, tall (height-limited) and both-axes boards, light and dark.
+- [x] `plot-board.tsx` gets only the §12 changes: wrapper, refs, scroll container `id`, `<PlotMinimap>`. `plot-card.tsx` gets `data-card-id` (approved, see the plan).
+- [x] `use-plot-minimap.ts` measures on `ResizeObserver` (grid + container) and on a stable visible-plot signature (visible beat ids, plotline ids, `cardId@cell`, colours), never on scroll and never on every render. It reports overflow, the layout snapshot and the scrollbar offsets.
+- [x] The box matches §4 (position, `w-64`, padding, `bg-popover`, border, `shadow-lg dark:shadow-black/45`, `z-30`, scrollbar offsets). The miniature is `aria-hidden` and sized by §5.
+- [x] Marks: plotline colour via `PLOTLINE_COLOR_VAR`, `opacity-55 dark:opacity-80`, minimum 4×2px, `rounded-[1px]`.
+- [x] Not rendered without overflow, in "Everything is hidden.", or when there are no visible cards and no overflow. Works in view-only mode.
+- [x] Component tests (`plot-minimap.test.tsx`, using the board harness and a layout-stub helper): no minimap without overflow; present with X-only and with Y-only overflow; one mark per visible card; hidden plotlines and beats give no marks; adding a card adds a mark.
+- [x] Sidebar filters (via `usePlotView` toggles in the test): hiding beats until nothing overflows removes the minimap; showing them again brings it back; hiding a plotline removes its marks and re-scales the miniature; a board that loads with items already hidden (persisted view) is measured correctly the first time.
+- [x] Story `plot-minimap.stories.tsx`: wide, tall (height-limited) and both-axes boards, light and dark.
 
 **Verification:**
-- [ ] `pnpm test:web plot-minimap plot-board`
+- [x] `pnpm test:web plot-minimap plot-board`
 - [ ] `pnpm test:e2e plot` (existing board journeys still pass)
-- [ ] Storybook check in both themes against the reference PNGs
+- [x] Storybook check in both themes against the reference PNGs
 
 **Dependencies:** Task 1
 **Files:** `components/board/plot-board.tsx`, `components/board/plot-minimap.tsx` (+ test), `hooks/use-plot-minimap.ts`, `packages/ui/stories/plot-minimap.stories.tsx`, (`components/board/plot-card.tsx`)
