@@ -1,6 +1,6 @@
 # Spec: Plot sidebar
 
-> Status: Approved
+> Status: In review (PR #51 — https://github.com/r41ph/nudo/pull/51)
 > Branch: `feat/plot-sidebar`
 > Depends on: `docs/specs/plot.md` (PRs 1–2 merged as #45, #49)
 > Design handoff: `docs/design-handoffs/plot-sidebar/README.md`
