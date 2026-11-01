@@ -55,7 +55,7 @@ The cards drawn in the minimap for beats 5–15 in these images are placeholder 
 
 - **Position:** a new `relative min-h-0 flex-1` wrapper around the scroll container. The minimap sits at `absolute right-6 bottom-5` inside it, above the sticky header and label column (`z-30`).
   - It is offset by the scroll container's native scrollbar size (`offsetWidth − clientWidth`, `offsetHeight − clientHeight`), so it never covers a scrollbar.
-- **Box:** `w-64` (256px), `px-3 py-2.5`, `rounded-lg`, `border border-border`, `bg-popover`; in dark mode `dark:bg-[color-mix(in_oklab,var(--card),var(--foreground)_10%)]` and `dark:border-foreground/15`.
+- **Box:** `w-fit`, hugging the miniature so there is no empty strip when the height limit wins (at most `PLOT_MINIMAP_WIDTH`, 256px), `px-3 py-2.5`, `rounded-lg`, `border border-border`, `bg-popover`; in dark mode `dark:bg-[color-mix(in_oklab,var(--card),var(--foreground)_10%)]` and `dark:border-foreground/15`.
   - In dark mode `--popover` and `--card` are the same colour, so a popover-coloured box disappears over cards, and the darker `--muted` disappears over the page. Lifting the card colour towards the foreground keeps it distinct from both.
   - Shadow: Tailwind utilities, the closest to the reference (`0 4px 16px` at 8% in light, `0 6px 20px` at 45% black in dark): `shadow-lg dark:shadow-black/45`. `shadow-lg` has the nearest blur (15px). The dark shadow keeps its size and only gets a stronger, black colour.
 - **Tokens and utilities only:** no hard-coded colour values. Light and dark come from the existing tokens (`--popover`, `--border`, `--foreground`, `--ring`, `--plot-*`) and Tailwind's shadow utilities.
