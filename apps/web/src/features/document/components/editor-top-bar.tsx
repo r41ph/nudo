@@ -1,6 +1,7 @@
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { Button } from '@ui/components/ui/button';
 import { Icon } from '@ui/components/icon/icon';
+import { FocusModeButton } from '@web/shared/components/focus-mode-button';
 import { SaveBar } from '@web/shared/components/save-bar';
 import {
   INSPECTOR_PANEL_ID,
@@ -11,12 +12,10 @@ import { isFocusModeAtom } from '@web/shared/state/focus-mode.atom';
 
 const ICON_BUTTON_CLASS =
   'size-[34px] rounded-lg text-faint hover:cursor-pointer hover:bg-row-hover hover:text-foreground';
-const FOCUS_BUTTON_CLASS =
-  'size-[34px] rounded-lg text-foreground hover:cursor-pointer hover:bg-row-hover hover:text-accent-foreground';
 const ICON_CLASS = 'size-[17px] [stroke-width:1.7]';
 
 export function EditorTopBar() {
-  const [isFocusMode, setFocusMode] = useAtom(isFocusModeAtom);
+  const isFocusMode = useAtomValue(isFocusModeAtom);
   const {
     outlineExpanded,
     inspectorExpanded,
@@ -56,19 +55,7 @@ export function EditorTopBar() {
           <Icon name="panelRight" decorative className={ICON_CLASS} />
         </Button>
       )}
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label={isFocusMode ? 'Leave focus mode' : 'Enter focus mode'}
-        onClick={() => setFocusMode(!isFocusMode)}
-        className={FOCUS_BUTTON_CLASS}
-      >
-        <Icon
-          name={isFocusMode ? 'minimize' : 'maximize'}
-          decorative
-          className={ICON_CLASS}
-        />
-      </Button>
+      <FocusModeButton />
     </header>
   );
 }
