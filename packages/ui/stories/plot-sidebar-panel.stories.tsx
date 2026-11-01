@@ -130,6 +130,17 @@ export const ViewOnly: Story = {
   beforeEach: pinEditable(false),
 };
 
+// Picked up from the keyboard and moved one down: the overlay, the faded
+// source row and the drop line under its target.
+export const Dragging: Story = {
+  parameters: { plot: PLOT },
+  play: async ({ canvas, userEvent }) => {
+    (await canvas.findByRole('button', { name: 'Drag The heist' })).focus();
+    await userEvent.keyboard('[Space]');
+    await userEvent.keyboard('{ArrowDown}');
+  },
+};
+
 // Stored like a real filter.
 export const Filtered: Story = {
   parameters: { plot: PLOT },

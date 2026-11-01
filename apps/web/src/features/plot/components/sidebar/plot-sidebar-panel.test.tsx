@@ -59,7 +59,9 @@ describe('PlotSidebarPanel', () => {
   it('shows the totals in a status region', async () => {
     renderPanel();
 
-    expect(await screen.findByRole('status')).toHaveTextContent(
+    expect(
+      await screen.findByRole('status', { name: 'Plot totals' })
+    ).toHaveTextContent(
       `${MOCK_PLOTLINES.length} plotlines · ${MOCK_PLOT_BEATS.length} beats · 4 cards`
     );
   });
@@ -98,7 +100,9 @@ describe('PlotSidebarPanel', () => {
     expect(
       await screen.findByLabelText('Loading plotlines and beats')
     ).toBeInTheDocument();
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('status', { name: 'Plot totals' })
+    ).not.toBeInTheDocument();
   });
 
   it('stays empty when the plot fails to load, leaving the board to explain', async () => {
@@ -172,9 +176,9 @@ describe('PlotSidebarPanel', () => {
     );
     expect(within(list).getByText('Ada')).toHaveClass('text-foreground');
     // Only Ada × End is left on the board.
-    expect(screen.getByRole('status')).toHaveTextContent(
-      '1 of 2 plotlines · 3 of 3 beats · 1 card'
-    );
+    expect(
+      screen.getByRole('status', { name: 'Plot totals' })
+    ).toHaveTextContent('1 of 2 plotlines · 3 of 3 beats · 1 card');
   });
 
   it('toggles from anywhere on the name, not only the box', async () => {
@@ -236,9 +240,9 @@ describe('PlotSidebarPanel', () => {
 
     renderPanel(EMPTY_PROJECT_ID);
 
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      '0 plotlines · 0 beats · 0 cards'
-    );
+    expect(
+      await screen.findByRole('status', { name: 'Plot totals' })
+    ).toHaveTextContent('0 plotlines · 0 beats · 0 cards');
   });
 
   it('still filters when the plot is view-only', async () => {
@@ -270,9 +274,9 @@ describe('PlotSidebarPanel', () => {
   it('shows only the counter before the plot is started', async () => {
     renderPanel(EMPTY_PROJECT_ID);
 
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      '0 plotlines · 0 beats · 0 cards'
-    );
+    expect(
+      await screen.findByRole('status', { name: 'Plot totals' })
+    ).toHaveTextContent('0 plotlines · 0 beats · 0 cards');
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 });
