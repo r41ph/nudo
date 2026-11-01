@@ -48,6 +48,19 @@ export const HiddenBeat: Story = {
   args: { ...Beat.args, visible: false },
 };
 
+const REORDER = { id: 'p1', type: 'plotline', dragType: null } as const;
+
+// The handle shows on hover or focus; tab to it to see it here.
+export const Editable: Story = { args: { reorder: REORDER } };
+
+export const DropBefore: Story = {
+  args: { reorder: { ...REORDER, dropSide: 'before' } },
+};
+
+export const DropAfter: Story = {
+  args: { reorder: { ...REORDER, dropSide: 'after' } },
+};
+
 // Ticked, then unticked, for every palette colour.
 export const EachColour: Story = {
   render: (args) => (

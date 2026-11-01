@@ -15,16 +15,23 @@ interface ReorderSortableArgs {
   dragType: PlotDragType | null;
   // While renaming, a pointer drag would fight text selection.
   paused: boolean;
+  // A sidebar row's body toggles its checkbox, so only its handle may drag.
+  activator?: 'container' | 'handle';
 }
 
-// The whole label or header is the pointer target; the handle is the
-// keyboard one, since a plain div is not focusable.
+type ContainerProps = {
+  ref?: (node: HTMLElement | null) => void;
+} & Partial<NonNullable<ReturnType<typeof useSortable>['listeners']>>;
+
+// On the board the whole label or header is the pointer target; the handle
+// is the keyboard one, since a plain div is not focusable.
 export function useReorderSortable({
   id,
   type,
   editable,
   dragType,
   paused,
+  activator = 'container',
 }: ReorderSortableArgs) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } =
     useSortable({
@@ -36,10 +43,18 @@ export function useReorderSortable({
       },
     });
 
+  const onHandle = activator === 'handle';
+  const containerProps: ContainerProps = editable
+    ? { ref: setNodeRef, ...(onHandle ? {} : listeners) }
+    : {};
   return {
     isDragging,
-    containerProps: editable ? { ref: setNodeRef, ...listeners } : {},
-    handleProps: { ...attributes, ref: setActivatorNodeRef },
+    containerProps,
+    handleProps: {
+      ...attributes,
+      ...(onHandle ? listeners : {}),
+      ref: setActivatorNodeRef,
+    },
   };
 }
 
