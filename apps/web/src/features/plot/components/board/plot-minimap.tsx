@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import { useRef, type RefObject } from 'react';
 import {
   PLOTLINE_COLOR_VAR,
   PLOT_MINIMAP_MARK_MIN_HEIGHT,
@@ -10,6 +10,7 @@ import { usePlotEditable } from '@web/features/plot/hooks/use-plot-editable';
 import {
   minimapSignature,
   usePlotMinimap,
+  usePlotMinimapFrame,
 } from '@web/features/plot/hooks/use-plot-minimap';
 import { markRect, minimapScale } from '@web/features/plot/lib/plot-minimap';
 import type { Plot, PlotlineColor } from '@web/features/plot/plot.types';
@@ -32,10 +33,14 @@ export function PlotMinimap({ containerRef, gridRef, plot }: PlotMinimapProps) {
     gridRef,
     minimapSignature(plot, editable)
   );
-  if (!snapshot) return null;
+  const frameRef = useRef<HTMLDivElement>(null);
+  const layout = snapshot?.layout ?? null;
+  const scale = layout
+    ? minimapScale(layout, INNER_WIDTH, PLOT_MINIMAP_MAX_HEIGHT)
+    : 0;
+  usePlotMinimapFrame(containerRef, frameRef, layout, scale);
+  if (!snapshot || !layout) return null;
 
-  const { layout } = snapshot;
-  const scale = minimapScale(layout, INNER_WIDTH, PLOT_MINIMAP_MAX_HEIGHT);
   const plotlineColors = new Map(plot.plotlines.map((p) => [p.id, p.color]));
   const cardColors = new Map<string, PlotlineColor | undefined>(
     plot.cards.map((c) => [c.id, plotlineColors.get(c.plotlineId ?? '')])
@@ -84,6 +89,13 @@ export function PlotMinimap({ containerRef, gridRef, plot }: PlotMinimapProps) {
           );
         })}
       </div>
+      {/* Not inside the aria-hidden miniature: the frame is the accessible
+          control. top/left match the box padding, so it lines up with it. */}
+      <div
+        ref={frameRef}
+        data-testid="plot-minimap-frame"
+        className="absolute top-2.5 left-3 cursor-grab rounded-[3px] bg-foreground/8 outline-foreground/60 hover:outline-[1.5px] focus-visible:outline-[1.5px] dark:bg-foreground/10"
+      />
     </div>
   );
 }
