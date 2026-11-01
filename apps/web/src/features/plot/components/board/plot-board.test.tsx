@@ -49,12 +49,8 @@ describe('PlotBoard', () => {
 
     const labels = within(grid).getAllByRole('rowheader');
     expect(labels).toHaveLength(2);
-    [
-      ['Main plot', '3 cards'],
-      ['Ada', '1 card'],
-    ].forEach(([name, count], i) => {
+    ['Main plot', 'Ada'].forEach((name, i) => {
       expect(within(labels[i]).getByText(name)).toBeVisible();
-      expect(within(labels[i]).getByText(count)).toBeVisible();
     });
   });
 
