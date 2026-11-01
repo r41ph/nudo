@@ -22,3 +22,28 @@ export async function dragBefore(
   await target.dispatchEvent('drop', { dataTransfer, ...at });
   await source.dispatchEvent('dragend', { dataTransfer });
 }
+
+/**
+ * Drive a dnd-kit pointer drag from the centre of `source` to the centre of
+ * `target`. Unlike headless-tree, dnd-kit listens to pointer events, which
+ * Playwright's mouse does fire.
+ */
+export async function pointerDrag(
+  page: Page,
+  source: Locator,
+  target: Locator
+): Promise<void> {
+  const from = await source.boundingBox();
+  const to = await target.boundingBox();
+  if (!from || !to) throw new Error('drag source or target has no box');
+  const start = { x: from.x + from.width / 2, y: from.y + from.height / 2 };
+
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  // dnd-kit starts a pointer drag only after 6px of movement.
+  await page.mouse.move(start.x + 10, start.y + 10, { steps: 3 });
+  await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, {
+    steps: 10,
+  });
+  await page.mouse.up();
+}
