@@ -127,12 +127,12 @@ position shown and announced.
 both ways.
 
 **Acceptance criteria:**
-- [ ] Seed enough beats and plotlines to overflow both axes at the default viewport.
-- [ ] A diagonal frame drag (`page.mouse`) scrolls on both axes; pressing a miniature corner centres there; arrow keys on the focused frame move by beat and plotline; scrolling the board moves the frame.
-- [ ] Unchecking beats in the sidebar until the board fits removes the minimap; checking them again brings it back, and the frame matches the scroll position.
+- [x] Seed enough beats and plotlines to overflow both axes at the default viewport.
+- [x] A diagonal frame drag (`page.mouse`) scrolls on both axes; pressing a miniature corner centres there; arrow keys on the focused frame move by beat and plotline; scrolling the board moves the frame.
+- [x] Unchecking beats in the sidebar until the board fits removes the minimap; checking them again brings it back, and the frame matches the scroll position.
 
 **Verification:**
-- [ ] `pnpm test:e2e plot`
+- [x] `pnpm test:e2e plot`
 
 **Dependencies:** Tasks 4, 5
 **Files:** `e2e/tests/plot.spec.ts`

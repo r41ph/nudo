@@ -113,8 +113,9 @@ export function stubBoardLayout(initial: Viewport) {
     }
     if (role === 'rowheader') {
       const j = plotlineRows(grid).indexOf(el.parentElement!);
+      // Sticky left-0 sticks at the scroller's padding edge, inside the gutter.
       return rect(
-        Math.max(gx, 0),
+        Math.max(gx, LAYOUT.gutter),
         gy + LAYOUT.header + j * LAYOUT.row,
         LAYOUT.label,
         LAYOUT.row
@@ -143,7 +144,17 @@ export function stubBoardLayout(initial: Viewport) {
   }
 
   const isContainer = (el: Element) => gridOf(el) !== null;
+  const computedStyle = window.getComputedStyle.bind(window);
   const spies = [
+    // jsdom applies no Tailwind, so the container's px-10 is supplied here.
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((el, pseudo) =>
+      isContainer(el)
+        ? ({
+            paddingLeft: `${LAYOUT.gutter}px`,
+            paddingTop: '0px',
+          } as CSSStyleDeclaration)
+        : computedStyle(el, pseudo)
+    ),
     vi
       .spyOn(Element.prototype, 'getBoundingClientRect')
       .mockImplementation(function (this: Element) {
