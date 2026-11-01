@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { vi } from 'vitest';
 import { graphql, HttpResponse } from 'msw';
 import { Toaster } from 'sonner';
@@ -12,11 +13,12 @@ function Board() {
   return data ? <PlotBoard projectId={MOCK_PROJECT.id} plot={data} /> : null;
 }
 
-export function renderBoard() {
+export function renderBoard(extra?: ReactNode) {
   return renderWithProviders(
     <>
       <Board />
       <Toaster />
+      {extra}
     </>
   );
 }
