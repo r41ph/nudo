@@ -1,6 +1,12 @@
 import { useEffect } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { act, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   holdMutation,
@@ -224,5 +230,91 @@ describe('PlotMinimap — sidebar filters', () => {
     expect(marks()).toHaveLength(3);
     expect(miniature().style.width).toBe('180px');
     expect(miniature().style.height).toBe('120px');
+  });
+});
+
+const frame = () => screen.getByTestId('plot-minimap-frame');
+const scrollContainer = () =>
+  screen.getByRole('table', { name: 'Plot board' }).parentElement!;
+
+function framePosition() {
+  const match = /translate\(([-\d.]+)px, ([-\d.]+)px\)/.exec(
+    frame().style.transform
+  );
+  if (!match) throw new Error(`No translate in "${frame().style.transform}"`);
+  return { x: parseFloat(match[1]), y: parseFloat(match[2]) };
+}
+
+function scrollBoard(left: number, top: number) {
+  const container = scrollContainer();
+  layout.scrollTo(container, left, top);
+  fireEvent.scroll(container);
+}
+
+// Both axes overflow at 600×300: the view is 420×252 of the 720×320 region,
+// at the width-limited scale 230/720.
+const BOTH = { width: 600, height: 300 };
+
+describe('PlotMinimap — frame', () => {
+  it('covers the visible part of the region at the start', async () => {
+    await renderMinimapBoard(BOTH);
+    await screen.findByTestId('plot-minimap');
+
+    expect(framePosition()).toEqual({ x: 0, y: 0 });
+    expect(parseFloat(frame().style.width)).toBeCloseTo(134.17, 1);
+    expect(parseFloat(frame().style.height)).toBeCloseTo(80.5, 1);
+  });
+
+  it('follows the board when it scrolls', async () => {
+    await renderMinimapBoard(BOTH);
+    await screen.findByTestId('plot-minimap');
+
+    // scrollLeft 190 is viewX 150 of 300, past the 40px gutter.
+    scrollBoard(190, 34);
+
+    await waitFor(() => expect(framePosition().x).toBeCloseTo(47.92, 1));
+    expect(framePosition().y).toBeCloseTo(10.86, 1);
+  });
+
+  it('stays clamped at the edge when the board scrolls past the region', async () => {
+    await renderMinimapBoard(BOTH);
+    await screen.findByTestId('plot-minimap');
+
+    // The bottom of the scroll range shows "+ Plotline" and the padding.
+    scrollBoard(380, 140);
+
+    await waitFor(() => expect(framePosition().x).toBeCloseTo(95.83, 1));
+    expect(framePosition().y).toBeCloseTo(21.72, 1);
+  });
+
+  it('does not re-render the board or the marks on scroll', async () => {
+    let renders = 0;
+    layout = stubBoardLayout(BOTH);
+    renderBoard(<ViewHandle />, () => {
+      renders += 1;
+    });
+    await screen.findByTestId('plot-minimap');
+    const before = renders;
+
+    scrollBoard(190, 34);
+    await waitFor(() => expect(framePosition().x).toBeCloseTo(47.92, 1));
+
+    expect(renders).toBe(before);
+  });
+
+  it('re-syncs after a filter shrinks the board, without a scroll event', async () => {
+    await renderMinimapBoard({ width: 600, height: 800 });
+    await screen.findByTestId('plot-minimap');
+    scrollBoard(380, 0);
+    await waitFor(() => expect(framePosition().x).toBeCloseTo(95.83, 1));
+
+    // The region is 480 wide now and the browser clamps scrollLeft to 140:
+    // height-limited at 0.375, the frame is 157.5 of 180 and at the far edge.
+    act(() => view.toggle('beat', END.id));
+
+    await waitFor(() =>
+      expect(parseFloat(frame().style.width)).toBeCloseTo(157.5, 1)
+    );
+    expect(framePosition().x).toBeCloseTo(22.5, 1);
   });
 });

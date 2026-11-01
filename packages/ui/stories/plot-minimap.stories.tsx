@@ -80,3 +80,19 @@ export const TallBoardDark: Story = { ...TallBoard, decorators: [dark] };
 
 export const BothAxes: Story = { args: { plot: makePlot(8, 15) } };
 export const BothAxesDark: Story = { ...BothAxes, decorators: [dark] };
+
+export const FrameScrolledToMiddle: Story = {
+  args: { plot: makePlot(8, 15) },
+  play: async ({ canvas }) => {
+    const container = (await canvas.findByRole('table', { name: 'Plot board' }))
+      .parentElement!;
+    container.scrollTo({
+      left: (container.scrollWidth - container.clientWidth) / 2,
+      top: (container.scrollHeight - container.clientHeight) / 2,
+    });
+  },
+};
+export const FrameScrolledToMiddleDark: Story = {
+  ...FrameScrolledToMiddle,
+  decorators: [dark],
+};

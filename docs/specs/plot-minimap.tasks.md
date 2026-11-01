@@ -46,7 +46,7 @@ overflows. No frame yet.
 
 **Verification:**
 - [x] `pnpm test:web plot-minimap plot-board`
-- [ ] `pnpm test:e2e plot` (existing board journeys still pass)
+- [x] `pnpm test:e2e plot` (existing board journeys still pass)
 - [x] Storybook check in both themes against the reference PNGs
 
 **Dependencies:** Task 1
@@ -59,14 +59,14 @@ overflows. No frame yet.
 without React state.
 
 **Acceptance criteria:**
-- [ ] Frame size and position follow §6 on both axes, clamped, with a 12px minimum. Look: `bg-foreground/8 dark:bg-foreground/10`, `rounded-[3px]`, `cursor-grab`, a 1.5px `foreground`/60 outline on hover and focus-visible.
-- [ ] A passive `scroll` listener plus one rAF writes `transform`/size through a ref. The board and the marks don't re-render on scroll (asserted with a render counter).
-- [ ] Component test: firing `scroll` after changing the stubbed `scrollLeft`/`scrollTop` moves the frame's transform.
-- [ ] After a re-measure (e.g. beats hidden from the sidebar shrink the board and the stubbed scroll is clamped), the frame is re-synced from the current scroll without a `scroll` event.
-- [ ] Story: frame scrolled to the middle.
+- [x] Frame size and position follow §6 on both axes, clamped, with a 12px minimum. Look: `bg-foreground/8 dark:bg-foreground/10`, `rounded-[3px]`, `cursor-grab`, a 1.5px `foreground`/60 outline on hover and focus-visible.
+- [x] A passive `scroll` listener plus one rAF writes `transform`/size through a ref. The board and the marks don't re-render on scroll (asserted with a render counter).
+- [x] Component test: firing `scroll` after changing the stubbed `scrollLeft`/`scrollTop` moves the frame's transform.
+- [x] After a re-measure (e.g. beats hidden from the sidebar shrink the board and the stubbed scroll is clamped), the frame is re-synced from the current scroll without a `scroll` event.
+- [x] Story: frame scrolled to the middle.
 
 **Verification:**
-- [ ] `pnpm test:web plot-minimap`
+- [x] `pnpm test:web plot-minimap`
 
 **Dependencies:** Task 2
 **Files:** `components/board/plot-minimap.tsx` (+ test), `hooks/use-plot-minimap.ts`, stories

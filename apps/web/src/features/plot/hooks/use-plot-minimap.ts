@@ -5,10 +5,13 @@ import {
   useState,
   type RefObject,
 } from 'react';
-import type {
-  Extent,
-  MinimapLayout,
-  Rect,
+import { PLOT_MINIMAP_MIN_FRAME } from '@web/features/plot/constants/plot.constants';
+import {
+  frameRect,
+  viewFromScroll,
+  type Extent,
+  type MinimapLayout,
+  type Rect,
 } from '@web/features/plot/lib/plot-minimap';
 import type { Plot } from '@web/features/plot/plot.types';
 
@@ -154,4 +157,46 @@ export function usePlotMinimap(
   }, [containerRef, gridRef, update]);
 
   return snapshot;
+}
+
+// Scroll position never goes through React state: rendering the board on every
+// scroll frame would be far too slow, so the frame is written through its ref.
+export function usePlotMinimapFrame(
+  containerRef: RefObject<HTMLElement | null>,
+  frameRef: RefObject<HTMLElement | null>,
+  layout: MinimapLayout | null,
+  scale: number
+) {
+  const sync = useCallback(() => {
+    const container = containerRef.current;
+    const frame = frameRef.current;
+    if (!container || !frame || !layout) return;
+    const m = viewFromScroll(layout, container.scrollLeft, container.scrollTop);
+    const rect = frameRect(m, scale, PLOT_MINIMAP_MIN_FRAME);
+    frame.style.transform = `translate(${rect.x}px, ${rect.y}px)`;
+    frame.style.width = `${rect.width}px`;
+    frame.style.height = `${rect.height}px`;
+  }, [containerRef, frameRef, layout, scale]);
+
+  // A re-measure can follow a clamped scroll (filters shrinking the board)
+  // that fires no scroll event, so every new layout re-syncs on its own.
+  useLayoutEffect(sync, [sync]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    let frameId = 0;
+    const onScroll = () => {
+      if (frameId) return;
+      frameId = requestAnimationFrame(() => {
+        frameId = 0;
+        sync();
+      });
+    };
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      container.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(frameId);
+    };
+  }, [containerRef, sync]);
 }

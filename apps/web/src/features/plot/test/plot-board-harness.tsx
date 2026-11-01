@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Profiler, type ProfilerOnRenderCallback, type ReactNode } from 'react';
 import { vi } from 'vitest';
 import { graphql, HttpResponse } from 'msw';
 import { Toaster } from 'sonner';
@@ -13,10 +13,19 @@ function Board() {
   return data ? <PlotBoard projectId={MOCK_PROJECT.id} plot={data} /> : null;
 }
 
-export function renderBoard(extra?: ReactNode) {
+export function renderBoard(
+  extra?: ReactNode,
+  onRender?: ProfilerOnRenderCallback
+) {
   return renderWithProviders(
     <>
-      <Board />
+      {onRender ? (
+        <Profiler id="board" onRender={onRender}>
+          <Board />
+        </Profiler>
+      ) : (
+        <Board />
+      )}
       <Toaster />
       {extra}
     </>

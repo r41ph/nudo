@@ -69,13 +69,21 @@ export function stubBoardLayout(initial: Viewport) {
   const clientHeight = () => viewport.height - viewport.scrollbar;
   const containerOf = (el: Element) =>
     el.closest('[role="table"]')?.parentElement ?? null;
-  const scrollOf = (container: Element) =>
-    scroll.get(container) ?? { left: 0, top: 0 };
   const maxScroll = (container: Element) => {
     const size = content(container);
     return {
       left: Math.max(0, size.width - clientWidth()),
       top: Math.max(0, size.height - clientHeight()),
+    };
+  };
+  // Clamped on read too: a browser pulls the scroll back when the content
+  // shrinks, without firing a scroll event the minimap could rely on.
+  const scrollOf = (container: Element) => {
+    const stored = scroll.get(container) ?? { left: 0, top: 0 };
+    const max = maxScroll(container);
+    return {
+      left: Math.min(stored.left, max.left),
+      top: Math.min(stored.top, max.top),
     };
   };
 
