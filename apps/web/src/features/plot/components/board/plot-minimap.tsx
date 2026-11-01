@@ -76,7 +76,7 @@ export function PlotMinimap({
       ref={boxRef}
       data-testid="plot-minimap"
       className={cn(
-        'absolute right-6 bottom-5 z-30 w-64 rounded-lg border border-border bg-popover px-3 py-2.5 shadow-lg select-none dark:shadow-black/45',
+        'absolute right-6 bottom-5 z-30 w-64 rounded-lg border border-border bg-popover px-3 py-2.5 shadow-lg select-none dark:border-foreground/15 dark:bg-[color-mix(in_oklab,var(--card),var(--foreground)_10%)] dark:shadow-black/45',
         // Keeps drops possible under the minimap.
         dragging && 'pointer-events-none opacity-40'
       )}
