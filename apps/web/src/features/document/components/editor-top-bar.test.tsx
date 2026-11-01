@@ -27,6 +27,24 @@ const outlineToggle = () =>
 const detailsToggle = () =>
   screen.queryByRole('button', { name: /(show|hide) details/i });
 
+describe('EditorTopBar — focus mode button', () => {
+  it('shows the expand icon outside focus mode and the shrink icon inside it', async () => {
+    const user = userEvent.setup();
+    const store = renderTopBar();
+
+    const enter = screen.getByRole('button', { name: 'Enter focus mode' });
+    expect(enter.querySelector('svg')).toHaveClass('lucide-maximize-2');
+
+    await user.click(enter);
+    expect(store.get(isFocusModeAtom)).toBe(true);
+    const leave = screen.getByRole('button', { name: 'Leave focus mode' });
+    expect(leave.querySelector('svg')).toHaveClass('lucide-minimize-2');
+
+    await user.click(leave);
+    expect(store.get(isFocusModeAtom)).toBe(false);
+  });
+});
+
 describe('EditorTopBar — panel toggles at or above 1280px', () => {
   it('renders neither toggle, even with the inspector open', () => {
     const store = createStore();

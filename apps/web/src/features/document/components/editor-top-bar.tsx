@@ -11,6 +11,8 @@ import { isFocusModeAtom } from '@web/shared/state/focus-mode.atom';
 
 const ICON_BUTTON_CLASS =
   'size-[34px] rounded-lg text-faint hover:cursor-pointer hover:bg-row-hover hover:text-foreground';
+const FOCUS_BUTTON_CLASS =
+  'size-[34px] rounded-lg text-foreground hover:cursor-pointer hover:bg-row-hover hover:text-accent-foreground';
 const ICON_CLASS = 'size-[17px] [stroke-width:1.7]';
 
 export function EditorTopBar() {
@@ -59,9 +61,13 @@ export function EditorTopBar() {
         size="icon"
         aria-label={isFocusMode ? 'Leave focus mode' : 'Enter focus mode'}
         onClick={() => setFocusMode(!isFocusMode)}
-        className={ICON_BUTTON_CLASS}
+        className={FOCUS_BUTTON_CLASS}
       >
-        <Icon name="maximize" decorative className={ICON_CLASS} />
+        <Icon
+          name={isFocusMode ? 'minimize' : 'maximize'}
+          decorative
+          className={ICON_CLASS}
+        />
       </Button>
     </header>
   );
