@@ -78,7 +78,9 @@ export function stubBoardLayout(initial: Viewport) {
   };
   // Clamped on read too: a browser pulls the scroll back when the content
   // shrinks, without firing a scroll event the minimap could rely on.
+  // Other elements never scroll here; Radix's popper reads their offsets too.
   const scrollOf = (container: Element) => {
+    if (!gridOf(container)) return { left: 0, top: 0 };
     const stored = scroll.get(container) ?? { left: 0, top: 0 };
     const max = maxScroll(container);
     return {

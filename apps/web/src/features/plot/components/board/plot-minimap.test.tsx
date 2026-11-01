@@ -441,3 +441,151 @@ describe('PlotMinimap — pointer and wheel', () => {
     expect(box).not.toHaveClass('pointer-events-none');
   });
 });
+
+// At 400×200 the view is 220×152 of the 720×320 region, so every column and
+// row start is reachable without clamping. Scroll range: 580×240, gutter 40.
+const KEYS = { width: 400, height: 200 };
+
+describe('PlotMinimap — keyboard and position', () => {
+  afterEach(() => vi.useRealTimers());
+
+  const control = () => screen.getByRole('group', { name: 'Board position' });
+  const status = () => within(minimap()!).getByRole('status');
+  const scroll = () => ({
+    left: scrollContainer().scrollLeft,
+    top: scrollContainer().scrollTop,
+  });
+
+  async function renderAt(left = 0, top = 0) {
+    await renderMinimapBoard(KEYS);
+    await screen.findByTestId('plot-minimap');
+    layout.scrollTo(scrollContainer(), left, top);
+  }
+
+  it('is a focusable control for the board', async () => {
+    await renderAt();
+
+    expect(control()).toHaveAttribute('tabindex', '0');
+    expect(control()).toHaveAttribute('aria-roledescription', 'minimap');
+    expect(control()).toHaveAttribute('aria-controls', scrollContainer().id);
+    expect(scrollContainer().id).not.toBe('');
+  });
+
+  it.each([
+    ['{ArrowRight}', [0, 0], { left: 280, top: 0 }],
+    ['{ArrowLeft}', [280, 0], { left: 0, top: 0 }],
+    ['{ArrowDown}', [0, 0], { left: 0, top: 160 }],
+    ['{ArrowUp}', [0, 160], { left: 0, top: 0 }],
+    ['{PageDown}', [0, 0], { left: 0, top: 152 }],
+    ['{PageUp}', [0, 152], { left: 0, top: 0 }],
+    ['{Shift>}{PageDown}{/Shift}', [0, 0], { left: 260, top: 0 }],
+    ['{Shift>}{PageUp}{/Shift}', [260, 0], { left: 0, top: 0 }],
+    ['{End}', [0, 152], { left: 580, top: 152 }],
+    ['{Home}', [580, 152], { left: 0, top: 152 }],
+    ['{Control>}{End}{/Control}', [0, 0], { left: 580, top: 240 }],
+    ['{Control>}{Home}{/Control}', [580, 240], { left: 0, top: 0 }],
+  ])('%s scrolls the board', async (keys, [left, top], expected) => {
+    const user = userEvent.setup();
+    await renderAt(left, top);
+
+    control().focus();
+    await user.keyboard(keys);
+
+    expect(scroll()).toEqual(expected);
+    expect(layout.scrollToCalls).toHaveBeenLastCalledWith(
+      expect.objectContaining({ behavior: 'smooth' })
+    );
+  });
+
+  it('uses ⌘ instead of Ctrl on macOS', async () => {
+    const platform = vi
+      .spyOn(navigator, 'platform', 'get')
+      .mockReturnValue('MacIntel');
+    const user = userEvent.setup();
+    await renderAt();
+
+    control().focus();
+    await user.keyboard('{Control>}{End}{/Control}');
+    expect(scroll()).toEqual({ left: 580, top: 0 });
+
+    await user.keyboard('{Meta>}{Home}{/Meta}');
+    expect(scroll()).toEqual({ left: 0, top: 0 });
+    platform.mockRestore();
+  });
+
+  it('keeps the page from scrolling on its keys only', async () => {
+    await renderAt();
+
+    expect(fireEvent.keyDown(control(), { key: 'PageDown' })).toBe(false);
+    expect(fireEvent.keyDown(control(), { key: 'a' })).toBe(true);
+  });
+
+  it('shows the position in a tooltip on focus, kept in step with scrolling', async () => {
+    await renderAt();
+
+    act(() => control().focus());
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Beat 1 of 3 · Plotline 1 of 2'
+    );
+    scrollBoard(280, 0);
+    await waitFor(() =>
+      expect(screen.getByRole('tooltip')).toHaveTextContent(
+        'Beat 2 of 3 · Plotline 1 of 2'
+      )
+    );
+  });
+
+  it('shows the position in a tooltip on hover', async () => {
+    const user = userEvent.setup();
+    await renderAt(0, 100);
+
+    await user.hover(control());
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Beat 1 of 3 · Plotlines 1–2 of 2'
+    );
+  });
+
+  it('announces the position 300ms after the last key move', async () => {
+    await renderAt();
+    control().focus();
+    vi.useFakeTimers();
+
+    fireEvent.keyDown(control(), { key: 'ArrowRight' });
+    act(() => vi.advanceTimersByTime(200));
+    fireEvent.keyDown(control(), { key: 'ArrowRight' });
+    act(() => vi.advanceTimersByTime(299));
+    expect(status()).toHaveTextContent('');
+
+    act(() => vi.advanceTimersByTime(1));
+    expect(status()).toHaveTextContent('Beat 3 of 3 · Plotline 1 of 2');
+  });
+
+  it('does not announce ordinary scrolling', async () => {
+    await renderAt();
+    vi.useFakeTimers();
+
+    scrollBoard(280, 160);
+    act(() => vi.advanceTimersByTime(1000));
+
+    expect(status()).toHaveTextContent('');
+  });
+
+  it('counts and steps through visible beats and plotlines only', async () => {
+    await renderAt();
+    act(() => {
+      view.toggle('beat', MIDDLE.id);
+      view.toggle('plotline', ADA.id);
+    });
+    control().focus();
+    vi.useFakeTimers();
+
+    fireEvent.keyDown(control(), { key: 'ArrowRight' });
+    act(() => vi.advanceTimersByTime(300));
+
+    // The end beat's column now starts at 240, where the middle one was.
+    expect(scroll().left).toBe(280);
+    expect(status()).toHaveTextContent('Beat 2 of 2 · Plotline 1 of 1');
+  });
+});

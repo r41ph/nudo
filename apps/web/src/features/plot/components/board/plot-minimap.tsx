@@ -1,4 +1,10 @@
 import { useRef, type RefObject } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@ui/components/ui/tooltip';
 import { cn } from '@ui/lib/utils';
 import {
   PLOTLINE_COLOR_VAR,
@@ -12,8 +18,11 @@ import {
   minimapSignature,
   usePlotMinimap,
   usePlotMinimapFrame,
+  usePlotMinimapKeys,
   usePlotMinimapPointer,
+  usePlotMinimapPosition,
   usePlotMinimapWheel,
+  type MinimapSnapshot,
 } from '@web/features/plot/hooks/use-plot-minimap';
 import { markRect, minimapScale } from '@web/features/plot/lib/plot-minimap';
 import type { Plot, PlotlineColor } from '@web/features/plot/plot.types';
@@ -24,6 +33,7 @@ const INNER_WIDTH = PLOT_MINIMAP_WIDTH - 2 * 12 - 2 * 1;
 
 interface PlotMinimapProps {
   containerRef: RefObject<HTMLElement | null>;
+  scrollContainerId: string;
   gridRef: RefObject<HTMLElement | null>;
   // The visible plot, as the board renders it.
   plot: Plot;
@@ -33,6 +43,7 @@ interface PlotMinimapProps {
 
 export function PlotMinimap({
   containerRef,
+  scrollContainerId,
   gridRef,
   plot,
   dragging,
@@ -52,6 +63,7 @@ export function PlotMinimap({
   usePlotMinimapFrame(containerRef, frameRef, layout, scale);
   const pointer = usePlotMinimapPointer(containerRef, frameRef, layout, scale);
   usePlotMinimapWheel(containerRef, boxRef, layout !== null);
+  const keys = usePlotMinimapKeys(containerRef, snapshot);
   if (!snapshot || !layout) return null;
 
   const plotlineColors = new Map(plot.plotlines.map((p) => [p.id, p.color]));
@@ -111,12 +123,43 @@ export function PlotMinimap({
         </div>
         {/* Not inside the aria-hidden miniature: the frame is the accessible
             control. */}
-        <div
-          ref={frameRef}
-          data-testid="plot-minimap-frame"
-          className="absolute top-0 left-0 cursor-grab rounded-[3px] bg-foreground/8 outline-foreground/60 hover:outline-[1.5px] focus-visible:outline-[1.5px] data-dragging:cursor-grabbing data-dragging:outline-[1.5px] dark:bg-foreground/10"
-        />
+        {/* The app mounts no TooltipProvider, and Radix requires one. */}
+        <TooltipProvider>
+          <Tooltip>
+            {/* A styled div: no UI component is a two-axis scroll control. */}
+            <TooltipTrigger asChild>
+              <div
+                ref={frameRef}
+                data-testid="plot-minimap-frame"
+                tabIndex={0}
+                role="group"
+                aria-roledescription="minimap"
+                aria-label="Board position"
+                aria-controls={scrollContainerId}
+                onKeyDown={keys.onKeyDown}
+                className="absolute top-0 left-0 cursor-grab rounded-[3px] bg-foreground/8 outline-foreground/60 hover:outline-[1.5px] focus-visible:outline-[1.5px] data-dragging:cursor-grabbing data-dragging:outline-[1.5px] dark:bg-foreground/10"
+              />
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={4}>
+              <PositionText containerRef={containerRef} snapshot={snapshot} />
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      <div role="status" className="sr-only">
+        {keys.announcement}
       </div>
     </div>
   );
+}
+
+// Its own component so that only the open tooltip re-renders on scroll.
+function PositionText({
+  containerRef,
+  snapshot,
+}: {
+  containerRef: RefObject<HTMLElement | null>;
+  snapshot: MinimapSnapshot;
+}) {
+  return usePlotMinimapPosition(containerRef, snapshot);
 }
