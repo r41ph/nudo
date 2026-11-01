@@ -140,6 +140,14 @@ the real API.
 
 ---
 
+## E2E tests (`e2e/`)
+
+- Drag dnd-kit lists (Plot board, Plot sidebar) with `pointerDrag` from
+  `e2e/fixtures/dnd.ts`. `dragBefore` fires HTML5 drag events, which dnd-kit
+  ignores, so the drag silently does nothing.
+
+---
+
 ## Ask first
 
 - Adding a test dependency beyond supertest/Playwright.
