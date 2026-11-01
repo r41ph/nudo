@@ -91,19 +91,22 @@ function measure(
   const regionWidth = gridRect.width - labelWidth;
   const regionHeight = gridRect.height - headerHeight;
   if (regionWidth <= 0 || regionHeight <= 0) return null;
+  // Sticky cells stick at the scroller's padding edge, not its border, so
+  // the px-10 gutter never scrolls by: the labels stay 40px in.
+  const style = getComputedStyle(container);
+  const padLeft = parseFloat(style.paddingLeft) || 0;
+  const padTop = parseFloat(style.paddingTop) || 0;
+  const stickLeft = box.left + container.clientLeft + padLeft;
+  const stickTop = box.top + container.clientTop + padTop;
 
   return {
     layout: {
       regionWidth,
       regionHeight,
-      viewWidth: container.clientWidth - labelWidth,
-      viewHeight: container.clientHeight - headerHeight,
-      originX:
-        gridRect.left -
-        (box.left + container.clientLeft) +
-        container.scrollLeft,
-      originY:
-        gridRect.top - (box.top + container.clientTop) + container.scrollTop,
+      viewWidth: container.clientWidth - padLeft - labelWidth,
+      viewHeight: container.clientHeight - padTop - headerHeight,
+      originX: gridRect.left - stickLeft + container.scrollLeft,
+      originY: gridRect.top - stickTop + container.scrollTop,
       maxScrollLeft: container.scrollWidth - container.clientWidth,
       maxScrollTop: container.scrollHeight - container.clientHeight,
     },

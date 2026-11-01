@@ -251,8 +251,9 @@ function scrollBoard(left: number, top: number) {
   fireEvent.scroll(container);
 }
 
-// Both axes overflow at 600×300: the view is 420×252 of the 720×320 region,
-// at the width-limited scale 230/720.
+// Both axes overflow at 600×300: the view is 380×252 of the 720×320 region
+// (the labels stick inside the 40px gutter), at the width-limited scale
+// 230/720.
 const BOTH = { width: 600, height: 300 };
 
 describe('PlotMinimap — frame', () => {
@@ -261,7 +262,7 @@ describe('PlotMinimap — frame', () => {
     await screen.findByTestId('plot-minimap');
 
     expect(framePosition()).toEqual({ x: 0, y: 0 });
-    expect(parseFloat(frame().style.width)).toBeCloseTo(134.17, 1);
+    expect(parseFloat(frame().style.width)).toBeCloseTo(121.39, 1);
     expect(parseFloat(frame().style.height)).toBeCloseTo(80.5, 1);
   });
 
@@ -269,10 +270,10 @@ describe('PlotMinimap — frame', () => {
     await renderMinimapBoard(BOTH);
     await screen.findByTestId('plot-minimap');
 
-    // scrollLeft 190 is viewX 150 of 300, past the 40px gutter.
+    // The gutter never scrolls by, so scrollLeft is viewX: 190 of 340.
     scrollBoard(190, 34);
 
-    await waitFor(() => expect(framePosition().x).toBeCloseTo(47.92, 1));
+    await waitFor(() => expect(framePosition().x).toBeCloseTo(60.69, 1));
     expect(framePosition().y).toBeCloseTo(10.86, 1);
   });
 
@@ -283,7 +284,7 @@ describe('PlotMinimap — frame', () => {
     // The bottom of the scroll range shows "+ Plotline" and the padding.
     scrollBoard(380, 140);
 
-    await waitFor(() => expect(framePosition().x).toBeCloseTo(95.83, 1));
+    await waitFor(() => expect(framePosition().x).toBeCloseTo(108.61, 1));
     expect(framePosition().y).toBeCloseTo(21.72, 1);
   });
 
@@ -297,7 +298,7 @@ describe('PlotMinimap — frame', () => {
     const before = renders;
 
     scrollBoard(190, 34);
-    await waitFor(() => expect(framePosition().x).toBeCloseTo(47.92, 1));
+    await waitFor(() => expect(framePosition().x).toBeCloseTo(60.69, 1));
 
     expect(renders).toBe(before);
   });
@@ -306,22 +307,22 @@ describe('PlotMinimap — frame', () => {
     await renderMinimapBoard({ width: 600, height: 800 });
     await screen.findByTestId('plot-minimap');
     scrollBoard(380, 0);
-    await waitFor(() => expect(framePosition().x).toBeCloseTo(95.83, 1));
+    await waitFor(() => expect(framePosition().x).toBeCloseTo(108.61, 1));
 
     // The region is 480 wide now and the browser clamps scrollLeft to 140:
-    // height-limited at 0.375, the frame is 157.5 of 180 and at the far edge.
+    // height-limited at 0.375, the frame is 142.5 of 180 and at the far edge.
     act(() => view.toggle('beat', END.id));
 
     await waitFor(() =>
-      expect(parseFloat(frame().style.width)).toBeCloseTo(157.5, 1)
+      expect(parseFloat(frame().style.width)).toBeCloseTo(142.5, 1)
     );
-    expect(framePosition().x).toBeCloseTo(22.5, 1);
+    expect(framePosition().x).toBeCloseTo(37.5, 1);
   });
 });
 
 // The miniature sits at the viewport origin in the layout stub, so client
-// coordinates are miniature coordinates. At BOTH the frame is 134.17×80.5 and
-// travels 95.83×21.72 for a view travel of 300×68.
+// coordinates are miniature coordinates. At BOTH the frame is 121.39×80.5 and
+// travels 108.61×21.72 for a view travel of 340×68.
 describe('PlotMinimap — pointer and wheel', () => {
   beforeEach(() => {
     Object.assign(Element.prototype, {
@@ -346,10 +347,10 @@ describe('PlotMinimap — pointer and wheel', () => {
     // Half the frame's travel on each axis: viewX 150 and viewY 34.
     fireEvent.pointerMove(frame(), {
       pointerId: 1,
-      clientX: 50 + 47.917,
+      clientX: 50 + 54.306,
       clientY: 40 + 10.861,
     });
-    expect(scroll().left).toBeCloseTo(190, 0);
+    expect(scroll().left).toBeCloseTo(170, 0);
     expect(scroll().top).toBeCloseTo(34, 0);
     expect(layout.scrollToCalls).toHaveBeenLastCalledWith(
       expect.objectContaining({ behavior: 'auto' })
@@ -357,7 +358,7 @@ describe('PlotMinimap — pointer and wheel', () => {
 
     fireEvent.pointerUp(frame(), { pointerId: 1 });
     fireEvent.pointerMove(frame(), { pointerId: 1, clientX: 0, clientY: 0 });
-    expect(scroll().left).toBeCloseTo(190, 0);
+    expect(scroll().left).toBeCloseTo(170, 0);
   });
 
   it('centres the view where the miniature is pressed, then drags from there', async () => {
@@ -372,7 +373,7 @@ describe('PlotMinimap — pointer and wheel', () => {
     expect(layout.scrollToCalls).toHaveBeenLastCalledWith(
       expect.objectContaining({ behavior: 'smooth' })
     );
-    expect(scroll().left).toBeCloseTo(299.57, 1);
+    expect(scroll().left).toBeCloseTo(279.57, 1);
     expect(scroll().top).toBeCloseTo(61.83, 1);
 
     fireEvent.pointerMove(miniature(), {
@@ -380,7 +381,7 @@ describe('PlotMinimap — pointer and wheel', () => {
       clientX: 160,
       clientY: 60,
     });
-    expect(scroll().left).toBeCloseTo(330.87, 1);
+    expect(scroll().left).toBeCloseTo(310.87, 1);
     expect(scroll().top).toBeCloseTo(61.83, 1);
   });
 
@@ -442,8 +443,9 @@ describe('PlotMinimap — pointer and wheel', () => {
   });
 });
 
-// At 400×200 the view is 220×152 of the 720×320 region, so every column and
-// row start is reachable without clamping. Scroll range: 580×240, gutter 40.
+// At 400×200 the view is 180×152 of the 720×320 region, so every column and
+// row start is reachable without clamping. Scroll range: 580×240, and
+// scrollLeft is viewX.
 const KEYS = { width: 400, height: 200 };
 
 describe('PlotMinimap — keyboard and position', () => {
@@ -472,14 +474,14 @@ describe('PlotMinimap — keyboard and position', () => {
   });
 
   it.each([
-    ['{ArrowRight}', [0, 0], { left: 280, top: 0 }],
-    ['{ArrowLeft}', [280, 0], { left: 0, top: 0 }],
+    ['{ArrowRight}', [0, 0], { left: 240, top: 0 }],
+    ['{ArrowLeft}', [240, 0], { left: 0, top: 0 }],
     ['{ArrowDown}', [0, 0], { left: 0, top: 160 }],
     ['{ArrowUp}', [0, 160], { left: 0, top: 0 }],
     ['{PageDown}', [0, 0], { left: 0, top: 152 }],
     ['{PageUp}', [0, 152], { left: 0, top: 0 }],
-    ['{Shift>}{PageDown}{/Shift}', [0, 0], { left: 260, top: 0 }],
-    ['{Shift>}{PageUp}{/Shift}', [260, 0], { left: 0, top: 0 }],
+    ['{Shift>}{PageDown}{/Shift}', [0, 0], { left: 180, top: 0 }],
+    ['{Shift>}{PageUp}{/Shift}', [180, 0], { left: 0, top: 0 }],
     ['{End}', [0, 152], { left: 580, top: 152 }],
     ['{Home}', [580, 152], { left: 0, top: 152 }],
     ['{Control>}{End}{/Control}', [0, 0], { left: 580, top: 240 }],
@@ -585,7 +587,7 @@ describe('PlotMinimap — keyboard and position', () => {
     act(() => vi.advanceTimersByTime(300));
 
     // The end beat's column now starts at 240, where the middle one was.
-    expect(scroll().left).toBe(280);
+    expect(scroll().left).toBe(240);
     expect(status()).toHaveTextContent('Beat 2 of 2 · Plotline 1 of 1');
   });
 });
