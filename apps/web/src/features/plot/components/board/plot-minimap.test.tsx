@@ -522,33 +522,6 @@ describe('PlotMinimap — keyboard and position', () => {
     expect(fireEvent.keyDown(control(), { key: 'a' })).toBe(true);
   });
 
-  it('shows the position in a tooltip on focus, kept in step with scrolling', async () => {
-    await renderAt();
-
-    act(() => control().focus());
-
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      'Beat 1 of 3 · Plotline 1 of 2'
-    );
-    scrollBoard(280, 0);
-    await waitFor(() =>
-      expect(screen.getByRole('tooltip')).toHaveTextContent(
-        'Beat 2 of 3 · Plotline 1 of 2'
-      )
-    );
-  });
-
-  it('shows the position in a tooltip on hover', async () => {
-    const user = userEvent.setup();
-    await renderAt(0, 100);
-
-    await user.hover(control());
-
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      'Beat 1 of 3 · Plotlines 1–2 of 2'
-    );
-  });
-
   it('announces the position 300ms after the last key move', async () => {
     await renderAt();
     control().focus();

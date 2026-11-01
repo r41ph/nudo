@@ -4,7 +4,6 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  useSyncExternalStore,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
@@ -367,28 +366,6 @@ export function positionText(
     plotlines,
     snapshot.rows.length
   );
-}
-
-// Re-renders only its caller, and only when the text changes, so it belongs
-// in a component that is mounted while the text is on screen.
-export function usePlotMinimapPosition(
-  containerRef: RefObject<HTMLElement | null>,
-  snapshot: MinimapSnapshot
-) {
-  const subscribe = useCallback(
-    (onChange: () => void) => {
-      const container = containerRef.current;
-      container?.addEventListener('scroll', onChange, { passive: true });
-      return () => container?.removeEventListener('scroll', onChange);
-    },
-    [containerRef]
-  );
-  return useSyncExternalStore(subscribe, () => {
-    const container = containerRef.current;
-    return container
-      ? positionText(snapshot, container.scrollLeft, container.scrollTop)
-      : '';
-  });
 }
 
 const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform);
