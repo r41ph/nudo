@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
+import { useIsFolding } from '@web/features/plot/components/board/plot-fold';
 import { PLOTLINE_COLOR_DOT_CLASS } from '@web/features/plot/constants/plot.constants';
 import {
   acceptsDrop,
@@ -40,6 +41,7 @@ export function PlotCard({
   const titleId = useId();
   const descriptionId = useId();
   const data: PlotDragData = { type: 'card', cell };
+  const folding = useIsFolding();
   const {
     attributes,
     listeners,
@@ -52,7 +54,7 @@ export function PlotCard({
     data,
     disabled: {
       draggable: !editable,
-      droppable: !editable || !acceptsDrop(dragType, 'card'),
+      droppable: !editable || folding || !acceptsDrop(dragType, 'card'),
     },
   });
   const describedBy = [

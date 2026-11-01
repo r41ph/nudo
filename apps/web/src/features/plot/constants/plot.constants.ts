@@ -50,6 +50,11 @@ export const PLOTLINE_COLOR_VAR = {
 export const PLOT_LABEL_COLUMN_WIDTH = 180;
 export const PLOT_BEAT_COLUMN_WIDTH = 240;
 
+// The longer of PlotFold's two transitions: content returning fades in for
+// 700ms after a 260ms delay; content leaving folds for 650ms after a 260ms
+// delay. Change both together.
+export const PLOT_FILTER_SETTLE_MS = 960;
+
 export const PLOT_MINIMAP_WIDTH = 256;
 export const PLOT_MINIMAP_MAX_HEIGHT = 120;
 export const PLOT_MINIMAP_MIN_FRAME = 12;

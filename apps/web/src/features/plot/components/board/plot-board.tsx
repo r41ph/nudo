@@ -21,6 +21,7 @@ import type { CardPlacement } from '@web/features/plot/components/card-editor/ca
 import { BeatHeader } from '@web/features/plot/components/board/beat-header';
 import { PlotCardFace } from '@web/features/plot/components/board/plot-card';
 import { PlotCell } from '@web/features/plot/components/board/plot-cell';
+import { PlotFold } from '@web/features/plot/components/board/plot-fold';
 import { PlotMinimap } from '@web/features/plot/components/board/plot-minimap';
 import { PlotlineLabel } from '@web/features/plot/components/board/plotline-label';
 import {
@@ -33,6 +34,7 @@ import {
 } from '@web/features/plot/constants/plot.constants';
 import { usePlotEditable } from '@web/features/plot/hooks/use-plot-editable';
 import { usePlotMutations } from '@web/features/plot/hooks/use-plot-mutations';
+import { usePlotPresence } from '@web/features/plot/hooks/use-plot-presence';
 import {
   cardDrop,
   dragTypeOf,
@@ -169,7 +171,11 @@ export function PlotBoard({
   const cells = groupCardsByCell(plot.cards);
   const countBy = (key: 'plotlineId' | 'beatId', id: string) =>
     plot.cards.filter((card) => card[key] === id).length;
-  const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${visible.beats.length}, ${PLOT_BEAT_COLUMN_WIDTH}px)`;
+  // Hidden rows and columns linger, inert, while they fold away; dragging and
+  // the minimap skip them.
+  const presence = usePlotPresence(plot, view);
+  // Auto tracks follow their cells' widths, which is what animates a column.
+  const gridTemplateColumns = `${PLOT_LABEL_COLUMN_WIDTH}px repeat(${presence.beats.length}, auto)`;
 
   return (
     <div className="flex h-svh min-w-0 flex-1 flex-col pt-10">
@@ -268,25 +274,30 @@ export function PlotBoard({
                     items={visible.beats.map((b) => b.id)}
                     strategy={horizontalListSortingStrategy}
                   >
-                    {visible.beats.map((beat) => (
-                      <BeatHeader
+                    {presence.beats.map(({ item: beat, phase }) => (
+                      <PlotFold
                         key={beat.id}
-                        beat={beat}
-                        editable={editable}
-                        hasCards={countBy('beatId', beat.id) > 0}
-                        isFirst={beat.id === beatIds[0]}
-                        isLast={beat.id === beatIds.at(-1)}
-                        onRename={(name) => updateBeat(beat.id, { name })}
-                        onMove={(delta) =>
-                          reorderBeats(moveId(beatIds, beat.id, delta))
-                        }
-                        onDelete={() => deleteBeat(beat)}
-                        dragType={dragType}
-                        isDropTarget={
-                          dragType === 'beat' && overKey === beat.id
-                        }
+                        column={phase}
+                        width={PLOT_BEAT_COLUMN_WIDTH}
                         className="sticky top-0 z-10"
-                      />
+                      >
+                        <BeatHeader
+                          beat={beat}
+                          editable={editable}
+                          hasCards={countBy('beatId', beat.id) > 0}
+                          isFirst={beat.id === beatIds[0]}
+                          isLast={beat.id === beatIds.at(-1)}
+                          onRename={(name) => updateBeat(beat.id, { name })}
+                          onMove={(delta) =>
+                            reorderBeats(moveId(beatIds, beat.id, delta))
+                          }
+                          onDelete={() => deleteBeat(beat)}
+                          dragType={dragType}
+                          isDropTarget={
+                            dragType === 'beat' && overKey === beat.id
+                          }
+                        />
+                      </PlotFold>
                     ))}
                   </SortableContext>
                 </div>
@@ -294,72 +305,82 @@ export function PlotBoard({
                   items={visible.plotlines.map((p) => p.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {visible.plotlines.map((plotline) => (
+                  {presence.plotlines.map(({ item: plotline, phase: row }) => (
                     <div key={plotline.id} role="row" className="contents">
-                      <PlotlineLabel
-                        plotline={plotline}
-                        cardCount={countBy('plotlineId', plotline.id)}
-                        editable={editable}
-                        isFirst={plotline.id === plotlineIds[0]}
-                        isLast={plotline.id === plotlineIds.at(-1)}
-                        onRename={(name) =>
-                          updatePlotline(plotline.id, { name })
-                        }
-                        onColorChange={(color) =>
-                          updatePlotline(plotline.id, { color })
-                        }
-                        onMove={(delta) =>
-                          reorderPlotlines(
-                            moveId(plotlineIds, plotline.id, delta)
-                          )
-                        }
-                        onDelete={() => deletePlotline(plotline)}
-                        dragType={dragType}
-                        isDropTarget={
-                          dragType === 'plotline' && overKey === plotline.id
-                        }
+                      <PlotFold
+                        row={row}
                         className={cn(
                           'sticky left-0 z-10 col-start-1',
                           COVER_GUTTER
                         )}
-                      />
-                      {visible.beats.map((beat) => (
-                        <PlotCell
-                          key={beat.id}
-                          cell={{ plotlineId: plotline.id, beatId: beat.id }}
-                          focusRequest={focusRequest}
+                      >
+                        <PlotlineLabel
+                          plotline={plotline}
+                          cardCount={countBy('plotlineId', plotline.id)}
+                          editable={editable}
+                          isFirst={plotline.id === plotlineIds[0]}
+                          isLast={plotline.id === plotlineIds.at(-1)}
+                          onRename={(name) =>
+                            updatePlotline(plotline.id, { name })
+                          }
+                          onColorChange={(color) =>
+                            updatePlotline(plotline.id, { color })
+                          }
+                          onMove={(delta) =>
+                            reorderPlotlines(
+                              moveId(plotlineIds, plotline.id, delta)
+                            )
+                          }
+                          onDelete={() => deletePlotline(plotline)}
                           dragType={dragType}
                           isDropTarget={
-                            dragType === 'card' &&
-                            overKey ===
-                              cellKey({
-                                plotlineId: plotline.id,
-                                beatId: beat.id,
-                              })
-                          }
-                          cards={
-                            cells.get(
-                              cellKey({
-                                plotlineId: plotline.id,
-                                beatId: beat.id,
-                              })
-                            ) ?? []
-                          }
-                          color={plotline.color}
-                          editable={editable}
-                          onAddCard={() =>
-                            openEditor(null, {
-                              plotlineId: plotline.id,
-                              beatId: beat.id,
-                            })
-                          }
-                          onOpenCard={(card) =>
-                            openEditor(card, {
-                              plotlineId: plotline.id,
-                              beatId: beat.id,
-                            })
+                            dragType === 'plotline' && overKey === plotline.id
                           }
                         />
+                      </PlotFold>
+                      {presence.beats.map(({ item: beat, phase: column }) => (
+                        <PlotFold
+                          key={beat.id}
+                          row={row}
+                          column={column}
+                          width={PLOT_BEAT_COLUMN_WIDTH}
+                        >
+                          <PlotCell
+                            cell={{ plotlineId: plotline.id, beatId: beat.id }}
+                            focusRequest={focusRequest}
+                            dragType={dragType}
+                            isDropTarget={
+                              dragType === 'card' &&
+                              overKey ===
+                                cellKey({
+                                  plotlineId: plotline.id,
+                                  beatId: beat.id,
+                                })
+                            }
+                            cards={
+                              cells.get(
+                                cellKey({
+                                  plotlineId: plotline.id,
+                                  beatId: beat.id,
+                                })
+                              ) ?? []
+                            }
+                            color={plotline.color}
+                            editable={editable}
+                            onAddCard={() =>
+                              openEditor(null, {
+                                plotlineId: plotline.id,
+                                beatId: beat.id,
+                              })
+                            }
+                            onOpenCard={(card) =>
+                              openEditor(card, {
+                                plotlineId: plotline.id,
+                                beatId: beat.id,
+                              })
+                            }
+                          />
+                        </PlotFold>
                       ))}
                     </div>
                   ))}

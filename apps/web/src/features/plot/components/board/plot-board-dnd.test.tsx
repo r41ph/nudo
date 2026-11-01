@@ -1,14 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   failMutation,
   holdMutation,
   holdPlotRefetch,
   renderBoard,
+  view,
+  ViewHandle,
 } from '@web/features/plot/test/plot-board-harness';
 import {
   PLOT_EDIT_MIN_WIDTH,
+  PLOT_FILTER_SETTLE_MS,
   PLOT_VIEW_STORAGE_PREFIX,
 } from '@web/features/plot/constants/plot.constants';
 import { setViewportWidth } from '@web/test/media';
@@ -334,7 +337,34 @@ describe('PlotBoard — dragging rows and columns with the keyboard', () => {
         expect.objectContaining({ ids: [MIDDLE.id, END.id, BEGINNING.id] })
       )
     );
-    expect(columnNames()).toEqual(['End', 'Beginning']);
+    // The view atom outlives a test: it mounts holding the last test's view,
+    // then reads storage, which the board animates like any filter change.
+    await waitFor(() => expect(columnNames()).toEqual(['End', 'Beginning']), {
+      timeout: PLOT_FILTER_SETTLE_MS * 2,
+    });
+    release();
+  });
+
+  // The folding column still renders, full size, in its old place.
+  it('skips a beat that is still folding away', async () => {
+    const user = userEvent.setup();
+    const { variables, release } = holdMutation('ReorderPlotBeats');
+    renderBoard(<ViewHandle />);
+    const handle = await screen.findByRole('button', {
+      name: 'Drag Beginning',
+    });
+
+    act(() => view.toggle('beat', MIDDLE.id));
+    handle.focus();
+    await user.keyboard('[Space]');
+    await user.keyboard('{ArrowRight}');
+    await user.keyboard('[Space]');
+
+    await waitFor(() =>
+      expect(variables).toHaveBeenCalledWith(
+        expect.objectContaining({ ids: [MIDDLE.id, END.id, BEGINNING.id] })
+      )
+    );
     release();
   });
 

@@ -8,6 +8,7 @@ import { PlusIcon } from 'lucide-react';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
 import { PlotCard } from '@web/features/plot/components/board/plot-card';
+import { useIsFolding } from '@web/features/plot/components/board/plot-fold';
 import {
   acceptsDrop,
   cellDroppableId,
@@ -52,11 +53,12 @@ export function PlotCell({
   onOpenCard,
 }: PlotCellProps) {
   const addRef = useRef<HTMLButtonElement>(null);
+  const folding = useIsFolding();
   const data: PlotDragData = { type: 'cell', cell };
   const { setNodeRef } = useDroppable({
     id: cellDroppableId(cell),
     data,
-    disabled: !editable || !acceptsDrop(dragType, 'cell'),
+    disabled: !editable || folding || !acceptsDrop(dragType, 'cell'),
   });
   const empty = cards.length === 0;
   const key = cellKey(cell);

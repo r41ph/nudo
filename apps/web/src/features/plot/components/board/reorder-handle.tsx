@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { Icon } from '@ui/components/icon/icon';
 import { Button } from '@ui/components/ui/button';
 import { cn } from '@ui/lib/utils';
+import { useIsFolding } from '@web/features/plot/components/board/plot-fold';
 import {
   acceptsDrop,
   type PlotDragType,
@@ -33,13 +34,14 @@ export function useReorderSortable({
   paused,
   activator = 'container',
 }: ReorderSortableArgs) {
+  const folding = useIsFolding();
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } =
     useSortable({
       id,
       data: { type },
       disabled: {
         draggable: !editable || paused,
-        droppable: !editable || !acceptsDrop(dragType, type),
+        droppable: !editable || folding || !acceptsDrop(dragType, type),
       },
     });
 
