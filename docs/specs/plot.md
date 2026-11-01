@@ -226,9 +226,9 @@ The first view, and the one V1 delivers.
 - Route: `/project/:projectId/plot`. The Tools rail item **Timeline** is
   renamed **Plot**, enabled and linked. Its active state comes from the
   route.
-- **Header:** "Plot" (serif) followed by a muted summary ("3 plotlines · 6
-  beats · 11 cards"). On the right are **Add beat** and **Add plotline**, and
-  from PR 6 a **View** menu.
+- **Header:** none. The board gets the whole main area. The summary and the
+  add actions (New plotline / New beat) live in the Plot sidebar
+  (`docs/specs/plot-sidebar.md`).
 - **Grid:** plotlines are rows and beats are columns. The plotline label
   column (200px) sticks to the left and shows the colour dot, name and card
   count. The beat header row sticks to the top. Beat columns are 240px
@@ -399,7 +399,9 @@ nothing has to be kept in sync.
 
 ## 12. Presentation controls (PR 6)
 
-A **View** `DropdownMenu` in the Plot header contains:
+A **View** `DropdownMenu` contains the items below. The Plot header it was
+planned for is gone (`docs/specs/plot-sidebar.md`), so where it lives is
+decided when PR 6 is specced.
 
 - **Show descriptions** (on by default)
 - **Connections:** Off / Selected / All
@@ -410,6 +412,8 @@ These are presentation preferences, not Plot data. They are stored in
 `try/catch`, with the defaults when storage is unavailable). This matches
 `use-daily-word-delta`. Losing them costs nothing, so they don't justify a
 server column. The toolbar stays the only preference stored on the server.
+The same key also holds the Plot sidebar filters (`hiddenPlotlineIds` /
+`hiddenBeatIds`).
 
 ## 13. Later views
 
@@ -425,8 +429,9 @@ It answers "What is this story?" and fits on one desktop screen.
   order (beat position, then plotline position, then card position). There
   are at most 9; at the limit the toggle explains why it is disabled. Editing
   a key beat opens the same card editor.
-- Navigation: a **Board / Overview** segmented control (`Tabs`) in the Plot
-  header, with the view in the URL (`…/plot/overview`).
+- Navigation: a **Board / Overview** segmented control (`Tabs`), with the
+  view in the URL (`…/plot/overview`). The Plot header it was planned for is
+  gone, so its home is decided when PR 8 is specced.
 
 ### 13.2 Timeline (PR 9)
 
@@ -447,7 +452,8 @@ It answers "What is this story?" and fits on one desktop screen.
   (`plot-structures.constants.ts`), each a list of beat names. There is no
   table.
 - Applying one, from the empty state ("or start from a structure…") or from
-  the header, calls `append_plot_beats(project_id, names text[])`. It
+  a board control (the planned header is gone, see §12), calls
+  `append_plot_beats(project_id, names text[])`. It
   **adds** beats and never deletes or renames the writer's own. The result is
   ordinary beats that the writer can change freely.
 - Everything in Plot works with Structure: None. Template-specific
