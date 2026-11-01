@@ -189,6 +189,27 @@ export function stubBoardLayout(initial: Viewport) {
       }),
   ];
 
+  // jsdom has no Element.scrollTo. The call is recorded (for `behavior`) and
+  // applied at once; a real smooth scroll would only end up in the same place.
+  const scrollToCalls = vi.fn<(options: ScrollToOptions) => void>();
+  Object.defineProperty(Element.prototype, 'scrollTo', {
+    configurable: true,
+    writable: true,
+    value(this: Element, options: ScrollToOptions) {
+      scrollToCalls(options);
+      const current = scrollOf(this);
+      setScroll(this, options.left ?? current.left, options.top ?? current.top);
+    },
+  });
+
+  function setScroll(container: Element, left: number, top: number) {
+    const max = maxScroll(container);
+    scroll.set(container, {
+      left: Math.min(Math.max(left, 0), max.left),
+      top: Math.min(Math.max(top, 0), max.top),
+    });
+  }
+
   vi.stubGlobal(
     'ResizeObserver',
     class {
@@ -215,15 +236,11 @@ export function stubBoardLayout(initial: Viewport) {
       });
     },
     // Clamped like a browser's scroll position.
-    scrollTo(container: Element, left: number, top: number) {
-      const max = maxScroll(container);
-      scroll.set(container, {
-        left: Math.min(Math.max(left, 0), max.left),
-        top: Math.min(Math.max(top, 0), max.top),
-      });
-    },
+    scrollTo: setScroll,
+    scrollToCalls,
     restore() {
       spies.forEach((spy) => spy.mockRestore());
+      delete (Element.prototype as Partial<Element>).scrollTo;
       vi.unstubAllGlobals();
     },
   };

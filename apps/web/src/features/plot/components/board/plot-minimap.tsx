@@ -1,4 +1,5 @@
 import { useRef, type RefObject } from 'react';
+import { cn } from '@ui/lib/utils';
 import {
   PLOTLINE_COLOR_VAR,
   PLOT_MINIMAP_MARK_MIN_HEIGHT,
@@ -11,6 +12,8 @@ import {
   minimapSignature,
   usePlotMinimap,
   usePlotMinimapFrame,
+  usePlotMinimapPointer,
+  usePlotMinimapWheel,
 } from '@web/features/plot/hooks/use-plot-minimap';
 import { markRect, minimapScale } from '@web/features/plot/lib/plot-minimap';
 import type { Plot, PlotlineColor } from '@web/features/plot/plot.types';
@@ -24,21 +27,31 @@ interface PlotMinimapProps {
   gridRef: RefObject<HTMLElement | null>;
   // The visible plot, as the board renders it.
   plot: Plot;
+  // A card, beat or plotline drag is in progress.
+  dragging: boolean;
 }
 
-export function PlotMinimap({ containerRef, gridRef, plot }: PlotMinimapProps) {
+export function PlotMinimap({
+  containerRef,
+  gridRef,
+  plot,
+  dragging,
+}: PlotMinimapProps) {
   const editable = usePlotEditable();
   const snapshot = usePlotMinimap(
     containerRef,
     gridRef,
     minimapSignature(plot, editable)
   );
+  const boxRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const layout = snapshot?.layout ?? null;
   const scale = layout
     ? minimapScale(layout, INNER_WIDTH, PLOT_MINIMAP_MAX_HEIGHT)
     : 0;
   usePlotMinimapFrame(containerRef, frameRef, layout, scale);
+  const pointer = usePlotMinimapPointer(containerRef, frameRef, layout, scale);
+  usePlotMinimapWheel(containerRef, boxRef, layout !== null);
   if (!snapshot || !layout) return null;
 
   const plotlineColors = new Map(plot.plotlines.map((p) => [p.id, p.color]));
@@ -48,54 +61,62 @@ export function PlotMinimap({ containerRef, gridRef, plot }: PlotMinimapProps) {
 
   return (
     <div
+      ref={boxRef}
       data-testid="plot-minimap"
-      className="absolute right-6 bottom-5 z-30 w-64 rounded-lg border border-border bg-popover px-3 py-2.5 shadow-lg dark:shadow-black/45"
+      className={cn(
+        'absolute right-6 bottom-5 z-30 w-64 rounded-lg border border-border bg-popover px-3 py-2.5 shadow-lg select-none dark:shadow-black/45',
+        // Keeps drops possible under the minimap.
+        dragging && 'pointer-events-none opacity-40'
+      )}
       style={{
         marginRight: snapshot.scrollbar.right,
         marginBottom: snapshot.scrollbar.bottom,
       }}
     >
-      <div
-        data-testid="plot-minimap-miniature"
-        aria-hidden
-        className="relative"
-        style={{
-          width: layout.regionWidth * scale,
-          height: layout.regionHeight * scale,
-        }}
-      >
-        {snapshot.marks.map(({ cardId, rect }) => {
-          const color = cardColors.get(cardId);
-          if (!color) return null;
-          const mark = markRect(
-            rect,
-            scale,
-            PLOT_MINIMAP_MARK_MIN_WIDTH,
-            PLOT_MINIMAP_MARK_MIN_HEIGHT
-          );
-          return (
-            <div
-              key={cardId}
-              data-testid="plot-minimap-mark"
-              className="absolute rounded-[1px] opacity-55 dark:opacity-80"
-              style={{
-                left: mark.x,
-                top: mark.y,
-                width: mark.width,
-                height: mark.height,
-                backgroundColor: PLOTLINE_COLOR_VAR[color],
-              }}
-            />
-          );
-        })}
+      {/* touch-none: a touch drag moves the frame instead of panning. */}
+      <div className="relative w-fit touch-none" {...pointer}>
+        <div
+          data-testid="plot-minimap-miniature"
+          aria-hidden
+          className="relative"
+          style={{
+            width: layout.regionWidth * scale,
+            height: layout.regionHeight * scale,
+          }}
+        >
+          {snapshot.marks.map(({ cardId, rect }) => {
+            const color = cardColors.get(cardId);
+            if (!color) return null;
+            const mark = markRect(
+              rect,
+              scale,
+              PLOT_MINIMAP_MARK_MIN_WIDTH,
+              PLOT_MINIMAP_MARK_MIN_HEIGHT
+            );
+            return (
+              <div
+                key={cardId}
+                data-testid="plot-minimap-mark"
+                className="absolute rounded-[1px] opacity-55 dark:opacity-80"
+                style={{
+                  left: mark.x,
+                  top: mark.y,
+                  width: mark.width,
+                  height: mark.height,
+                  backgroundColor: PLOTLINE_COLOR_VAR[color],
+                }}
+              />
+            );
+          })}
+        </div>
+        {/* Not inside the aria-hidden miniature: the frame is the accessible
+            control. */}
+        <div
+          ref={frameRef}
+          data-testid="plot-minimap-frame"
+          className="absolute top-0 left-0 cursor-grab rounded-[3px] bg-foreground/8 outline-foreground/60 hover:outline-[1.5px] focus-visible:outline-[1.5px] data-dragging:cursor-grabbing data-dragging:outline-[1.5px] dark:bg-foreground/10"
+        />
       </div>
-      {/* Not inside the aria-hidden miniature: the frame is the accessible
-          control. top/left match the box padding, so it lines up with it. */}
-      <div
-        ref={frameRef}
-        data-testid="plot-minimap-frame"
-        className="absolute top-2.5 left-3 cursor-grab rounded-[3px] bg-foreground/8 outline-foreground/60 hover:outline-[1.5px] focus-visible:outline-[1.5px] dark:bg-foreground/10"
-      />
     </div>
   );
 }

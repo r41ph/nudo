@@ -96,3 +96,17 @@ export const FrameScrolledToMiddleDark: Story = {
   ...FrameScrolledToMiddle,
   decorators: [dark],
 };
+
+// A card picked up with the keyboard: the minimap fades and lets drops through.
+export const CardDragInProgress: Story = {
+  args: { plot: makePlot(8, 15) },
+  play: async ({ canvasElement, userEvent }) => {
+    const card = canvasElement.querySelector<HTMLElement>('[data-card-id]')!;
+    card.focus();
+    await userEvent.keyboard('[Space]');
+  },
+};
+export const CardDragInProgressDark: Story = {
+  ...CardDragInProgress,
+  decorators: [dark],
+};

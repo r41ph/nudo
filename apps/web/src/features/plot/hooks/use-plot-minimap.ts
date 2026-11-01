@@ -2,12 +2,19 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useRef,
   useState,
+  type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from 'react';
-import { PLOT_MINIMAP_MIN_FRAME } from '@web/features/plot/constants/plot.constants';
+import {
+  PLOT_MINIMAP_MIN_FRAME,
+  PLOT_MINIMAP_WHEEL_LINE_HEIGHT,
+} from '@web/features/plot/constants/plot.constants';
 import {
   frameRect,
+  scrollForFrameAt,
+  scrollToCentreOn,
   viewFromScroll,
   type Extent,
   type MinimapLayout,
@@ -199,4 +206,132 @@ export function usePlotMinimapFrame(
       cancelAnimationFrame(frameId);
     };
   }, [containerRef, sync]);
+}
+
+const jumpBehavior = (): ScrollBehavior =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
+
+interface Grab {
+  pointerId: number;
+  // Where the frame was taken hold of, from its top-left corner.
+  dx: number;
+  dy: number;
+}
+
+// Pointer handlers for the element holding the miniature and the frame.
+// Pointer positions are read relative to that element.
+export function usePlotMinimapPointer(
+  containerRef: RefObject<HTMLElement | null>,
+  frameRef: RefObject<HTMLElement | null>,
+  layout: MinimapLayout | null,
+  scale: number
+) {
+  const grabRef = useRef<Grab | null>(null);
+
+  const read = (event: ReactPointerEvent<HTMLElement>) => {
+    const container = containerRef.current;
+    if (!container || !layout) return null;
+    const box = event.currentTarget.getBoundingClientRect();
+    return {
+      container,
+      m: viewFromScroll(layout, container.scrollLeft, container.scrollTop),
+      x: event.clientX - box.left,
+      y: event.clientY - box.top,
+    };
+  };
+
+  const onPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
+    if (event.button !== 0) return;
+    const at = read(event);
+    if (!at) return;
+    const { container, m, x, y } = at;
+    const frame = frameRect(m, scale, PLOT_MINIMAP_MIN_FRAME);
+    const onFrame =
+      x >= frame.x &&
+      x <= frame.x + frame.width &&
+      y >= frame.y &&
+      y <= frame.y + frame.height;
+    if (!onFrame) {
+      container.scrollTo({
+        ...scrollToCentreOn(m, scale, x, y, PLOT_MINIMAP_MIN_FRAME),
+        behavior: jumpBehavior(),
+      });
+    }
+    // After a jump the frame is centred on the pointer, so the drag that
+    // follows holds it by its centre.
+    grabRef.current = {
+      pointerId: event.pointerId,
+      dx: onFrame ? x - frame.x : frame.width / 2,
+      dy: onFrame ? y - frame.y : frame.height / 2,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    frameRef.current?.setAttribute('data-dragging', '');
+  };
+
+  const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    const grab = grabRef.current;
+    if (grab?.pointerId !== event.pointerId) return;
+    const at = read(event);
+    if (!at) return;
+    // Always direct: a smoothed drag would trail behind the pointer.
+    at.container.scrollTo({
+      ...scrollForFrameAt(
+        at.m,
+        scale,
+        at.x - grab.dx,
+        at.y - grab.dy,
+        PLOT_MINIMAP_MIN_FRAME
+      ),
+      behavior: 'auto',
+    });
+  };
+
+  const endDrag = (event: ReactPointerEvent<HTMLElement>) => {
+    if (grabRef.current?.pointerId !== event.pointerId) return;
+    grabRef.current = null;
+    frameRef.current?.removeAttribute('data-dragging');
+  };
+
+  return {
+    onPointerDown,
+    onPointerMove,
+    onPointerUp: endDrag,
+    onPointerCancel: endDrag,
+    onLostPointerCapture: endDrag,
+  };
+}
+
+// React's onWheel listener is passive, so it can't stop the page scrolling.
+export function usePlotMinimapWheel(
+  containerRef: RefObject<HTMLElement | null>,
+  boxRef: RefObject<HTMLElement | null>,
+  mounted: boolean
+) {
+  useEffect(() => {
+    const container = containerRef.current;
+    const box = boxRef.current;
+    if (!mounted || !container || !box) return;
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const unit =
+        event.deltaMode === WheelEvent.DOM_DELTA_LINE
+          ? PLOT_MINIMAP_WHEEL_LINE_HEIGHT
+          : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+            ? container.clientHeight
+            : 1;
+      let dx = event.deltaX * unit;
+      let dy = event.deltaY * unit;
+      // Some browsers already turn Shift+wheel into deltaX.
+      if (event.shiftKey && !dx) [dx, dy] = [dy, 0];
+      container.scrollTo({
+        left: container.scrollLeft + dx,
+        top: container.scrollTop + dy,
+        behavior: 'auto',
+      });
+    };
+    box.addEventListener('wheel', onWheel, { passive: false });
+    return () => box.removeEventListener('wheel', onWheel);
+  }, [containerRef, boxRef, mounted]);
 }
