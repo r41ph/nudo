@@ -87,8 +87,6 @@ export function PlotSidebarPanel() {
   // Starting a plot stays on the board's empty state, so there is nothing to
   // list or add yet.
   const started = plot.plotlines.length > 0 || plot.beats.length > 0;
-  const cardCount = (plotlineId: string) =>
-    plot.cards.filter((card) => card.plotlineId === plotlineId).length;
   // Hidden items are listed too, so the full order is what the lists show.
   const plotlineIds = plot.plotlines.map((p) => p.id);
   const beatIds = plot.beats.map((b) => b.id);
@@ -164,7 +162,6 @@ export function PlotSidebarPanel() {
                   visible={!isHidden('plotline', plotline.id)}
                   onToggle={() => toggle('plotline', plotline.id)}
                   color={PLOTLINE_COLOR_VAR[plotline.color]}
-                  cardCount={cardCount(plotline.id)}
                   scrollIntoViewOnMount={plotline.id === createdId}
                   reorder={reorderOf('plotline', plotline.id)}
                 />

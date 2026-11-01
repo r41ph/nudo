@@ -275,14 +275,11 @@ describe('PlotlineLabel — inline rename', () => {
     expect(variables).not.toHaveBeenCalled();
   });
 
-  it('keeps the card count while editing', async () => {
-    const user = userEvent.setup();
+  it('shows no card count beside the name', async () => {
     renderBoard();
 
-    await startRename(user);
+    const header = await screen.findByRole('rowheader', { name: /Main plot/ });
 
-    expect(
-      within(screen.getAllByRole('rowheader')[0]).getByText('3 cards')
-    ).toBeInTheDocument();
+    expect(within(header).queryByText(/\d+ cards?/)).toBeNull();
   });
 });

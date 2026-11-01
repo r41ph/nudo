@@ -47,7 +47,7 @@ export const PLOTLINE_COLOR_VAR = {
   color8: 'var(--plot-pink)',
 } as const satisfies Record<(typeof PLOTLINE_COLORS)[number], string>;
 
-export const PLOT_LABEL_COLUMN_WIDTH = 200;
+export const PLOT_LABEL_COLUMN_WIDTH = 180;
 export const PLOT_BEAT_COLUMN_WIDTH = 240;
 
 // Below this the board is view-only; the sidebar has already collapsed at

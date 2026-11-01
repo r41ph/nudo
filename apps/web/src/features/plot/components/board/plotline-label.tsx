@@ -26,7 +26,6 @@ import {
   PLOTLINE_COLOR_DOT_CLASS,
   PLOTLINE_COLOR_LABELS,
 } from '@web/features/plot/constants/plot.constants';
-import { countLabel } from '@web/features/plot/lib/plot.utils';
 import type { Plotline, PlotlineColor } from '@web/features/plot/plot.types';
 
 interface PlotlineLabelProps {
@@ -113,13 +112,10 @@ export function PlotlineLabel({
           className="-ml-1 flex-1"
         />
       ) : (
-        <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
+        <span className="min-w-0 flex-1 text-sm font-medium break-words text-foreground">
           {plotline.name}
         </span>
       )}
-      <span className="shrink-0 pt-0.5 text-xs text-muted-foreground">
-        {countLabel(cardCount, 'card')}
-      </span>
       {editable && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

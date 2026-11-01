@@ -9,7 +9,6 @@ import {
   useReorderSortable,
 } from '@web/features/plot/components/board/reorder-handle';
 import type { PlotDragType } from '@web/features/plot/lib/plot-dnd';
-import { countLabel } from '@web/features/plot/lib/plot.utils';
 
 export type PlotDropSide = 'before' | 'after';
 
@@ -27,8 +26,6 @@ interface PlotFilterRowProps {
   onToggle: () => void;
   // A CSS colour: the plotline's, or prose for beats.
   color?: string;
-  // Plotlines only; beats show no count.
-  cardCount?: number;
   // Set on the row just created from New, which may land below the fold.
   scrollIntoViewOnMount?: boolean;
   // Present only when the plot is editable.
@@ -54,7 +51,6 @@ export function PlotFilterRow({
   visible,
   onToggle,
   color = 'var(--prose)',
-  cardCount,
   scrollIntoViewOnMount = false,
   reorder,
 }: PlotFilterRowProps) {
@@ -123,12 +119,6 @@ export function PlotFilterRow({
           {name}
         </span>
       </Label>
-      {cardCount !== undefined && (
-        <span className="shrink-0 text-xs text-muted-foreground">
-          <span aria-hidden>{cardCount}</span>
-          <span className="sr-only">{countLabel(cardCount, 'card')}</span>
-        </span>
-      )}
     </li>
   );
 }

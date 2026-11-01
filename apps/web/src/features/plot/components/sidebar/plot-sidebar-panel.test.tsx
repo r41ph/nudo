@@ -35,15 +35,11 @@ const rowTexts = (list: HTMLElement) =>
     .map((item) => item.textContent);
 
 describe('PlotSidebarPanel', () => {
-  it('lists the plotlines with their card counts, in order', async () => {
+  it('lists the plotlines in order, without counts', async () => {
     renderPanel();
 
     const list = await screen.findByRole('list', { name: 'Plotlines' });
-    expect(rowTexts(list)).toEqual([
-      'Main plot33 cards',
-      'Ada11 card',
-      'New plotline',
-    ]);
+    expect(rowTexts(list)).toEqual(['Main plot', 'Ada', 'New plotline']);
   });
 
   it('lists the beats in order, without counts', async () => {
