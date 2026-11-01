@@ -407,6 +407,7 @@ export function PlotBoard({
             containerRef={scrollRef}
             gridRef={gridRef}
             plot={visible}
+            dragging={dragging !== null}
           />
         </div>
       )}

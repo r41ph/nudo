@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   act,
   fireEvent,
@@ -316,5 +316,128 @@ describe('PlotMinimap — frame', () => {
       expect(parseFloat(frame().style.width)).toBeCloseTo(157.5, 1)
     );
     expect(framePosition().x).toBeCloseTo(22.5, 1);
+  });
+});
+
+// The miniature sits at the viewport origin in the layout stub, so client
+// coordinates are miniature coordinates. At BOTH the frame is 134.17×80.5 and
+// travels 95.83×21.72 for a view travel of 300×68.
+describe('PlotMinimap — pointer and wheel', () => {
+  beforeEach(() => {
+    Object.assign(Element.prototype, {
+      setPointerCapture: () => {},
+      releasePointerCapture: () => {},
+      hasPointerCapture: () => false,
+    });
+  });
+
+  const scroll = () => ({
+    left: scrollContainer().scrollLeft,
+    top: scrollContainer().scrollTop,
+  });
+
+  it('scrolls both axes while the frame is dragged, keeping the grab point', async () => {
+    await renderMinimapBoard(BOTH);
+    await screen.findByTestId('plot-minimap');
+
+    fireEvent.pointerDown(frame(), { pointerId: 1, clientX: 50, clientY: 40 });
+    expect(scroll()).toEqual({ left: 0, top: 0 });
+
+    // Half the frame's travel on each axis: viewX 150 and viewY 34.
+    fireEvent.pointerMove(frame(), {
+      pointerId: 1,
+      clientX: 50 + 47.917,
+      clientY: 40 + 10.861,
+    });
+    expect(scroll().left).toBeCloseTo(190, 0);
+    expect(scroll().top).toBeCloseTo(34, 0);
+    expect(layout.scrollToCalls).toHaveBeenLastCalledWith(
+      expect.objectContaining({ behavior: 'auto' })
+    );
+
+    fireEvent.pointerUp(frame(), { pointerId: 1 });
+    fireEvent.pointerMove(frame(), { pointerId: 1, clientX: 0, clientY: 0 });
+    expect(scroll().left).toBeCloseTo(190, 0);
+  });
+
+  it('centres the view where the miniature is pressed, then drags from there', async () => {
+    await renderMinimapBoard(BOTH);
+    await screen.findByTestId('plot-minimap');
+
+    fireEvent.pointerDown(miniature(), {
+      pointerId: 1,
+      clientX: 150,
+      clientY: 60,
+    });
+    expect(layout.scrollToCalls).toHaveBeenLastCalledWith(
+      expect.objectContaining({ behavior: 'smooth' })
+    );
+    expect(scroll().left).toBeCloseTo(299.57, 1);
+    expect(scroll().top).toBeCloseTo(61.83, 1);
+
+    fireEvent.pointerMove(miniature(), {
+      pointerId: 1,
+      clientX: 160,
+      clientY: 60,
+    });
+    expect(scroll().left).toBeCloseTo(330.87, 1);
+    expect(scroll().top).toBeCloseTo(61.83, 1);
+  });
+
+  it('jumps instantly with reduced motion', async () => {
+    const matchMedia = window.matchMedia;
+    vi.spyOn(window, 'matchMedia').mockImplementation((query) =>
+      query.includes('prefers-reduced-motion')
+        ? ({ ...matchMedia(query), matches: true } as MediaQueryList)
+        : matchMedia(query)
+    );
+    await renderMinimapBoard(BOTH);
+    await screen.findByTestId('plot-minimap');
+
+    fireEvent.pointerDown(miniature(), {
+      pointerId: 1,
+      clientX: 150,
+      clientY: 60,
+    });
+
+    expect(layout.scrollToCalls).toHaveBeenLastCalledWith(
+      expect.objectContaining({ behavior: 'auto' })
+    );
+    vi.mocked(window.matchMedia).mockRestore();
+  });
+
+  it('scrolls the board with the wheel, never the page', async () => {
+    await renderMinimapBoard(BOTH);
+    const box = await screen.findByTestId('plot-minimap');
+
+    const notPrevented = fireEvent.wheel(box, { deltaX: 30, deltaY: 20 });
+
+    expect(notPrevented).toBe(false);
+    expect(scroll()).toEqual({ left: 30, top: 20 });
+  });
+
+  it('turns Shift+wheel into horizontal scrolling', async () => {
+    await renderMinimapBoard(BOTH);
+    const box = await screen.findByTestId('plot-minimap');
+
+    fireEvent.wheel(box, { deltaY: 50, shiftKey: true });
+
+    expect(scroll()).toEqual({ left: 50, top: 0 });
+  });
+
+  it('steps aside while a card is dragged', async () => {
+    const user = userEvent.setup();
+    await renderMinimapBoard(BOTH);
+    const box = await screen.findByTestId('plot-minimap');
+    const card = screen
+      .getAllByRole('button')
+      .find((b) => b.dataset.cardId !== undefined)!;
+
+    card.focus();
+    await user.keyboard('[Space]');
+    expect(box).toHaveClass('pointer-events-none', 'opacity-40');
+
+    await user.keyboard('{Escape}');
+    expect(box).not.toHaveClass('pointer-events-none');
   });
 });

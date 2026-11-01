@@ -56,6 +56,8 @@ export const PLOT_MINIMAP_MIN_FRAME = 12;
 export const PLOT_MINIMAP_MARK_MIN_HEIGHT = 2;
 export const PLOT_MINIMAP_MARK_MIN_WIDTH = 4;
 export const PLOT_MINIMAP_ANNOUNCE_DELAY = 300;
+// Firefox reports mouse wheels in lines (deltaMode 1), not pixels.
+export const PLOT_MINIMAP_WHEEL_LINE_HEIGHT = 16;
 
 // Below this the board is view-only; the sidebar has already collapsed at
 // 1280px, leaving room for the label column and about three beats.

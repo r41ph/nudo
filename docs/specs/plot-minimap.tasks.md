@@ -73,7 +73,7 @@ without React state.
 **Scope:** S
 
 ### Checkpoint: miniature and frame
-- [ ] Tests pass; the board e2e still passes; it looks right in Storybook in both themes.
+- [x] Tests pass; the board e2e still passes; it looks right in Storybook in both themes.
 
 ## Phase 3: Navigation
 
@@ -82,15 +82,15 @@ without React state.
 **Description:** Make the minimap a pointer and wheel control for the board.
 
 **Acceptance criteria:**
-- [ ] Dragging the frame scrolls on both axes, live, keeping the grab point under the pointer (no jump), with pointer capture. `cursor-grabbing` and the outline show while dragging.
-- [ ] Pressing elsewhere centres the view there (smooth unless reduced motion); holding continues as a drag.
-- [ ] A non-passive `wheel` listener maps `deltaX`/`deltaY` onto the board, turns Shift+wheel into horizontal, and calls `preventDefault`.
-- [ ] While `dragging` is set the minimap is `pointer-events-none opacity-40`.
-- [ ] Component tests: drag sets `scrollLeft`/`scrollTop` with the offset kept; press centres; wheel scrolls and is default-prevented; reduced motion uses `behavior: 'auto'`; dimmed during a card drag.
-- [ ] Story: card drag in progress.
+- [x] Dragging the frame scrolls on both axes, live, keeping the grab point under the pointer (no jump), with pointer capture. `cursor-grabbing` and the outline show while dragging.
+- [x] Pressing elsewhere centres the view there (smooth unless reduced motion); holding continues as a drag.
+- [x] A non-passive `wheel` listener maps `deltaX`/`deltaY` onto the board, turns Shift+wheel into horizontal, and calls `preventDefault`.
+- [x] While `dragging` is set the minimap is `pointer-events-none opacity-40`.
+- [x] Component tests: drag sets `scrollLeft`/`scrollTop` with the offset kept; press centres; wheel scrolls and is default-prevented; reduced motion uses `behavior: 'auto'`; dimmed during a card drag.
+- [x] Story: card drag in progress.
 
 **Verification:**
-- [ ] `pnpm test:web plot-minimap plot-board-dnd`
+- [x] `pnpm test:web plot-minimap plot-board-dnd`
 
 **Dependencies:** Task 3
 **Files:** `components/board/plot-minimap.tsx` (+ test), `hooks/use-plot-minimap.ts`, stories
