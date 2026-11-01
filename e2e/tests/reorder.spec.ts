@@ -1,10 +1,14 @@
 import { expect, type Page, test } from '@playwright/test';
 import { registerUser } from '../fixtures/auth';
-import { dragBefore } from '../fixtures/dnd';
+import { dragBefore, pointerDrag } from '../fixtures/dnd';
+import {
+  addPlotline,
+  graphqlOperation,
+  signInAndStartPlot,
+} from '../fixtures/plot';
 
-// Journey 3: add a folder and a document at the root of the outline, drag the
-// document to the top, and confirm the new order survives a reload. A fresh
-// user keeps earlier runs' nodes out of the tree.
+// Journey 3: reordered outline rows and plotlines survive a reload. A fresh
+// user keeps earlier runs' nodes out of the tree and the plot.
 test.use({ storageState: { cookies: [], origins: [] } });
 
 const DOCUMENT_URL = /\/project\/[0-9a-f-]+\/document\/[0-9a-f-]+$/i;
@@ -64,4 +68,33 @@ test('reordered outline rows persist across a reload', async ({
   await expect
     .poll(() => rootOrder(page))
     .toEqual(['Untitled', 'Chapter One', 'Untitled Folder']);
+});
+
+test('a plotline reordered in the plot sidebar keeps the board order after a reload', async ({
+  page,
+  request,
+}) => {
+  const board = await signInAndStartPlot(page, request);
+  await addPlotline(page);
+  await expect(board.getByRole('rowheader')).toHaveText([
+    /Main plot/,
+    /Untitled plotline/,
+  ]);
+
+  const plotlines = page.getByRole('list', { name: 'Plotlines' });
+  const saved = graphqlOperation(page, 'ReorderPlotlines');
+  await pointerDrag(
+    page,
+    plotlines.getByRole('button', { name: 'Drag Untitled plotline' }),
+    plotlines
+      .getByRole('listitem')
+      .filter({ has: page.getByRole('checkbox', { name: 'Show Main plot' }) })
+  );
+  await saved;
+
+  await page.reload();
+  await expect(board.getByRole('rowheader')).toHaveText([
+    /Untitled plotline/,
+    /Main plot/,
+  ]);
 });
