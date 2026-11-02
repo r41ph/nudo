@@ -19,9 +19,8 @@ describe('AppRoutes', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Plot' })
     ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Plot' })).toHaveAttribute(
-      'aria-current',
-      'page'
-    );
+    expect(
+      screen.getByRole('button', { name: 'View: Plot' })
+    ).toBeInTheDocument();
   });
 });

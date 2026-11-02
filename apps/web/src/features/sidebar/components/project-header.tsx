@@ -1,7 +1,7 @@
 import { SidebarHeader } from '@ui/components/ui/sidebar';
 import { Button } from '@ui/components/ui/button';
 import { Skeleton } from '@ui/components/ui/skeleton';
-import { ToolList } from '@web/features/sidebar/components/tool-list';
+import { ViewSwitcher } from '@web/features/sidebar/components/view-switcher';
 import { useActiveProject } from '@web/shared/hooks/use-projects';
 import nudoLogo from '@web/assets/nudo-A-Editorial-Bold-transparent.svg';
 import nudoDarkLogo from '@web/assets/nudo-A-Editorial-Bold-dark-transparent.svg';
@@ -62,7 +62,7 @@ export function ProjectHeaderView({
           </h2>
         )}
       </div>
-      <ToolList />
+      <ViewSwitcher />
     </SidebarHeader>
   );
 }
