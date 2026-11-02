@@ -12,6 +12,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  ChevronsUpDownIcon,
   CloudIcon,
   CodeIcon,
   FileTextIcon,
@@ -41,10 +42,12 @@ import {
   Plus,
   Quote,
   SettingsIcon,
+  SquareChartGanttIcon,
   StrikethroughIcon,
   SunIcon,
   Trash2Icon,
   UnderlineIcon,
+  UsersIcon,
   XIcon,
 } from 'lucide-react';
 
@@ -73,6 +76,7 @@ const icons = {
   check: CheckIcon,
   chevronDown: ChevronDownIcon,
   chevronRight: ChevronRightIcon,
+  chevronsUpDown: ChevronsUpDownIcon,
   circleDashed: CircleDashedIcon,
   cloud: CloudIcon,
   fileText: FileTextIcon,
@@ -93,8 +97,10 @@ const icons = {
   panelLeft: PanelLeftIcon,
   panelRight: PanelRightIcon,
   settings: SettingsIcon,
+  squareChartGantt: SquareChartGanttIcon,
   sun: SunIcon,
   trash: Trash2Icon,
+  users: UsersIcon,
   x: XIcon,
 } as const;
 

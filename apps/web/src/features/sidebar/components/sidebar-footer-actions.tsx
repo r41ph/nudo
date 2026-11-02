@@ -18,7 +18,10 @@ import {
   ProjectsSubmenu,
   type ProjectDialog,
 } from '@web/features/project/components/projects-submenu';
-import { ACCOUNT_MENU_ITEM } from '@web/features/sidebar/sidebar.constants';
+import {
+  ACCOUNT_MENU_ITEM,
+  SIDEBAR_MENU_SURFACE,
+} from '@web/features/sidebar/sidebar.constants';
 import { useDarkMode } from '@web/shared/hooks/use-theme';
 
 function initialsFor(displayName: string | null, email: string): string {
@@ -107,7 +110,7 @@ export function SidebarFooterActions() {
             align="start"
             side="top"
             sideOffset={6}
-            className="w-[259px] rounded-xl border-border bg-popover p-1.5 shadow-[0_8px_28px_rgba(26,25,23,0.08)]"
+            className={`w-[259px] ${SIDEBAR_MENU_SURFACE}`}
             onCloseAutoFocus={() => {
               if (!pendingDialog.current) return;
               setProjectDialog(pendingDialog.current);
