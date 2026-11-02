@@ -26,7 +26,8 @@ export async function signInAndStartPlot(
   await page.getByRole('button', { name: 'Sign In' }).click();
   await page.waitForURL(/\/project\/[0-9a-f-]+\/document\//i);
 
-  await page.getByRole('link', { name: 'Plot' }).click();
+  await page.getByRole('button', { name: 'View: Story' }).click();
+  await page.getByRole('menuitem', { name: 'Plot' }).click();
   await page.getByRole('button', { name: 'Start plot' }).click();
   const board = page.getByRole('table', { name: 'Plot board' });
   await expect(board.getByRole('columnheader')).toHaveText([
