@@ -1,6 +1,6 @@
 # Spec: Sidebar view switcher
 
-> Status: Approved
+> Status: In review (PR #55 — https://github.com/r41ph/nudo/pull/55)
 > Branch: `feat/sidebar-view-switcher`
 > Design handoff: `docs/design-handoffs/sidebar-view-switcher/README.md` (prototype `combined-v2.dc.html`, screens `01-view-switcher-open.png` and `04-story-view.png`). Where the prototype and this spec disagree, this spec wins (see §10: no counts, a different Plot icon, links instead of radio items).
 > Related: `docs/specs/plot-sidebar.md` (PR #51, merged). It shipped the Plot sidebar panel, filtering, sidebar reordering and the board-header removal that the handoff also covers. **Those parts are out of scope here.**
