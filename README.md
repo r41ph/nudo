@@ -24,10 +24,6 @@ A full-stack writing application built for long-form writing. Writers organise a
     <td align="center"><a href="docs/screenshots/focus-story.png"><img src="docs/screenshots/focus-story.png" alt="Editor in focus mode with the panels hidden" /></a><br /><sub>Focus mode: writing</sub></td>
     <td align="center"><a href="docs/screenshots/focus-plot.png"><img src="docs/screenshots/focus-plot.png" alt="Plot board in focus mode" /></a><br /><sub>Focus mode: plot</sub></td>
   </tr>
-  <tr>
-    <td align="center"><a href="docs/screenshots/dark-story.png"><img src="docs/screenshots/dark-story.png" alt="Document details and outline row menu in dark mode" /></a><br /><sub>Dark mode: story</sub></td>
-    <td align="center"><a href="docs/screenshots/dark-plot.png"><img src="docs/screenshots/dark-plot.png" alt="Plot board in dark mode" /></a><br /><sub>Dark mode: plot</sub></td>
-  </tr>
 </table>
 
 ## Features
@@ -35,17 +31,20 @@ A full-stack writing application built for long-form writing. Writers organise a
 - **Rich text editor** — powered by Plate.js. Supports headings, bold, italic, underline, strikethrough, blockquotes, code blocks, font size and colour, highlight, and text alignment
 - **Customisable toolbar** — users choose which tools appear in their toolbar; preferences are persisted per user
 - **Comments and suggestions** — inline annotations and tracked suggestions for reviewing and collaborating on documents
-- **Projects** — each manuscript is a project that owns its outline; routes, the outline and word counts are scoped to the active project. New accounts start with one project (switching between several is planned)
-- **Outline** — create, rename, and delete documents and folders, nest them, and reorder them with drag and drop
+- **Projects** — each manuscript is a project with its own outline, plot board and word counts. Create, rename, delete and switch between projects from the account menu
+- **Story and Plot views** — a dropdown in the sidebar switches between writing the manuscript and planning it
+- **Outline** — create, rename, and delete documents, folders and part separators, nest them, and reorder them with drag and drop. Hovering a row reveals its word count and status
+- **Plot board** — plan the story on a grid with plotlines as rows and beats as columns. Add cards with a title and description, drag cards between cells, and reorder plotlines and beats
+- **Plot navigation** — show or hide individual plotlines and beats from the sidebar, and get around large boards with a minimap
 - **Document inspector** — a side panel for editing a document's title, status, summary, and POV, with POV suggestions drawn from the rest of the manuscript
-- **Focus mode and dark mode** — hide the surrounding chrome while writing; switch between light and dark themes from the sidebar
+- **Focus mode and dark mode** — hide the surrounding chrome while writing or plotting; switch between light and dark themes from the sidebar
 - **Responsive layout** — the sidebar and inspector slide in as overlays on narrower screens
 - **Auto-save** — content is saved automatically with a 2.5 s debounce; a status indicator shows save state
 - **Document versioning** — previous versions are stored automatically on save (restore exists as a database function but is not yet surfaced in the UI)
-- **Authentication** — JWT-based login and registration with access/refresh token rotation
-- **Word count** — live word counts for the current document and the whole manuscript
+- **Authentication** — JWT-based login and registration
+- **Word count** — live word counts for the current document, today's writing, and the whole manuscript
 
-**In progress:** a Plot tool for arranging plotlines and beats alongside the manuscript.
+**Planned:** a Characters view and document notes. Both already appear in the UI as unavailable.
 
 ---
 
