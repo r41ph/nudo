@@ -46,7 +46,7 @@ describe('ViewSwitcher', () => {
     ).toBeInTheDocument();
   });
 
-  it('lists Story, Characters and Plot with no counts, Characters disabled', async () => {
+  it('lists Story, Characters and Plot with Characters disabled', async () => {
     const user = userEvent.setup();
     renderAt(DOCUMENT_ROUTE);
 
