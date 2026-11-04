@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "FSL-1.1-ALv2",
   "packageManager": "pnpm@10.26.1",
   "peerDependencies": {
     "react": "^19.2.3",

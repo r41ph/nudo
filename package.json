@@ -28,7 +28,7 @@
   },
   "keywords": [],
   "author": "r41ph",
-  "license": "MIT",
+  "license": "FSL-1.1-ALv2",
   "packageManager": "pnpm@11.3.0",
   "lint-staged": {
     "*.{ts,tsx,mts,mjs,js}": [

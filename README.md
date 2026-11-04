@@ -1,9 +1,34 @@
 <img src="apps/web/src/assets/nudo-A-Editorial-Bold-transparent.svg" alt="nudo logo" height="32" />
 
 [![CI](https://github.com/r41ph/nudo/actions/workflows/ci.yml/badge.svg)](https://github.com/r41ph/nudo/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: FSL-1.1-ALv2](https://img.shields.io/badge/License-FSL--1.1--ALv2-blue.svg)](LICENSE)
 
 A full-stack writing application built for long-form writing. Writers organise a manuscript into an outline of chapters and folders, write in a rich text editor with a customisable toolbar, track each document's status, summary and POV, and have their work saved automatically as they type.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%" align="center"><a href="docs/screenshots/editor.png"><img src="docs/screenshots/editor.png" alt="Editor with a chapter open beside the manuscript outline" /></a><br /><sub>Outline and editor</sub></td>
+    <td width="50%" align="center"><a href="docs/screenshots/story.png"><img src="docs/screenshots/story.png" alt="Outline row menu open on Details, with the details panel beside the editor" /></a><br /><sub>Document details</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="docs/screenshots/plot.png"><img src="docs/screenshots/plot.png" alt="Plot board with plotlines as rows and beats as columns" /></a><br /><sub>Plot board</sub></td>
+    <td align="center"><a href="docs/screenshots/card-editor.png"><img src="docs/screenshots/card-editor.png" alt="Dialog for editing a plot card" /></a><br /><sub>Plot card editor</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="docs/screenshots/comments.png"><img src="docs/screenshots/comments.png" alt="Comment thread open on highlighted text in the editor" /></a><br /><sub>Comments and suggestions</sub></td>
+    <td align="center"><a href="docs/screenshots/toolbar.png"><img src="docs/screenshots/toolbar.png" alt="Dialog for choosing which tools appear in the toolbar" /></a><br /><sub>Customisable toolbar</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="docs/screenshots/focus-story.png"><img src="docs/screenshots/focus-story.png" alt="Editor in focus mode with the panels hidden" /></a><br /><sub>Focus mode: writing</sub></td>
+    <td align="center"><a href="docs/screenshots/focus-plot.png"><img src="docs/screenshots/focus-plot.png" alt="Plot board in focus mode" /></a><br /><sub>Focus mode: plot</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="docs/screenshots/dark-story.png"><img src="docs/screenshots/dark-story.png" alt="Document details and outline row menu in dark mode" /></a><br /><sub>Dark mode: story</sub></td>
+    <td align="center"><a href="docs/screenshots/dark-plot.png"><img src="docs/screenshots/dark-plot.png" alt="Plot board in dark mode" /></a><br /><sub>Dark mode: plot</sub></td>
+  </tr>
+</table>
 
 ## Features
 
