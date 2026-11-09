@@ -1,6 +1,6 @@
 # Spec: Notes tab
 
-> Status: Draft
+> Status: In review (PR #56 — https://github.com/r41ph/nudo/pull/56)
 > Branch: `feat/notes-tab`
 > Card: https://cloud.rgalan.es/index.php/apps/deck/board/6/card/171
 > Depends on: `docs/specs/document-details.md` ("Notes tab" section). This spec settles its open question #2: Notes stays, and so does the tab strip.
