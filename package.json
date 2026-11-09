@@ -11,7 +11,6 @@
     "lint": "eslint .",
     "lint:workspaces": "pnpm --filter './apps/*' lint && pnpm --filter './packages/*' lint",
     "db:migrate": "pnpm --filter @nudo/api migrate",
-    "db:migrate:down": "pnpm --filter @nudo/api migrate:down",
     "docker:up": "docker compose up -d --wait",
     "docker:down": "docker compose down",
     "test": "pnpm --filter './apps/*' test && pnpm --filter './packages/*' test",
