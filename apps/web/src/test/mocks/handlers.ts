@@ -253,6 +253,7 @@ export const handlers = [
             status: null,
             summary: '',
             pov: '',
+            notes: '',
             ...patch,
             updatedAt: new Date().toISOString(),
           },

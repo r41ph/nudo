@@ -17,6 +17,7 @@ const DETAILS: DocumentDetails = {
   status: null,
   summary: '',
   pov: '',
+  notes: '',
   createdAt: '2026-09-01T09:00:00Z',
   updatedAt: '2026-09-01T09:00:00Z',
 };
@@ -224,6 +225,94 @@ describe('useDocumentDetailsSave — summary and pov', () => {
     await settle();
 
     expect(patches).toEqual([{ summary: 'Mara arrives.', status: 'done' }]);
+  });
+});
+
+describe('useDocumentDetailsSave — notes', () => {
+  it('starts from the saved note', () => {
+    const { result } = setup({ ...DETAILS, notes: 'Check the tide tables.' });
+
+    expect(result.current.notes).toBe('Check the tide tables.');
+  });
+
+  it('waits for a 1s pause, then sends the note exactly as typed', async () => {
+    const patches = captureSaves();
+    const { result } = setup();
+    const note = '  Check the tide tables.\n\n';
+
+    act(() => result.current.setNotes('  Check'));
+    act(() => result.current.setNotes(note));
+    await act(() => vi.advanceTimersByTimeAsync(900));
+    expect(patches).toEqual([]);
+
+    await act(() => vi.advanceTimersByTimeAsync(100));
+    await settle();
+
+    expect(patches).toEqual([{ notes: note }]);
+    expect(result.current.notes).toBe(note);
+  });
+
+  it('combines a note and a summary typed in the same pause into one patch', async () => {
+    const patches = captureSaves();
+    const { result } = setup();
+
+    act(() => result.current.setSummary('Mara arrives.'));
+    act(() => result.current.setNotes('Check the tide tables.'));
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+    await settle();
+
+    expect(patches).toEqual([
+      { summary: 'Mara arrives.', notes: 'Check the tide tables.' },
+    ]);
+  });
+
+  it('sends a pending note when the panel unmounts', async () => {
+    const patches = captureSaves();
+    const { result, unmount } = setup();
+
+    act(() => result.current.setNotes('Half a thought'));
+    unmount();
+    await settle();
+
+    expect(patches).toEqual([{ notes: 'Half a thought' }]);
+  });
+
+  it('retries a failed note with the latest text', async () => {
+    const patches = captureSaves(1);
+    const { result } = setup();
+    act(() => result.current.setNotes('First'));
+    act(() => result.current.flush());
+    await settle();
+    expect(result.current.saveState).toBe('error');
+    expect(result.current.notes).toBe('First');
+
+    act(() => result.current.setNotes('First, then more'));
+    act(() => result.current.retry());
+    await settle();
+
+    expect(patches).toEqual([
+      { notes: 'First' },
+      { notes: 'First, then more' },
+    ]);
+    expect(result.current.saveState).toBe('saved');
+  });
+
+  it('merges the saved note into the document cache', async () => {
+    captureSaves();
+    queryClient.setQueryData(['document', 'd1'], { documentById: DETAILS });
+    const { result } = setup();
+
+    act(() => result.current.setNotes('Check the tide tables.'));
+    act(() => result.current.flush());
+    await settle();
+
+    expect(queryClient.getQueryData(['document', 'd1'])).toEqual({
+      documentById: {
+        ...DETAILS,
+        notes: 'Check the tide tables.',
+        updatedAt: SAVED_AT,
+      },
+    });
   });
 });
 

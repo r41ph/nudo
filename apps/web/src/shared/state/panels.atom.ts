@@ -61,6 +61,12 @@ export const setInspectorCollapsedAtom = atom(
   }
 );
 
+export const setInspectorTabAtom = atom(null, (get, set, tab: InspectorTab) => {
+  const state = get(inspectorAtom);
+  if (!state.isOpen) return;
+  set(inspectorAtom, { ...state, tab });
+});
+
 export const setOutlineOpenAtom = atom(null, (get, set, open: boolean) => {
   set(outlineOpenAtom, open);
   const inspector = get(inspectorAtom);

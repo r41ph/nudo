@@ -1,4 +1,4 @@
-import { memo, useEffect, useId } from 'react';
+import { useId } from 'react';
 import { Icon } from '@ui/components/icon/icon';
 import { Button } from '@ui/components/ui/button';
 import {
@@ -14,10 +14,8 @@ import {
   POV_MAX,
 } from '@web/features/document/constants/inspector.constants';
 import type { DocumentDetails } from '@web/features/document/document.types';
-import { DetailsSaveStatus } from '@web/features/document/components/details-save-status';
-import { useDocumentDetailsSave } from '@web/features/document/hooks/use-document-details-save';
+import type { DocumentDetailsSave } from '@web/features/document/hooks/use-document-details-save';
 import { usePovSuggestions } from '@web/features/document/hooks/use-pov-suggestions';
-import { usePanels } from '@web/shared/hooks/use-panels';
 import {
   EmptyStatusDot,
   STATUS_LABELS,
@@ -30,20 +28,13 @@ const LABEL = 'text-[12px] font-semibold text-prose';
 // `md:` repeated because the primitives set their own `md:text-sm`.
 const CONTROL = 'text-[13px] md:text-[13px] text-foreground';
 
-export const DocumentInspectorDetails = memo(function DocumentInspectorDetails({
+export function DocumentInspectorDetails({
   details,
+  save,
 }: {
   details: DocumentDetails;
+  save: DocumentDetailsSave;
 }) {
-  const save = useDocumentDetailsSave(details);
-  const { inspectorExpanded } = usePanels();
-  const { flush } = save;
-
-  // Collapsing below 1280px keeps the panel mounted, so the unmount flush
-  // never runs; send what's pending as it slides away.
-  useEffect(() => {
-    if (!inspectorExpanded) flush();
-  }, [inspectorExpanded, flush]);
   const suggestions = usePovSuggestions();
   const id = useId();
   const ids = {
@@ -148,8 +139,6 @@ export const DocumentInspectorDetails = memo(function DocumentInspectorDetails({
           </datalist>
         </div>
       )}
-
-      <DetailsSaveStatus state={save.saveState} onRetry={save.retry} />
     </div>
   );
-});
+}

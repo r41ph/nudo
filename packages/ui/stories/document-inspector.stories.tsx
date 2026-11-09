@@ -17,6 +17,7 @@ const DOC: DocumentDetails = {
   summary:
     'Mara arrives in Lisbon and discovers the apartment has been broken into.',
   pov: 'Mara',
+  notes: '',
   createdAt: '2025-09-12T10:24:00Z',
   updatedAt: '2025-09-15T14:03:00Z',
 };
@@ -131,6 +132,40 @@ export const Saved: Story = {
 export const SaveFailed: Story = {
   beforeEach: answerSaves('failure'),
   play: pickStatus,
+};
+
+const openNotes: Story['play'] = async ({ canvas, userEvent }) => {
+  await userEvent.click(canvas.getByRole('tab', { name: 'Notes' }));
+};
+
+export const NotesEmpty: Story = {
+  play: openNotes,
+};
+
+export const NotesWithLongText: Story = {
+  args: {
+    details: {
+      ...DOC,
+      notes: Array.from(
+        { length: 60 },
+        (_, i) =>
+          `${i + 1}. Check the tide tables for the night of the crossing.`
+      ).join('\n'),
+    },
+  },
+  play: openNotes,
+};
+
+export const NotesSaveFailed: Story = {
+  beforeEach: answerSaves('failure'),
+  play: async (context) => {
+    await openNotes(context);
+    await context.userEvent.type(
+      context.canvas.getByRole('textbox', { name: 'Notes' }),
+      'Ask Ines about 1974.'
+    );
+    await context.canvas.findByText("Couldn't save", {}, { timeout: 2000 });
+  },
 };
 
 export const PovWithSuggestions: Story = {

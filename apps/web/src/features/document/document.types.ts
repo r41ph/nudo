@@ -34,6 +34,7 @@ export interface DocumentDetails {
   status: NodeStatus | null;
   summary: string;
   pov: string;
+  notes: string;
   createdAt: string;
   updatedAt: string;
 }
