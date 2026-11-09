@@ -23,6 +23,7 @@ const DETAILS: DocumentDetails = {
   status: null,
   summary: '',
   pov: '',
+  notes: '',
   createdAt: '2026-09-01T09:00:00Z',
   updatedAt: '2026-09-06T10:25:00Z',
 };

@@ -12,6 +12,7 @@ export const GET_DOCUMENT = gql`
       status
       summary
       pov
+      notes
       createdAt
       updatedAt
     }
@@ -122,6 +123,7 @@ export const UPDATE_DOCUMENT_DETAILS = gql`
         status
         summary
         pov
+        notes
         updatedAt
       }
     }

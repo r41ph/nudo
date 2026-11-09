@@ -17,6 +17,7 @@ const DOC: DocumentDetails = {
   status: 'drafting',
   summary: '',
   pov: '',
+  notes: '',
   createdAt: '2025-09-12T10:24:00Z',
   updatedAt: '2025-09-15T14:03:00Z',
 };
@@ -68,14 +69,14 @@ const trigger = () =>
   screen.getByRole('button', { name: 'Actions for The Arrival' });
 
 describe('DocumentInspector — tabs', () => {
-  it('opens on Details with Notes visible but disabled', () => {
+  it('opens on Details with Notes enabled', () => {
     setup();
 
     expect(screen.getByRole('tab', { name: 'Details' })).toHaveAttribute(
       'aria-selected',
       'true'
     );
-    expect(screen.getByRole('tab', { name: 'Notes' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Notes' })).toBeEnabled();
   });
 
   it('shows read-only Created and Updated timestamps', () => {

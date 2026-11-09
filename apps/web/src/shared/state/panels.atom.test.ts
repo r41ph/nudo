@@ -8,6 +8,7 @@ import {
   openInspectorAtom,
   outlineOpenAtom,
   setInspectorCollapsedAtom,
+  setInspectorTabAtom,
   setOutlineOpenAtom,
 } from '@web/shared/state/panels.atom';
 
@@ -57,6 +58,52 @@ describe('inspectorAtom', () => {
       isOpen: true,
       collapsed: false,
     });
+  });
+
+  it('switches tab without touching the rest of the state', () => {
+    const store = createStore();
+    store.set(openInspectorAtom);
+    store.set(setInspectorCollapsedAtom, true);
+
+    store.set(setInspectorTabAtom, 'notes');
+
+    expect(store.get(inspectorAtom)).toEqual({
+      isOpen: true,
+      collapsed: true,
+      tab: 'notes',
+    });
+  });
+
+  it('ignores a tab switch while closed', () => {
+    const store = createStore();
+
+    store.set(setInspectorTabAtom, 'notes');
+
+    expect(store.get(inspectorAtom)).toEqual(CLOSED);
+  });
+
+  it('keeps the tab through a collapse and re-expand', () => {
+    const store = createStore();
+    store.set(openInspectorAtom);
+    store.set(setInspectorTabAtom, 'notes');
+
+    store.set(setInspectorCollapsedAtom, true);
+    store.set(setInspectorCollapsedAtom, false);
+
+    expect(store.get(inspectorAtom).tab).toBe('notes');
+  });
+
+  it('goes back to Details on an explicit open and after closing', () => {
+    const store = createStore();
+    store.set(openInspectorAtom);
+    store.set(setInspectorTabAtom, 'notes');
+
+    store.set(openInspectorAtom);
+    expect(store.get(inspectorAtom).tab).toBe('details');
+
+    store.set(setInspectorTabAtom, 'notes');
+    store.set(closeInspectorAtom);
+    expect(store.get(inspectorAtom).tab).toBe('details');
   });
 
   it('ignores collapse while closed', () => {

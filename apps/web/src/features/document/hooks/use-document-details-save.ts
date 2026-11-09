@@ -8,14 +8,14 @@ import { queryClient } from '@web/shared/lib/query-client';
 import type { NodeStatus } from '@web/shared/types/outline.types';
 
 type DetailsPatch = Partial<
-  Pick<DocumentDetails, 'title' | 'status' | 'summary' | 'pov'>
+  Pick<DocumentDetails, 'title' | 'status' | 'summary' | 'pov' | 'notes'>
 >;
 
 export type DetailsSaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 type SavedDetails = Pick<
   DocumentDetails,
-  'id' | 'title' | 'status' | 'summary' | 'pov' | 'updatedAt'
+  'id' | 'title' | 'status' | 'summary' | 'pov' | 'notes' | 'updatedAt'
 >;
 
 interface UpdateDetailsResponse {
@@ -50,6 +50,7 @@ async function saveDetails(id: string, patch: DetailsPatch): Promise<void> {
           status: saved.status,
           summary: saved.summary,
           pov: saved.pov,
+          notes: saved.notes,
           updatedAt: saved.updatedAt,
         },
       };
@@ -64,12 +65,15 @@ async function saveDetails(id: string, patch: DetailsPatch): Promise<void> {
   }
 }
 
+export type DocumentDetailsSave = ReturnType<typeof useDocumentDetailsSave>;
+
 export function useDocumentDetailsSave(details: DocumentDetails) {
   const { id } = details;
   const [title, setTitle] = useState(details.title);
   const [status, setStatusValue] = useState(details.status);
   const [summary, setSummaryValue] = useState(details.summary);
   const [pov, setPovValue] = useState(details.pov);
+  const [notes, setNotesValue] = useState(details.notes);
   const [saveState, setSaveState] = useState<DetailsSaveState>('idle');
   const [savedTitle, setSavedTitle] = useState(details.title);
   const [serverTitle, setServerTitle] = useState(details.title);
@@ -130,7 +134,7 @@ export function useDocumentDetailsSave(details: DocumentDetails) {
   );
 
   const schedule = useCallback(
-    (field: 'summary' | 'pov', value: string) => {
+    (field: 'summary' | 'pov' | 'notes', value: string) => {
       pendingRef.current = { ...pendingRef.current, [field]: value };
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => send(), DETAILS_DEBOUNCE_MS);
@@ -174,6 +178,14 @@ export function useDocumentDetailsSave(details: DocumentDetails) {
     [schedule]
   );
 
+  const setNotes = useCallback(
+    (value: string) => {
+      setNotesValue(value);
+      schedule('notes', value);
+    },
+    [schedule]
+  );
+
   const flush = useCallback(() => send(), [send]);
 
   // Newer typing wins over the values in the failed patch.
@@ -210,6 +222,8 @@ export function useDocumentDetailsSave(details: DocumentDetails) {
     setSummary,
     pov,
     setPov,
+    notes,
+    setNotes,
     saveState,
     retry,
     flush,

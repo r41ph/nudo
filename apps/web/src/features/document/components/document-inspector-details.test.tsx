@@ -34,6 +34,7 @@ const DOC: DocumentDetails = {
   status: 'drafting',
   summary: 'Mara arrives in Lisbon.',
   pov: 'Mara',
+  notes: '',
   createdAt: '2025-09-12T10:24:00Z',
   updatedAt: '2025-09-15T14:03:00Z',
 };
