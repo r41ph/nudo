@@ -10,7 +10,7 @@
 
 **Acceptance criteria:**
 - [ ] `express` is on the latest 5.x and `postgraphile` on the latest 4.x.
-- [ ] `proxy-addr`, `path-to-regexp` and the `express` path of `body-parser` are gone from the high/critical audit.
+- [ ] `proxy-addr` and the `express` path of `body-parser` are gone from the high/critical audit. `router>path-to-regexp` can't be refreshed alone without bumping unrelated packages, so it moves to Task 4.
 
 **Verification:**
 - [ ] `pnpm test:api`, then `pnpm docker:up && pnpm test:db:setup && pnpm test:api:int`
@@ -47,7 +47,7 @@
 ### Task 4: Transitive overrides
 
 **Acceptance criteria:**
-- [ ] `pnpm-workspace.yaml` has an `overrides:` block for the remaining patched transitives (`ws`, `body-parser`, `lodash`, `lodash-es`, `nanoid`, `dompurify`, `immutable`, `picomatch`, `source-map-js`, `browserslist`, and `glob` / `minimatch` / `@isaacs/brace-expansion` under `node-pg-migrate`). Each one is pinned to the lowest patched range, with a parent selector where only one path needs it.
+- [ ] `pnpm-workspace.yaml` has an `overrides:` block for the remaining patched transitives (`router>path-to-regexp`, `ws`, `body-parser`, `lodash`, `lodash-es`, `nanoid`, `dompurify`, `immutable`, `picomatch`, `source-map-js`, `browserslist`, and `glob` / `minimatch` / `@isaacs/brace-expansion` under `node-pg-migrate`). Each one is pinned to the lowest patched range, with a parent selector where only one path needs it.
 - [ ] Any override that breaks its consumer is dropped and handed to Task 5.
 
 **Verification:**
