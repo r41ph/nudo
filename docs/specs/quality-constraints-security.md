@@ -1,6 +1,6 @@
 # Spec: Security Constraints
 
-> Status: Draft — in review
+> Status: Approved (2026-11-18)
 > Module: `security-constraints` (see `docs/specs/quality-constraints.md`)
 
 ## Objective
@@ -87,9 +87,11 @@ any gated property.
 
 - Dependency remediation: upgrade the direct deps with advisories
   (`express`, `react-router-dom`, `postgraphile` patch, `platejs` minor), add
-  `pnpm.overrides` for patched transitives, and allow-list what is left with
-  its advisory ID, reason and follow-up. This PR turns the audit gate on
-  only once `pnpm audit --prod --audit-level=high` is green on `main`.
+  `overrides` in `pnpm-workspace.yaml` for patched transitives (pnpm 11
+  ignores the `pnpm` field of `package.json`), and allow-list what is left
+  with its advisory ID, reason and follow-up. This PR only makes
+  `pnpm audit --prod --audit-level=high` green. The CI `security` job and
+  Dependabot land in the security PR, once that is true on `main`.
 
 **Out of scope (recorded as follow-up specs)**
 

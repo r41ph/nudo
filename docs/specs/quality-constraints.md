@@ -1,6 +1,6 @@
 # Capability Map: Quality Constraints
 
-> Status: Map approved (2026-10-22). `security-constraints` spec in review.
+> Status: Map approved (2026-10-22). `security-constraints` spec approved (2026-11-18).
 
 Give agents (and humans) a written, enforced quality bar for security,
 performance and accessibility. Each module delivers a path-scoped rule in
