@@ -36,18 +36,19 @@
 **Acceptance criteria:**
 - [ ] `platejs` and every `@platejs/*` are on the same latest 52.x.
 - [ ] The audit is re-run, and whatever Plate still pulls in is listed for Task 4.
+- [ ] The Plate packages the editor never registers (`callout`, `code-block`, `excalidraw`, `math`, `media`, `table`, `toc`) are removed, with their dead branches in `transforms.ts`. `@platejs/excalidraw` pins `@excalidraw/excalidraw@0.18.0`, so removing it clears its advisories instead of overriding them.
 
 **Verification:**
 - [ ] Editor-related web tests (`pnpm test:web editor document`)
-- [ ] Manual check: open a document, type, insert a table, a callout and an excalidraw block
+- [ ] Manual check: open a document, type, and reload; the edit persists with no console errors
 
-**Files:** `apps/web/package.json`, `packages/ui/package.json`, `pnpm-lock.yaml`
+**Files:** `apps/web/package.json`, `packages/ui/package.json`, `packages/ui/src/components/editor/transforms.ts`, `apps/web/vitest.config.ts`, `pnpm-lock.yaml`
 **Scope:** S
 
 ### Task 4: Transitive overrides
 
 **Acceptance criteria:**
-- [ ] `pnpm-workspace.yaml` has an `overrides:` block for the remaining patched transitives (`router>path-to-regexp`, `ws`, `body-parser`, `lodash`, `lodash-es`, `nanoid`, `dompurify`, `immutable`, `picomatch`, `source-map-js`, `browserslist`, and `glob` / `minimatch` / `@isaacs/brace-expansion` under `node-pg-migrate`). Each one is pinned to the lowest patched range, with a parent selector where only one path needs it.
+- [ ] `pnpm-workspace.yaml` has an `overrides:` block for the remaining patched transitives (`router>path-to-regexp`, `ws` and `body-parser` under `postgraphile`, `nanoid` under `@platejs/core`, `browserslist`, and `glob` / `minimatch` / `@isaacs/brace-expansion` under `node-pg-migrate`). Each one is pinned to the lowest patched range, with a parent selector where only one path needs it.
 - [ ] Any override that breaks its consumer is dropped and handed to Task 5.
 
 **Verification:**
