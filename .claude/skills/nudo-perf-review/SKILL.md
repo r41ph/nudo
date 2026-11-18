@@ -51,12 +51,13 @@ When flagging a re-render issue, suggest how to verify it:
 
 Check for:
 
-- **Fetch-in-useEffect anti-patterns**: Missing cleanup/abort controllers, race conditions, no loading/error states.
-- **Waterfall requests**: Sequential fetches that could be parallelised (`Promise.all` or concurrent atoms).
-- **Cache strategy**: Is data being refetched unnecessarily? Consider whether Jotai async atoms, `atomWithQuery`, or `jotai-tanstack-query` would be more appropriate.
-- **Stale closures**: Fetches referencing stale state due to missing dependencies or improper async handling in atoms.
-- **Suspense readiness**: If using React Suspense, are async atoms compatible? If not using Suspense, are loading states handled consistently?
-- **Error boundaries**: Are fetch errors caught and handled gracefully, or do they crash the tree?
+Server data lives in the TanStack Query cache; Jotai is only for client state with no server representation (`.claude/rules/state.md`).
+
+- **Fetching outside TanStack Query**: `fetch`/GraphQL calls in `useEffect`, or server data copied into Jotai atoms or local state, instead of a `useQuery`/`useMutation` hook.
+- **Waterfall requests**: Sequential queries that could run in parallel (independent `useQuery` hooks or `useQueries`), or `enabled` chains that serialize without needing to.
+- **Cache strategy**: Is data refetched unnecessarily? Check query keys (stable, defined as constants in the feature's `api/`), per-query `staleTime`/`retry` overrides without a reason, and missing or over-broad `invalidateQueries` after mutations.
+- **Stale closures**: Query functions or mutation callbacks reading stale state because a value is missing from the query key.
+- **Loading and error states**: Are `isPending`/`isError` handled consistently, so a failed request is never shown as empty or stale content?
 
 ---
 

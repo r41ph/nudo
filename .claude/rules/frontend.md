@@ -11,9 +11,9 @@ Features are self-contained. Never import from another feature's internals.
 - Bad: `import { X } from '@web/features/document/hooks/use-document'` (used inside the `folder` feature)
 - Good: move the shared code to `src/shared/` first, then import from there
 
-## Always query context7 for library APIs
+## Library APIs
 
-Training data for third-party libraries is often stale. Always query context7 before touching any third-party library API -- do not rely on memory.
+Before writing or changing code that uses a third-party library's API, look it up in context7 for the version `apps/web/package.json` installs. APIs change between versions, and training data is often out of date or for another version.
 
 ## GraphQL
 

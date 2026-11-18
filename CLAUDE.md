@@ -84,7 +84,7 @@ Always use these; never use relative paths across packages.
 
 ## Library APIs
 
-**IMPORTANT: Always use context7 MCP before writing code that uses any library.**
+Before writing or changing code that uses a library's API, look it up in context7 for the version this repo installs (check the workspace's `package.json`). APIs change between versions, and training data is often out of date or for another version.
 
 1. `mcp__context7__resolve-library-id` — resolve the library
 2. `mcp__context7__query-docs` — query the specific topic
@@ -100,11 +100,11 @@ Always use these; never use relative paths across packages.
 
 See `.claude/rules/testing.md` for the **required-tests matrix** (change type →
 mandated layers) and the **feature definition-of-done** — every change must
-bring the test layers its type requires. The rule auto-loads when you read files
-under `apps/web/src` or `apps/api/src`.
+bring the test layers its type requires. The rule auto-loads when you read test
+files under `apps/web/src` or any file under `apps/api/src`.
 
 - Only run tests related to the files changed — never the full suite unless explicitly asked.
-- Filter by filename (no extension needed): `pnpm vitest run save-bar draft-section`
+- Filter by filename (no extension needed): `pnpm test:web save-bar draft-section` (or `pnpm test:api <filter>`)
 - Vitest matches the filter against the full file path, so a partial name is enough.
 - API integration tests (`*.integration.test.ts`) run via `pnpm test:api:int`
   and need Docker up + `pnpm test:db:setup` (they hit the `nudo_test` database,

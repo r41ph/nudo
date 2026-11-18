@@ -51,9 +51,8 @@ A feature/PR is not done until:
 Run only tests for the files you changed — never the full suite unless asked:
 
 ```bash
-pnpm vitest run <partial-filename>   # matches against the full file path
-pnpm test:web                        # web unit + integration (Vitest)
-pnpm test:api                        # API unit only — fast, DB-free
+pnpm test:web <partial-filename>     # web unit + integration (Vitest); filter matches the full file path
+pnpm test:api <partial-filename>     # API unit only — fast, DB-free; same filter
 pnpm test:api:int                    # API integration — needs Docker + test DB
 pnpm test:db:setup                   # create/migrate the nudo_test database
 ```
