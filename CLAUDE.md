@@ -15,6 +15,8 @@ pnpm docker:up             # Start PostgreSQL and wait until it accepts connecti
 
 Note: `pnpm test` (root) fails because `packages/ui` has no test runner configured yet — use `pnpm test:web` instead.
 
+After changing `overrides` in `pnpm-workspace.yaml`, delete `node_modules/.pnpm-workspace-state-v1.json` before `pnpm install`; pnpm 11.3 doesn't detect override changes and skips resolution.
+
 ## Feature Workflow
 
 You execute features following this lifecycle. **Before you start,** the human

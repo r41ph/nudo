@@ -6,3 +6,15 @@ allowBuilds:
   bcrypt: true
   esbuild: true
   msw: true
+# Patched versions of transitive deps with high advisories. Drop an entry once
+# its parent ships the fix; `node-pg-migrate>glob` is outside the parent's
+# `~11.0.0` range.
+overrides:
+  router>path-to-regexp: ^8.4.0
+  postgraphile>ws: ^7.5.11
+  subscriptions-transport-ws>ws: ^7.5.11
+  postgraphile>body-parser: ^1.20.9
+  '@platejs/core>nanoid': ^5.1.16
+  '@babel/helper-compilation-targets>browserslist': ^4.28.7
+  node-pg-migrate>glob: ^11.1.0
+  glob@11>minimatch: ^10.2.3
