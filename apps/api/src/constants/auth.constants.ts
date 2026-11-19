@@ -21,3 +21,14 @@ export const JWT_SECRET: Secret = assertJwtSecret(
   process.env.NODE_ENV
 );
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+
+export interface AuthRateLimit {
+  login: number;
+  refresh: number;
+}
+
+// Per IP per window; `login` covers /auth/login and /auth/register.
+export const AUTH_RATE_LIMIT: AuthRateLimit = { login: 10, refresh: 60 };
+export const AUTH_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+
+export const BODY_SIZE_LIMIT = '100kb';

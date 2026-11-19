@@ -4,8 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { JWT_SECRET } from '@api/constants/auth.constants.js';
 import { createApp } from '../app.js';
 import { createUser, authHeader } from '../test/seed.js';
+import { TEST_APP_OPTIONS } from '../test/test.constants.js';
 
-const app = createApp();
+const app = createApp(TEST_APP_OPTIONS);
 
 const ALL_DOCUMENTS = `{ allDocuments { nodes { id title } } }`;
 
