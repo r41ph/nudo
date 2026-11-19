@@ -17,15 +17,17 @@ behavior, not implementation. Coverage is a diagnostic, never a gate.
 
 Every change brings the test layer(s) for its type. This is not optional.
 
-| Change type                                | Required tests                                                        |
-| ------------------------------------------ | --------------------------------------------------------------------- |
-| Pure function / util                       | Unit (`*.test.ts`)                                                    |
-| New/changed SQL function or migration      | API integration via GraphQL **+ RLS isolation**                       |
-| New/changed Express/auth route             | API integration (supertest) incl. failure cases                       |
-| New web feature (component + hook + state) | Web integration (`renderWithProviders` + MSW); unit for pure helpers  |
-| New/changed UI component                   | Storybook story (`*.stories.tsx`) covering its meaningful states      |
-| New cross-cutting user journey             | Add/extend one e2e happy path                                         |
-| Bug fix                                    | Failing regression test at the lowest reproducing layer, **then** fix |
+| Change type                                | Required tests                                                               |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| Pure function / util                       | Unit (`*.test.ts`)                                                           |
+| New/changed SQL function or migration      | API integration via GraphQL **+ RLS isolation**                              |
+| New/changed Express/auth route             | API integration (supertest) incl. failure cases                              |
+| New/changed input-handling route           | API integration incl. `400` bad input, `413` oversized, no stack in body     |
+| New/changed dependency                     | `pnpm audit --prod --audit-level=high` green; no unrecorded allow-list entry |
+| New web feature (component + hook + state) | Web integration (`renderWithProviders` + MSW); unit for pure helpers         |
+| New/changed UI component                   | Storybook story (`*.stories.tsx`) covering its meaningful states             |
+| New cross-cutting user journey             | Add/extend one e2e happy path                                                |
+| Bug fix                                    | Failing regression test at the lowest reproducing layer, **then** fix        |
 
 ## Feature definition of done
 
@@ -45,6 +47,9 @@ A feature/PR is not done until:
 - [ ] Unit tests stay DB-free so `pnpm test:api` remains fast.
 - [ ] Tests assert observable behavior / DB ground truth, not internals.
 - [ ] No test was `.skip`ped or deleted to go green.
+- [ ] The change meets `security.md` (nothing from its Never list, Ask-first
+      items agreed), every security gate is green, and `/security-review` ran
+      if it touches auth, RLS, migrations, input handling or dependencies.
 
 ## Commands
 

@@ -25,8 +25,11 @@ RLS is enabled on all tables via `app.current_user_id`. The database enforces ow
 
 ## Auth
 
-- Access + refresh JWT rotation; `JWT_SECRET` and `JWT_REFRESH_SECRET` are required env vars
-- Passwords hashed with bcrypt
+- One JWT, signed with `JWT_SECRET` (the only auth env var; required, and at least 32 characters in production). Expiry comes from `JWT_EXPIRES_IN` (default `7d`). There is no separate refresh token.
+- `/auth/refresh` re-signs the token but keeps the original login's expiry, so it never extends a session.
+- The web app stores the token in `localStorage` (`apps/web/src/shared/lib/auth.ts`).
+- Passwords hashed with bcrypt (cost 10).
+- Threat model, boundaries and accepted risks: see `security.md`.
 
 ## Error handling
 
