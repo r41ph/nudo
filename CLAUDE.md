@@ -11,6 +11,7 @@ pnpm storybook             # UI component explorer (port 6006)
 pnpm lint                  # Lint entire monorepo
 pnpm db:migrate            # Run pending migrations (requires docker:up)
 pnpm docker:up             # Start PostgreSQL and wait until it accepts connections
+pnpm audit --prod --audit-level=high   # Dependency gate (same as CI)
 ```
 
 Note: `pnpm test` (root) fails because `packages/ui` has no test runner configured yet — use `pnpm test:web` instead.
@@ -48,7 +49,11 @@ directly to `main`, or non-trivial and needs a branch + PR.
    with no internals leaked. See `frontend.md` / `api.md` rules.
 7. **Update docs.** If behavior, APIs, commands, or env vars change, update
    `CLAUDE.md` and `.claude/rules/*` if conventions changed.
-8. **Finalize the PR.** When all changes are committed, push the branch and open
+8. **Security review.** If the change touches auth, RLS, migrations, input
+   handling or dependencies, run `/security-review` (or the
+   `agent-skills:security-auditor` agent) before opening the PR. Fix each
+   finding or record why not in the PR. See `.claude/rules/security.md`.
+9. **Finalize the PR.** When all changes are committed, push the branch and open
    the PR. Point the PR description at the source of truth
    (`Spec: docs/specs/<feature>.md` or
    `Design handoff: docs/design-handoffs/<feature>/README.md`). Then record the
