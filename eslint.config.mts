@@ -53,4 +53,22 @@ export default defineConfig([
     },
   },
   reactHooks.configs.flat.recommended,
+  {
+    files: ['apps/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    rules: {
+      'no-eval': 'error',
+      'no-implied-eval': 'error',
+      'no-new-func': 'error',
+      'react/no-danger': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'AssignmentExpression > MemberExpression.left[property.name=/^(innerHTML|outerHTML)$/]',
+          message:
+            'Assigning HTML strings is an XSS sink; render through React instead. See .claude/rules/security.md.',
+        },
+      ],
+    },
+  },
 ]);
