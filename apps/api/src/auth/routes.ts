@@ -1,7 +1,13 @@
 import { Router, type Router as RouterType } from 'express';
 import type { Request, Response } from 'express';
 import { pool } from '../config/db.js';
-import { hashPassword, comparePassword, signToken } from './utils.js';
+import {
+  hashPassword,
+  comparePassword,
+  refreshToken,
+  signToken,
+  verifyToken,
+} from './utils.js';
 import {
   WELCOME_DOCUMENT,
   WELCOME_WORD_COUNT,
@@ -138,13 +144,13 @@ authRouter.post('/refresh', async (req: Request, res: Response) => {
     return;
   }
 
-  const { verifyToken } = await import('./utils.js');
   const decoded = verifyToken(authHeader.slice(7));
-  if (!decoded) {
+  if (!decoded || decoded.authTime === undefined) {
     res.status(401).json({ error: 'Invalid or expired token' });
     return;
   }
 
-  const token = signToken({ userId: decoded.userId, email: decoded.email });
-  res.json({ token });
+  res.json({
+    token: refreshToken({ ...decoded, authTime: decoded.authTime }),
+  });
 });
