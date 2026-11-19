@@ -63,6 +63,7 @@
 **Acceptance criteria:**
 - [ ] Every remaining high/critical advisory is in `auditConfig.ignoreGhsas` in `pnpm-workspace.yaml`, with a comment giving the GHSA, the reason and the follow-up. Each entry is agreed with the human first.
 - [ ] `pnpm audit --prod --audit-level=high` exits 0.
+- Outcome: Tasks 1–4 cleared every high and critical advisory, so the allow-list is empty and `auditConfig` isn't added.
 
 **Verification:**
 - [ ] `pnpm audit --prod --audit-level=high; echo $?` prints `0`
