@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # pnpm workspaces use the npm ecosystem; Dependabot reads pnpm-lock.yaml.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
