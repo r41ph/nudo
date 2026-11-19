@@ -78,13 +78,123 @@
 - [ ] The branch is pushed and the PR is opened with `Spec: docs/specs/quality-constraints-security.md` (Scope → Prerequisite). The description lists the before/after audit counts and the allow-list.
 - [ ] The spec's status line records the PR, committed into the same PR.
 
-## PR 2 — Security constraints (outline, detailed after PR 1 merges)
+## PR 2 — Security constraints (`feat/security-constraints`)
 
-1. Rule and docs: `.claude/rules/security.md`, the `api.md` auth correction, the `testing.md` matrix and DoD, the `CLAUDE.md` workflow step.
-2. Lint: XSS and eval rules in `eslint.config.mts`, checked by hand once.
-3. `assertJwtSecret` (unit test first).
-4. Integration test harness: a limit override in `createApp()`, used by `seed.ts`, `graphql.ts` and the harness.
-5. Hardening, test-first in `security.integration.test.ts`: helmet, rate limits, body limits, the error handler.
-6. Refresh cap with `authTime` (test-first; update the existing refresh tests).
-7. CI `security` job and `dependabot.yml`.
-8. `/security-review`, then the PR.
+Order: the agent harness first (Tasks 7–8), then the API hardening test-first
+(Tasks 9–12), then the CI gates (Task 13). Tasks 9–12 are groundwork the
+gates need in order to pass on `main`.
+
+### Task 7: Security rule and docs
+
+**Acceptance criteria:**
+- [ ] `.claude/rules/security.md` exists with the spec's five sections (threat model, always, ask first, never, accepted risks). Its frontmatter loads it for `apps/**`, `packages/**/src/**`, `.github/**` and `**/package.json`, in the format the current Claude Code docs give for rule files (checked before writing).
+- [ ] The `api.md` Auth section matches the code: one JWT, expiry from `JWT_EXPIRES_IN` (default `7d`), refresh capped at the original login (Task 12), stored in `localStorage` on web, `JWT_SECRET` only. It links to `security.md`.
+- [ ] The `testing.md` matrix gains rows for "New/changed input-handling route" (integration incl. 400/413 and no stack in the body) and "New/changed dependency" (`pnpm audit --prod --audit-level=high` green, no new allow-list entry without an advisory ID and reason). The DoD gains a security item pointing at `security.md`.
+- [ ] The `CLAUDE.md` feature workflow gains the step: run `/security-review` (or the `agent-skills:security-auditor` agent) before opening a PR that touches auth, RLS, migrations, input handling or dependencies. The Commands block gains `pnpm audit --prod --audit-level=high`.
+
+**Verification:**
+- [ ] Read `.claude/rules/security.md` in a fresh session on a file under `apps/api/src`; the rule loads.
+- [ ] Every statement in the `api.md` Auth section checked against `auth/utils.ts`, `auth/routes.ts` and `auth.constants.ts`.
+
+**Files:** `.claude/rules/security.md` (new), `.claude/rules/api.md`, `.claude/rules/testing.md`, `CLAUDE.md`
+**Scope:** S
+
+### Task 8: XSS and eval lint rules
+
+**Acceptance criteria:**
+- [ ] `eslint.config.mts` has a block for `apps/**` setting, as errors: `no-eval`, `no-implied-eval`, `no-new-func`, `react/no-danger`, and `no-restricted-syntax` with an `AssignmentExpression` selector on `innerHTML` / `outerHTML` and a message pointing at `security.md`.
+- [ ] Reading `el.innerHTML` stays allowed. `packages/ui` is not covered.
+- [ ] `pnpm lint` passes on the current code.
+
+**Verification:**
+- [ ] By hand, once: a temporary `apps/web/src/lint-check.tsx` with `dangerouslySetInnerHTML`, `eval('1')`, `new Function('')` and `el.innerHTML = ''` fails `pnpm lint` with one error each; a read of `el.innerHTML` doesn't. The file is deleted, not committed.
+- [ ] Rule names checked in context7 for the installed ESLint and `eslint-plugin-react` versions.
+
+**Files:** `eslint.config.mts`
+**Scope:** XS
+
+### Task 9: `assertJwtSecret`
+
+**Acceptance criteria:**
+- [ ] `assertJwtSecret(value, nodeEnv)` in `auth.constants.ts` throws when `nodeEnv === 'production'` and `value` is shorter than 32 characters, and returns otherwise. The minimum length is a named constant.
+- [ ] `JWT_SECRET` is passed through it at module load, so the API refuses to start in production with a short secret.
+- [ ] The CI placeholder (`ci-placeholder-secret`, no `NODE_ENV=production`) keeps working.
+
+**Verification:**
+- [ ] Test first: `auth.constants.test.ts` fails before the function exists, then `pnpm test:api auth.constants` passes. Cases: short + production throws; 32 chars + production passes; short + development / test / undefined passes.
+- [ ] `NODE_ENV=production JWT_SECRET=short pnpm --filter api start` (or the equivalent `node` entry) exits with the error.
+
+**Files:** `apps/api/src/constants/auth.constants.ts`, `apps/api/src/constants/auth.constants.test.ts` (new)
+**Scope:** XS
+
+### Task 10: Rate-limit override in `createApp()`
+
+Groundwork for Task 11: the default limit would return `429` to the existing integration tests (`plot.integration.test.ts` registers up to 41 users through one app; `auth.integration.test.ts` makes 19 auth calls).
+
+**Acceptance criteria:**
+- [ ] `createApp(options?)` takes an optional `{ authRateLimit?: { login?: number; refresh?: number } }`. With no argument it uses the values from `auth.constants.ts`. `index.ts` keeps calling it with no argument.
+- [ ] A test-only constant (e.g. `TEST_AUTH_RATE_LIMIT` in `test/`) high enough never to trip is passed by every test app: `test/seed.ts`, `test/graphql.ts`, `test/harness.integration.test.ts`, `auth/auth.integration.test.ts`, `auth/middleware.integration.test.ts`.
+- [ ] No behaviour change yet: the option is accepted but no limiter exists until Task 11.
+
+**Verification:**
+- [ ] `pnpm test:api:int` passes unchanged.
+
+**Files:** `apps/api/src/app.ts`, the five test files above, a test constants file under `apps/api/src/test/`
+**Scope:** S
+
+### Task 11: Headers, rate limits, body limits, error handler
+
+New runtime deps `helmet` and `express-rate-limit` (named in the approved spec). Pick versions older than 24 h so `minimumReleaseAge` doesn't add an exclusion, and check each API in context7.
+
+**Acceptance criteria:**
+- [ ] Tests first, in `apps/api/src/security.integration.test.ts`, against an app built with a low limit override (e.g. 2):
+  - helmet headers (`x-content-type-options: nosniff`, `x-frame-options`, `referrer-policy`) on `/auth/login` and `/graphql`; CSP `default-src 'none'` only when the app runs in production mode, absent otherwise so GraphiQL works.
+  - the N+1th request returns `429` on `/auth/login`, `/auth/register` and `/auth/refresh`, each with a JSON `{ error }` body.
+  - a body over the limit returns `413` on `/auth/login` and `/graphql`.
+  - malformed JSON on `/auth/login` returns `400` with a safe message and no `at ` stack frames in the body.
+- [ ] `app.ts`: `helmet()` first, CSP `default-src 'none'` in production only. Limiters are created inside `createApp()` (not on the module-level `authRouter`), per IP, 15-minute window, 10 on login/register, 60 on refresh, in-memory store, `trust proxy` off. `express.json({ limit })` on `/auth`. An error handler after all routes maps body-parser `entity.parse.failed` → `400` and `entity.too.large` → `413`, logs anything else and returns a generic `500`, never a stack.
+- [ ] `config/postgraphile.ts` sets `bodySizeLimit` to the same limit, and its `413` goes through (or matches) the error handler. Behaviour checked in context7 for PostGraphile 4.x.
+- [ ] Window, maxima and body limit live in `constants/auth.constants.ts` (e.g. `AUTH_RATE_LIMIT`, `BODY_SIZE_LIMIT`).
+
+**Verification:**
+- [ ] `pnpm test:api:int security` fails before the code and passes after.
+- [ ] Full `pnpm test:api:int` still passes (the Task 10 override holds).
+- [ ] Manual: `pnpm --parallel --filter './apps/*' dev`, log in from the web app, open a document; no CORS or header breakage in the console.
+
+**Files:** `apps/api/package.json`, `pnpm-lock.yaml`, `apps/api/src/app.ts`, `apps/api/src/config/postgraphile.ts`, `apps/api/src/constants/auth.constants.ts`, `apps/api/src/security.integration.test.ts` (new)
+**Scope:** M
+
+### Task 12: Refresh cap with `authTime`
+
+**Acceptance criteria:**
+- [ ] Tests first, in `security.integration.test.ts`: a token from `/auth/refresh` has the same `exp` as the login token it came from (also after refreshing twice), and a token without `authTime` gets `401`.
+- [ ] `signToken` adds `authTime` (seconds) on login and register. Refresh copies `authTime` and sets `exp` to `authTime + JWT_EXPIRES_IN`, so the result never outlives the original login. `verifyToken` returns `authTime`.
+- [ ] The existing refresh tests in `auth.integration.test.ts` are updated only where they assert refresh behaviour (the expired-token case signs with `authTime`; the happy path also checks `exp`).
+- [ ] The web app is unaffected (it doesn't call `/auth/refresh`); `authMiddleware` keeps accepting tokens without `authTime`, so current sessions on `/graphql` survive until they expire.
+
+**Verification:**
+- [ ] `pnpm test:api:int security auth` fails before and passes after.
+- [ ] `pnpm test:api utils` (unit tests on `signToken` / `verifyToken`) passes, updated if they assert the payload shape.
+
+**Files:** `apps/api/src/auth/utils.ts`, `apps/api/src/auth/routes.ts`, `apps/api/src/auth/utils.test.ts`, `apps/api/src/auth/auth.integration.test.ts`, `apps/api/src/security.integration.test.ts`
+**Scope:** S
+
+### Task 13: CI `security` job and Dependabot
+
+**Acceptance criteria:**
+- [ ] `.github/workflows/ci.yml` has a `security` job (same checkout / pnpm / Node setup as `quality`) running `pnpm audit --prod --audit-level=high`, with no `continue-on-error`.
+- [ ] `.github/dependabot.yml` covers `npm` at `/` (the pnpm workspace) and `github-actions` at `/`, weekly, with a small open-PR limit. Format checked against the current GitHub docs, including pnpm workspace support.
+
+**Verification:**
+- [ ] `pnpm audit --prod --audit-level=high; echo $?` prints `0` locally.
+- [ ] The `security` job is green on the PR.
+
+**Files:** `.github/workflows/ci.yml`, `.github/dependabot.yml` (new)
+**Scope:** XS
+
+### Task 14: Security review and PR
+
+**Acceptance criteria:**
+- [ ] `/security-review` runs on the branch; every finding is fixed or recorded in the PR with its reason.
+- [ ] The branch is pushed and the PR opened with `Spec: docs/specs/quality-constraints-security.md`, listing the success criteria and how each is verified.
+- [ ] The spec's status line records the PR, committed into the same PR.
