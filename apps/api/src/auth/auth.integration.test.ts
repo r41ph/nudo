@@ -91,6 +91,7 @@ describe('POST /auth/refresh', () => {
     expect(verifyToken(res.body.token)).toMatchObject({
       userId: user.id,
       email: user.email,
+      exp: verifyToken(user.token)?.exp,
     });
   });
 
@@ -104,7 +105,11 @@ describe('POST /auth/refresh', () => {
     const user = await createUser();
     // Negative expiresIn => exp is already in the past, so verify() rejects it.
     const expired = jwt.sign(
-      { userId: user.id, email: user.email },
+      {
+        userId: user.id,
+        email: user.email,
+        authTime: Math.floor(Date.now() / 1000) - 60,
+      },
       JWT_SECRET,
       { expiresIn: -10 }
     );

@@ -1,11 +1,15 @@
+import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { JWT_SECRET } from '@api/constants/auth.constants.js';
 import { createApp } from './app.js';
+import { createUser } from './test/seed.js';
 import { TEST_APP_OPTIONS } from './test/test.constants.js';
 
 const LOW_LIMIT = 2;
 const OVERSIZED = 'x'.repeat(200 * 1024);
 const STACK_FRAME = /\bat \S+/;
+const HOUR_MS = 60 * 60 * 1000;
 
 function lowLimitApp() {
   return createApp({
@@ -109,5 +113,59 @@ describe('body limits and malformed input', () => {
     expect(res.status).toBe(400);
     expect(res.body).toEqual({ error: expect.any(String) });
     expect(res.text).not.toMatch(STACK_FRAME);
+  });
+});
+
+describe('refresh cap', () => {
+  const app = createApp(TEST_APP_OPTIONS);
+
+  function expOf(token: string): number {
+    return (jwt.decode(token) as { exp: number }).exp;
+  }
+
+  async function refresh(token: string): Promise<request.Response> {
+    return request(app)
+      .post('/auth/refresh')
+      .set('Authorization', `Bearer ${token}`);
+  }
+
+  async function loginToken(): Promise<string> {
+    const user = await createUser({ password: 'password123' });
+    const res = await request(app)
+      .post('/auth/login')
+      .send({ email: user.email, password: 'password123' });
+    return res.body.token;
+  }
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('keeps the login exp on a refreshed token, also when refreshed twice', async () => {
+    // Only Date is faked so supertest and pg keep their real timers.
+    vi.useFakeTimers({ toFake: ['Date'], now: Date.now() });
+    const login = await loginToken();
+
+    vi.advanceTimersByTime(HOUR_MS);
+    const first = await refresh(login);
+    vi.advanceTimersByTime(HOUR_MS);
+    const second = await refresh(first.body.token);
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect(expOf(first.body.token)).toBe(expOf(login));
+    expect(expOf(second.body.token)).toBe(expOf(login));
+  });
+
+  it('rejects a token without authTime with 401', async () => {
+    const legacy = jwt.sign(
+      { userId: 'user-1', email: 'a@b.com' },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    const res = await refresh(legacy);
+
+    expect(res.status).toBe(401);
   });
 });

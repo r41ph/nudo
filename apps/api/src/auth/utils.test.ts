@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import {
   hashPassword,
   comparePassword,
+  refreshToken,
   signToken,
   verifyToken,
 } from './utils.js';
@@ -48,13 +49,37 @@ describe('signToken', () => {
     expect(decoded.userId).toBe('user-1');
     expect(decoded.email).toBe('a@b.com');
   });
+
+  it('stamps authTime as the issue time in seconds', () => {
+    const token = signToken({ userId: 'user-1', email: 'a@b.com' });
+    const decoded = jwt.decode(token) as { authTime: number; iat: number };
+    expect(decoded.authTime).toBe(decoded.iat);
+  });
+});
+
+describe('refreshToken', () => {
+  it('keeps the original authTime and exp', () => {
+    const claims = {
+      userId: 'user-1',
+      email: 'a@b.com',
+      authTime: 1_000,
+      exp: Math.floor(Date.now() / 1000) + 60,
+    };
+    const decoded = jwt.decode(refreshToken(claims)) as typeof claims;
+    expect(decoded).toMatchObject(claims);
+  });
 });
 
 describe('verifyToken', () => {
   it('returns the decoded payload for a valid token', () => {
     const token = signToken({ userId: 'user-1', email: 'a@b.com' });
     const result = verifyToken(token);
-    expect(result).toMatchObject({ userId: 'user-1', email: 'a@b.com' });
+    expect(result).toMatchObject({
+      userId: 'user-1',
+      email: 'a@b.com',
+      authTime: expect.any(Number),
+      exp: expect.any(Number),
+    });
   });
 
   it('returns null for a completely invalid token', () => {
