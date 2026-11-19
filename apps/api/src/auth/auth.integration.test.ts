@@ -4,9 +4,10 @@ import { describe, expect, it } from 'vitest';
 import { JWT_SECRET } from '@api/constants/auth.constants.js';
 import { createApp } from '../app.js';
 import { createUser } from '../test/seed.js';
+import { TEST_APP_OPTIONS } from '../test/test.constants.js';
 import { verifyToken } from './utils.js';
 
-const app = createApp();
+const app = createApp(TEST_APP_OPTIONS);
 
 describe('POST /auth/register', () => {
   it('creates a user and returns a token', async () => {

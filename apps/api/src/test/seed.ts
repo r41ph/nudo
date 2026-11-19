@@ -1,8 +1,9 @@
 import request from 'supertest';
 import { createApp } from '../app.js';
 import { getTestPool } from './db.js';
+import { TEST_APP_OPTIONS } from './test.constants.js';
 
-const app = createApp();
+const app = createApp(TEST_APP_OPTIONS);
 
 export interface SeededUser {
   id: string;

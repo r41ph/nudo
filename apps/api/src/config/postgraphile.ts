@@ -1,6 +1,7 @@
 import { postgraphile } from 'postgraphile';
 import type { Request } from 'express';
 import { pool } from './db.js';
+import { BODY_SIZE_LIMIT } from '../constants/auth.constants.js';
 
 interface AuthRequest extends Request {
   userId?: string;
@@ -11,6 +12,7 @@ export const postgraphileMiddleware = postgraphile(pool, 'public', {
   graphiql: process.env.NODE_ENV !== 'production',
   enhanceGraphiql: process.env.NODE_ENV !== 'production',
   dynamicJson: true,
+  bodySizeLimit: BODY_SIZE_LIMIT,
   setofFunctionsContainNulls: false,
   ignoreRBAC: false,
   showErrorStack: process.env.NODE_ENV !== 'production',

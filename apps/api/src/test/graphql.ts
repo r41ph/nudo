@@ -2,8 +2,9 @@
 // and so exercises RLS exactly as the app does.
 import request from 'supertest';
 import { createApp } from '../app.js';
+import { TEST_APP_OPTIONS } from './test.constants.js';
 
-const app = createApp();
+const app = createApp(TEST_APP_OPTIONS);
 
 export interface GraphQLResponse<T> {
   data?: T;
