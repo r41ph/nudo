@@ -1,6 +1,6 @@
 # Spec: Security Constraints
 
-> Status: Approved (2026-11-18). Prerequisite in review (PR #57 — https://github.com/r41ph/nudo/pull/57)
+> Status: In review (PR #58 — https://github.com/r41ph/nudo/pull/58). Prerequisite merged (PR #57 — https://github.com/r41ph/nudo/pull/57)
 > Module: `security-constraints` (see `docs/specs/quality-constraints.md`)
 
 ## Objective
