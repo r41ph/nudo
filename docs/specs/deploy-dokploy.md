@@ -1,6 +1,6 @@
 # Spec: Deploy to Dokploy
 
-> Status: Approved
+> Status: In review (PR #59 — https://github.com/r41ph/nudo/pull/59)
 > Branch: `feat/deploy-dokploy`
 
 ## Objective
