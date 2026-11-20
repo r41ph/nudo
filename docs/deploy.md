@@ -59,7 +59,13 @@ of it. Background and decisions: [`docs/specs/deploy-dokploy.md`](specs/deploy-d
      JWT_SECRET=<openssl rand -hex 32>
      JWT_EXPIRES_IN=7d
      FRONTEND_URL=https://nudo.ink,https://www.nudo.ink
+     TRUST_PROXY_HOPS=1
      ```
+
+     - `JWT_SECRET` must be at least 32 characters, or the API refuses to start
+       in production. `openssl rand -hex 32` gives 64.
+     - `TRUST_PROXY_HOPS=1` accounts for Traefik in front of the API. Without
+       it, all users share one auth rate limit.
 
    - Domain: `api.nudo.ink`, container port `3001`, HTTPS with Let's Encrypt.
 6. **nudo-web:** create an Application from the same repo:

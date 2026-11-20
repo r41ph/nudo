@@ -14,9 +14,11 @@ import {
   BODY_SIZE_LIMIT,
   type AuthRateLimit,
 } from './constants/auth.constants.js';
+import { TRUST_PROXY_HOPS } from './constants/server.constants.js';
 
 export interface CreateAppOptions {
   authRateLimit?: Partial<AuthRateLimit>;
+  trustProxyHops?: number;
 }
 
 function authLimiter(limit: number) {
@@ -52,6 +54,9 @@ const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
 export function createApp(options: CreateAppOptions = {}): Express {
   const authRateLimit = { ...AUTH_RATE_LIMIT, ...options.authRateLimit };
   const app = express();
+  // req.ip, and so the per-client rate limits, come from X-Forwarded-For only
+  // for this many proxy hops.
+  app.set('trust proxy', options.trustProxyHops ?? TRUST_PROXY_HOPS);
 
   // Every response is JSON, but outside production GraphiQL is served from
   // this app and a CSP would block it.
