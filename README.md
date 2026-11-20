@@ -164,7 +164,7 @@ Always use path aliases when importing across packages. Never use relative paths
 | Alias    | Resolves to         |
 | -------- | ------------------- |
 | `@web/*` | `apps/web/src/*`    |
-| `@api/*` | `apps/api/src/*`    |
+| `#api/*` | `apps/api/src/*`    |
 | `@ui/*`  | `packages/ui/src/*` |
 
 ### Adding a new feature

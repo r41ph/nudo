@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { JWT_SECRET } from '@api/constants/auth.constants.js';
+import { JWT_SECRET } from '#api/constants/auth.constants.js';
 import { createApp } from '../app.js';
 import { createUser, authHeader } from '../test/seed.js';
 

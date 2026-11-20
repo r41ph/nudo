@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt, { type SignOptions } from 'jsonwebtoken';
-import { JWT_EXPIRES_IN, JWT_SECRET } from '@api/constants/auth.constants.js';
+import { JWT_EXPIRES_IN, JWT_SECRET } from '#api/constants/auth.constants.js';
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10);
