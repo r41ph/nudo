@@ -2,17 +2,23 @@
   "name": "@nudo/api",
   "version": "1.0.0",
   "type": "module",
+  "imports": {
+    "#api/*": {
+      "development": "./src/*",
+      "default": "./dist/*"
+    }
+  },
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --conditions=development src/index.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
-    "migrate": "tsx src/db/run-migrate.ts",
+    "migrate": "tsx --conditions=development src/db/run-migrate.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "test:db:setup": "tsx src/test/setup-db.ts"
+    "test:db:setup": "tsx --conditions=development src/test/setup-db.ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

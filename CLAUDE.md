@@ -83,11 +83,16 @@ is the _what/why_, the implementation is the _how_.
 
 ## Path Aliases
 
-- `@api/*` → `apps/api/src/*`
+- `#api/*` → `apps/api/src/*`
 - `@web/*` → `apps/web/src/*`
 - `@ui/*` → `packages/ui/src/*`
 
 Always use these; never use relative paths across packages.
+
+`#api/*` is a Node subpath import (`apps/api/package.json` → `"imports"`), not a
+tsconfig path, so compiled `node dist/` can resolve it. Its `development`
+condition points at `src/`; anything that runs API source with `tsx` must pass
+`--conditions=development` (the package scripts already do).
 
 ## Library APIs
 
