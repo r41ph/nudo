@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { JWT_SECRET } from '@api/constants/auth.constants.js';
-import { createApp } from './app.js';
+import { JWT_SECRET } from '#api/constants/auth.constants.js';
+import { createApp, type CreateAppOptions } from './app.js';
 import { createUser } from './test/seed.js';
 import { TEST_APP_OPTIONS } from './test/test.constants.js';
 
@@ -10,22 +10,35 @@ const LOW_LIMIT = 2;
 const OVERSIZED = 'x'.repeat(200 * 1024);
 const STACK_FRAME = /\bat \S+/;
 const HOUR_MS = 60 * 60 * 1000;
+const CLIENT_A = '203.0.113.1';
+const CLIENT_B = '203.0.113.2';
 
-function lowLimitApp() {
+function lowLimitApp(options: CreateAppOptions = {}) {
   return createApp({
+    ...options,
     authRateLimit: { login: LOW_LIMIT, refresh: LOW_LIMIT },
   });
 }
 
+function post(
+  app: ReturnType<typeof createApp>,
+  path: string,
+  forwardedFor?: string
+): request.Test {
+  const req = request(app).post(path);
+  return forwardedFor ? req.set('X-Forwarded-For', forwardedFor) : req;
+}
+
 async function exhaust(
   app: ReturnType<typeof createApp>,
-  path: string
+  path: string,
+  forwardedFor?: string
 ): Promise<request.Response> {
   for (let i = 0; i < LOW_LIMIT; i++) {
-    const res = await request(app).post(path).send({});
+    const res = await post(app, path, forwardedFor).send({});
     expect(res.status).not.toBe(429);
   }
-  return request(app).post(path).send({});
+  return post(app, path, forwardedFor).send({});
 }
 
 describe('security headers', () => {
@@ -82,6 +95,27 @@ describe('auth rate limits', () => {
     const res = await request(app).post('/auth/register').send({});
 
     expect(res.status).not.toBe(429);
+  });
+
+  // Behind Dokploy's Traefik every request arrives from the proxy's address;
+  // without trust proxy all users would share one limit.
+  it('limits each forwarded client separately behind a trusted proxy', async () => {
+    const app = lowLimitApp({ trustProxyHops: 1 });
+    const limited = await exhaust(app, '/auth/login', CLIENT_A);
+
+    const other = await post(app, '/auth/login', CLIENT_B).send({});
+
+    expect(limited.status).toBe(429);
+    expect(other.status).not.toBe(429);
+  });
+
+  it('ignores X-Forwarded-For when no proxy is trusted, so it cannot bypass the limit', async () => {
+    const app = lowLimitApp();
+    await exhaust(app, '/auth/login', CLIENT_A);
+
+    const spoofed = await post(app, '/auth/login', CLIENT_B).send({});
+
+    expect(spoofed.status).toBe(429);
   });
 });
 
