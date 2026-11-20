@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/coverage
+**/.env
+**/.env.*
+!**/.env.example
+**/storybook-static
+**/*storybook.log
+.git
+.husky
+.claude
+docs
+e2e/test-results
+e2e/playwright-report
