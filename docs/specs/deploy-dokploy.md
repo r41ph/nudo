@@ -45,6 +45,14 @@ Nudo only runs locally today. This makes it deployable to a self-hosted
    separately would mean a second build pipeline for a few MB of image size.
 7. **`VITE_API_URL` is a build argument** of the web image. Vite inlines it at
    build time, so changing the API domain means rebuilding the web app.
+8. **The API alias becomes a Node subpath import, `#api/*`** (added
+   2026-11-20). `@api/*` was a tsconfig `paths` alias, which `tsc` leaves
+   untouched in its output, so `node dist/index.js` crashed with
+   `ERR_MODULE_NOT_FOUND`. `pnpm start` was broken for the same reason. Node,
+   `tsc`, `tsx` and Vitest all resolve `package.json` `"imports"` natively: the
+   `development` condition maps to `src/` for `tsx` and Vitest, and `default`
+   maps to `dist/` for production. `@web/*` and `@ui/*` don't change, because
+   Vite resolves them.
 
 ### Out of scope
 
@@ -63,7 +71,9 @@ Nudo only runs locally today. This makes it deployable to a self-hosted
 | `apps/web/nginx.conf` | SPA fallback (`try_files $uri /index.html`), long cache headers for hashed `assets/`, `no-cache` for `index.html`. |
 | `.dockerignore` | Excludes `node_modules`, `dist`, `coverage`, `.env`, `.git` and Storybook output, so local state doesn't leak into images. |
 | `docs/deploy.md` | Runbook (see below). |
-| `CLAUDE.md` | A short _Deploy_ section that points at `docs/deploy.md` and the local image build commands. |
+| `apps/api/package.json`, `tsconfig.json`, `vitest*.config.ts` | `"imports"` entry for `#api/*`. Every `tsx` script passes `--conditions=development`. The tsconfig `paths` and the Vitest `@api` aliases are removed. |
+| `apps/api/src/**` | The 3 `@api/` imports become `#api/`. |
+| `CLAUDE.md`, `README.md` | The alias tables show `#api/*`. `CLAUDE.md` gets a short _Deploy_ section that points at `docs/deploy.md` and the local image build commands. |
 
 ### Constraints the images must respect
 

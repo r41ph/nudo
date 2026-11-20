@@ -17,6 +17,18 @@ Note: `pnpm test` (root) fails because `packages/ui` has no test runner configur
 
 After changing `overrides` in `pnpm-workspace.yaml`, delete `node_modules/.pnpm-workspace-state-v1.json` before `pnpm install`; pnpm 11.3 doesn't detect override changes and skips resolution.
 
+## Deploy
+
+Production runs on Dokploy: `apps/api/Dockerfile` and `apps/web/Dockerfile`,
+built from the repo root, with Postgres as a Dokploy service. The setup and
+runbook are in [`docs/deploy.md`](docs/deploy.md). Two things to keep in mind:
+
+- The API container runs pending migrations on start, so a broken migration
+  fails the deploy.
+- When an app starts depending on another workspace package, that package's
+  `package.json` and source have to be added to the app's Dockerfile `COPY`
+  lines too.
+
 ## Feature Workflow
 
 You execute features following this lifecycle. **Before you start,** the human
