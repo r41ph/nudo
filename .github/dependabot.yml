@@ -4,11 +4,20 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     open-pull-requests-limit: 3
+    # Majors stay out of the group so a breaking bump gets its own PR.
+    groups:
+      npm-minor-patch:
+        patterns: ['*']
+        update-types: [minor, patch]
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     open-pull-requests-limit: 3
+    groups:
+      actions-minor-patch:
+        patterns: ['*']
+        update-types: [minor, patch]
