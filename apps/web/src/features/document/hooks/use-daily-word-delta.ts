@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const BASELINE_PREFIX = 'nudo:word-baseline:';
 const todayKey = (): string => new Date().toISOString().slice(0, 10);
@@ -38,19 +38,18 @@ export function useDailyWordDelta(
   docId: string | null,
   currentCount: number
 ): number {
-  const [baseline, setBaseline] = useState<number | null>(null);
+  // Re-read only when the document changes: the baseline is the first count
+  // seen today, so later counts must not move it.
+  const baselineFor = (id: string | null) =>
+    id ? readDailyBaseline(id, currentCount) : null;
+  const [state, setState] = useState(() => ({
+    docId,
+    baseline: baselineFor(docId),
+  }));
+  if (state.docId !== docId) {
+    setState({ docId, baseline: baselineFor(docId) });
+  }
 
-  useEffect(() => {
-    if (!docId) {
-      setBaseline(null);
-      return;
-    }
-    setBaseline(readDailyBaseline(docId, currentCount));
-    // The baseline is the first count seen today, so `count` is deliberately
-    // not a dependency.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [docId]);
-
-  if (baseline === null) return 0;
-  return Math.max(0, currentCount - baseline);
+  if (state.baseline === null) return 0;
+  return Math.max(0, currentCount - state.baseline);
 }

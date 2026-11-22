@@ -24,7 +24,7 @@ function evaluate(query: string, width: number): boolean {
 }
 
 function setInnerWidth(width: number): void {
-  // useIsMobile reads innerWidth alongside its media query; keep them agreeing.
+  // Code that reads innerWidth directly must agree with the media queries.
   Object.defineProperty(window, 'innerWidth', {
     configurable: true,
     writable: true,
