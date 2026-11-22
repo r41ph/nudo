@@ -46,7 +46,7 @@
     "@platejs/basic-styles": "^52.3.10",
     "@platejs/comment": "^52.3.10",
     "@platejs/floating": "^52.3.10",
-    "@platejs/link": "^52.3.17",
+    "@platejs/link": "^53.3.5",
     "@platejs/suggestion": "^52.3.10",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
