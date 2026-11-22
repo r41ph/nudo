@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
+import { toast } from 'sonner';
 import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
 import { server } from '@web/test/mocks/server';
 import { installMatchMedia } from '@web/test/media';
@@ -8,6 +9,10 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   server.resetHandlers();
   cleanup();
+  // sonner's toast store is module-global and (from 2.0.8) replays active
+  // toasts to every newly mounted Toaster, so one test's toast would appear in
+  // the next.
+  toast.dismiss();
   localStorage.clear();
 });
 afterAll(() => server.close());
