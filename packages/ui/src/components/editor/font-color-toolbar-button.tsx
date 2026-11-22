@@ -44,7 +44,14 @@ export function FontColorToolbarButton({
     [nodeType]
   );
 
-  const [selectedColor, setSelectedColor] = React.useState<string>();
+  const [selectedColor, setSelectedColor] = React.useState<string | undefined>(
+    () => (selectionDefined ? color : undefined)
+  );
+  const [synced, setSynced] = React.useState({ color, selectionDefined });
+  if (synced.color !== color || synced.selectionDefined !== selectionDefined) {
+    setSynced({ color, selectionDefined });
+    if (selectionDefined) setSelectedColor(color);
+  }
   const [open, setOpen] = React.useState(false);
   // The dropdown takes focus, so the selection is captured on open to apply the colour to.
   const savedSelectionRef = React.useRef(editor.selection);
@@ -92,12 +99,6 @@ export function FontColorToolbarButton({
       onToggle();
     }
   }, [editor, selectedColor, onToggle, nodeType]);
-
-  React.useEffect(() => {
-    if (selectionDefined) {
-      setSelectedColor(color);
-    }
-  }, [color, selectionDefined]);
 
   return (
     <DropdownMenu
