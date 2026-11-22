@@ -41,22 +41,22 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "21.0.1",
-    "@commitlint/config-conventional": "21.0.1",
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
     "@eslint/css": "^0.14.1",
     "@eslint/js": "^9.39.2",
     "@eslint/json": "^0.14.0",
     "@eslint/markdown": "^9.0.0",
-    "@secretlint/secretlint-rule-preset-recommend": "13.0.0",
+    "@secretlint/secretlint-rule-preset-recommend": "13.1.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.5.0",
     "husky": "9.1.7",
-    "jiti": "^2.6.1",
-    "lint-staged": "17.0.4",
-    "prettier": "^3.7.4",
+    "jiti": "^2.7.0",
+    "lint-staged": "17.6.1",
+    "prettier": "^3.10.1",
     "secretlint": "13.0.0",
-    "typescript-eslint": "^8.50.1"
+    "typescript-eslint": "^8.73.0"
   }
 }
