@@ -39,6 +39,9 @@ paths:
 - Adding or upgrading a runtime dependency.
 - Any change to auth, token handling, CORS, rate-limit values, helmet
   config or RLS policies.
+- Changing `TRUST_PROXY_HOPS`. It must equal the number of proxies in
+  front of the API; too high lets clients spoof their IP via
+  `X-Forwarded-For` and dodge the rate limits.
 - Adding a `SECURITY DEFINER` function. It bypasses RLS, so it must scope
   every query by `current_setting('app.current_user_id', true)` itself.
 - Storing new data in `localStorage`.
@@ -73,10 +76,10 @@ paths:
 Known and open on purpose. Don't "fix" these on the side; each needs its own
 spec.
 
-| Risk                                           | Why it's accepted                                                      | Follow-up                                     |
-| ---------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------- |
-| JWT in `localStorage`, readable by any XSS     | Moving to an `httpOnly` cookie is an auth redesign; XSS rules mitigate | Cookie-based session spec                     |
-| No Content-Security-Policy on the web app      | Depends on hosting; Plate's inline styles need investigating first     | Web CSP spec                                  |
-| `409` on register reveals that an email exists | Clear UX for a single-author app; rate limits slow enumeration         | Revisit with email verification               |
-| No GraphQL depth/cost limit                    | PostGraphile v4 OSS has no hook for it; queries are RLS-scoped         | PostGraphile v5 or a pre-parse depth check    |
-| In-memory rate-limit store, `trust proxy` off  | Single API instance with no reverse proxy                              | Revisit if the API scales out or gets a proxy |
+| Risk                                           | Why it's accepted                                                      | Follow-up                                  |
+| ---------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------ |
+| JWT in `localStorage`, readable by any XSS     | Moving to an `httpOnly` cookie is an auth redesign; XSS rules mitigate | Cookie-based session spec                  |
+| No Content-Security-Policy on the web app      | Depends on hosting; Plate's inline styles need investigating first     | Web CSP spec                               |
+| `409` on register reveals that an email exists | Clear UX for a single-author app; rate limits slow enumeration         | Revisit with email verification            |
+| No GraphQL depth/cost limit                    | PostGraphile v4 OSS has no hook for it; queries are RLS-scoped         | PostGraphile v5 or a pre-parse depth check |
+| In-memory rate-limit store                     | Single API instance; a restart only resets the counters                | Revisit if the API scales out              |
