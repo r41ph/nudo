@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import { graphql, HttpResponse } from 'msw';
-import { Routes, Route } from 'react-router-dom';
+import userEvent from '@testing-library/user-event';
+import { Link, Routes, Route, useNavigate } from 'react-router-dom';
+import { Button } from '@ui/components/ui/button';
 import { HomePage } from '@web/features/home/components/home-page';
 import { server } from '@web/test/mocks/server';
 import { renderWithProviders, createStore } from '@web/test/test-utils';
@@ -60,5 +62,38 @@ describe('HomePage', () => {
     expect(alert).toHaveTextContent(/couldn't load your documents/i);
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
     expect(screen.queryByText(/no documents yet/i)).not.toBeInTheDocument();
+  });
+
+  it('replaces its own history entry, so Back returns to the previous page', async () => {
+    const user = userEvent.setup();
+    const store = createStore();
+    store.set(tokenAtom, MOCK_TOKEN);
+
+    function BackButton() {
+      const navigate = useNavigate();
+      return <Button onClick={() => navigate(-1)}>Back</Button>;
+    }
+
+    renderWithProviders(
+      <Routes>
+        <Route
+          path="/project/:projectId/plot"
+          element={<Link to={`/project/${MOCK_PROJECT.id}`}>Story</Link>}
+        />
+        <Route path="/project/:projectId" element={<HomePage />} />
+        <Route
+          path="/project/:projectId/document/:documentId"
+          element={<BackButton />}
+        />
+      </Routes>,
+      { store, initialRoute: `/project/${MOCK_PROJECT.id}/plot` }
+    );
+
+    await user.click(screen.getByRole('link', { name: 'Story' }));
+    await user.click(await screen.findByRole('button', { name: 'Back' }));
+
+    expect(
+      await screen.findByRole('link', { name: 'Story' })
+    ).toBeInTheDocument();
   });
 });
