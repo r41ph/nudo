@@ -39,10 +39,19 @@ directly to `main`, or non-trivial and needs a branch + PR.
 **For non-trivial changes (features, logic, UI):**
 
 1. **Worktree.** Work in a git worktree for this feature (the human may set this
-   up, or you can create one:
-   `git fetch origin && git worktree add -b feature-name ../feature-name origin/main`).
+   up, or you can create one from the main checkout's root:
+
+   ```bash
+   git fetch origin && git worktree add -b feature-name ../feature-name origin/main
+   git ls-files -oi --exclude-from=.worktreeinclude | xargs -I{} cp {} ../feature-name/{}
+   ```
+
+   The second line copies the gitignored files listed in `.worktreeinclude`
+   (the `.env` files). Plain `git worktree add` ignores that file; only
+   worktrees created by Claude Code get them copied automatically.
    Worktrees keep branch state isolated so file changes don't leak across
    features. Never work on a shared branch.
+
 2. **Read the source of truth.** A feature is grounded in **either** a spec
    (`docs/specs/<feature>.md`) **or** a design handoff
    (`docs/design-handoffs/<feature>/` — see below). If neither exists, ask the
