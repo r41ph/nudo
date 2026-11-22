@@ -92,7 +92,7 @@ export function HomePage() {
 
   const firstId = firstDocumentId(data?.allDocuments?.nodes ?? []);
   if (firstId) {
-    return <Navigate to={documentPath(projectId!, firstId)} />;
+    return <Navigate to={documentPath(projectId!, firstId)} replace />;
   }
 
   return (
